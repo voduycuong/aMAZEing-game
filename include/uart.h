@@ -157,7 +157,6 @@ void uart_sendc(char c);
 char uart_getc();
 void uart_puts(char *s);
 void uart_hex(unsigned int num);
-void uart_macaddr(unsigned int num, unsigned int pos);
 void uart_dec(int num);
 
 #endif
