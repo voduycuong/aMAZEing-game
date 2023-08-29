@@ -43,6 +43,8 @@
 #define GPIO_PUP_PDN_CNTRL_REG2 (*(volatile unsigned int *)(MMIO_BASE + 0x002000EC))
 #define GPIO_PUP_PDN_CNTRL_REG3 (*(volatile unsigned int *)(MMIO_BASE + 0x002000F0))
 
+#define CORE_CLOCK_SPEED 1500000000
+
 typedef unsigned char uint8_t;
 typedef unsigned short int uint16_t;
 typedef unsigned int uint32_t;
