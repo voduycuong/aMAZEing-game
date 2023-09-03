@@ -1,10 +1,11 @@
 #ifndef _KERNEL_H
 #define _KERNEL_H
 
-#include "mbox.h"
+#include "game.h"
 #include "uart.h"
+#include "framebf.h"
+#include "pic.h"
 
-void wait_msec(unsigned int n);
-void set_wait_timer(int set, unsigned int msVal);
+#define NUM_IMAGES 3
 
 #endif

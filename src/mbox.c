@@ -16,6 +16,8 @@
  *
  */
 
+volatile unsigned int __attribute__((aligned(16))) mBuf[36];
+
 /*
  * Read from the mailbox
  */

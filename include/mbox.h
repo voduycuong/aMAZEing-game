@@ -8,6 +8,7 @@
 #include "./gcclib/stdarg.h"
 
 /* a properly aligned buffer */
+extern volatile unsigned int mBuf[36];
 #define ADDR(X) (uint32_t)((unsigned long)X)
 
 /* Registers */
@@ -53,7 +54,15 @@
 #define MBOX_TAG_GETPHYWH 0x00040003     // Get physical (display) width/height
 
 #define MBOX_TAG_SETCLKRATE 0x00038002 // Set clock rate
-#define MBOX_TAG_SETPHYWH 0x00048003   // Set physical (display) width/height
+
+// New Tags for Screen Display
+#define MBOX_TAG_SETPHYWH 0x48003
+#define MBOX_TAG_SETVIRTWH 0x48004
+#define MBOX_TAG_SETVIRTOFF 0x48009
+#define MBOX_TAG_SETDEPTH 0x48005
+#define MBOX_TAG_SETPXLORDR 0x48006
+#define MBOX_TAG_GETFB 0x40001
+#define MBOX_TAG_GETPITCH 0x40008
 
 #define MBOX_TAG_LAST 0
 

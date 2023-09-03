@@ -1,6 +1,9 @@
 {
     "files.associations": {
         "kernel.h": "c",
-        "mbox.h": "c"
+        "mbox.h": "c",
+        "game.h": "c",
+        "uart.h": "c",
+        "framebf.h": "c"
     }
 }
