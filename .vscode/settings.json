@@ -11,6 +11,7 @@
         "level.h": "c",
         "tutorial.h": "c",
         "start.h": "c",
-        "exit.h": "c"
+        "exit.h": "c",
+        "maze.h": "c"
     }
 }

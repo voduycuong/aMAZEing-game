@@ -107,6 +107,12 @@ void drawPixelARGB32(int x, int y, unsigned int attr)
     *((unsigned int *)(fb + offs)) = attr;
 }
 
+uint64_t getPixelARGB32(int x, int y)
+{
+    int offs = (y * pitch) + (COLOR_DEPTH / 8 * x);
+    return *((unsigned int *)(fb + offs));
+}
+
 void drawRectARGB32(int x1, int y1, int x2, int y2, unsigned int attr, int fill)
 {
     for (int y = y1; y <= y2; y++)
@@ -152,23 +158,4 @@ void drawCircleARGB32(int center_x, int center_y, int radius, unsigned int attr)
         for (int y = -radius; y <= radius; y++)
             if (x * x + y * y <= radius * radius)
                 drawPixelARGB32(center_x + x, center_y + y, attr);
-}
-
-void display_image(int image_num)
-{
-    // Set up the mailbox message buffer
-    mBuf[0] = 8 * 4;
-    mBuf[1] = MBOX_REQUEST;
-    mBuf[2] = MBOX_TAG_SETVIRTOFF;
-    mBuf[3] = 8;
-    mBuf[4] = 0;
-    mBuf[5] = 700 * 4 * image_num;
-    mBuf[6] = 0;
-    mBuf[7] = MBOX_TAG_LAST;
-
-    mbox_call(ADDR(mBuf), MBOX_CH_PROP);
-    uart_dec(mBuf[5]);
-    uart_puts("\n");
-    uart_dec(mBuf[6]);
-    uart_puts("\n");
 }
