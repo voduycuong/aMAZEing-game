@@ -3,6 +3,7 @@
 
 #include "mbox.h"
 #include "uart.h"
+#include "maze.h"
 
 // Use RGBA32 (32 bits for each pixel)
 #define COLOR_DEPTH 32

@@ -4,7 +4,7 @@
 #include "uart.h"
 #include "mbox.h"
 #include "framebf.h"
-#include "pic.h"
+#include "maze.h"
 
 void game();
 void handle_input(int *pos_x, int *pos_y, int input);

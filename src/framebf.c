@@ -19,8 +19,8 @@ void framebf_init()
     mBuf[2] = MBOX_TAG_SETPHYWH; // Set physical width-height
     mBuf[3] = 8;                 // Value size in bytes
     mBuf[4] = 0;                 // REQUEST CODE = 0
-    mBuf[5] = 700;               // Value (width)
-    mBuf[6] = 400;               // Value (height)
+    mBuf[5] = MAZE_WIDTH;        // Value (width)
+    mBuf[6] = MAZE_HEIGHT;       // Value (height)
 
     mBuf[7] = MBOX_TAG_SETVIRTWH; // Set virtual width-height
     mBuf[8] = 8;
