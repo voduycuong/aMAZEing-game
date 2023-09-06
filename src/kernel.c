@@ -4,9 +4,11 @@ char *commands[] = {"start", "level", "tutorial", "about", "exit"};
 
 void main()
 {
+	// Initialization
 	uart_init();	// Set up serial console
 	framebf_init(); // Initialize frame buffer
 
+	// Set up
 	clear_screen(); // Clear screen
 	// show_welcome_screen(); // Show welcome screen
 	// main_menu();

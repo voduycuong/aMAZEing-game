@@ -13,60 +13,99 @@ typedef struct
 
 #define PLAYER_STEP 10
 
-#define RADIUS 10
-#define VISION_RADIUS 50
+#define PLAYER_RADIUS 2
+#define FOV_RADIUS 25
 
-#define BLUE_COLOR 0x0068adff
-#define BLACK_COLOR 0x00000000
+// Colors
+#define BLUE 0x0068ADFF
+#define BLACK 0x00000000
+#define RED 0x00DC143C
 
-Player player;
+// Maze resolution
+#define MAX_X 700
+#define MAX_Y 400
 
-int max_x = 700, max_y = 400;
-int starting = 0;
+Player guts;
+Player griffith;
 
 void game()
 {
-    Position start_pos = {20, 20};
-    player.pos = start_pos;
-
-    drawCircleARGB32(player.pos.x, player.pos.y, RADIUS, BLUE_COLOR);
+    Position start_pos1 = {20, 20};
+    Position start_pos2 = {200, 400};
+    guts.pos = start_pos1;
+    griffith.pos = start_pos2;
 
     while (1)
     {
-        for (int y = 0; y < max_y; y++)
-            for (int x = starting; x < max_x; x++)
-                if (x * x + y * y < (RADIUS + VISION_RADIUS) * (RADIUS + VISION_RADIUS))
-                    drawPixelARGB32(player.pos.x + x, player.pos.y + y,
-                                    epd_bitmap_allArray[0][(player.pos.y + y) * max_x + (player.pos.x + x) - starting]);
+        make_fov(guts.pos.x, guts.pos.y, FOV_RADIUS);
+        drawCircleARGB32(guts.pos.x, guts.pos.y, PLAYER_RADIUS, BLUE);
+        make_fov(griffith.pos.x, griffith.pos.y, FOV_RADIUS);
+        drawCircleARGB32(griffith.pos.x, griffith.pos.y, PLAYER_RADIUS, RED);
 
         char input = uart_getc();
-        handle_input(input);
-
-        drawCircleARGB32(player.pos.x, player.pos.y, RADIUS, BLUE_COLOR);
+        handle_input(&guts.pos.x, &guts.pos.y, input);
+        handle_input(&griffith.pos.x, &griffith.pos.y, input);
     }
 }
 
-void handle_input(int input)
+// Function for input directions
+void handle_input(int *pos_x, int *pos_y, int input)
 {
     switch (input)
     {
     case 'w': // Up
-        player.pos.y -= PLAYER_STEP;
+        clear_fov(*pos_x, *pos_y, FOV_RADIUS);
+        *pos_y -= PLAYER_STEP;
         break;
 
     case 's': // Down
-        player.pos.y += PLAYER_STEP;
+        clear_fov(*pos_x, *pos_y, FOV_RADIUS);
+        *pos_y += PLAYER_STEP;
         break;
 
     case 'a': // Left
-        player.pos.x -= PLAYER_STEP;
+        clear_fov(*pos_x, *pos_y, FOV_RADIUS);
+        *pos_x -= PLAYER_STEP;
         break;
 
     case 'd': // Right
-        player.pos.x += PLAYER_STEP;
+        clear_fov(*pos_x, *pos_y, FOV_RADIUS);
+        *pos_x += PLAYER_STEP;
         break;
 
     default:
         break;
     }
+}
+
+// Draw guts field of view
+void make_fov(int pos_x, int pos_y, int rad)
+{
+    for (int y = 0; y < MAX_Y; y++)
+        for (int x = 0; x < MAX_X; x++)
+            if (x * x + y * y <= rad * rad)
+            {
+                drawPixelARGB32(pos_x + x, pos_y + y,
+                                epd_bitmap_allArray[0][(pos_y + y) * MAX_X + (pos_x + x)]);
+                drawPixelARGB32(pos_x - x, pos_y - y,
+                                epd_bitmap_allArray[0][(pos_y - y) * MAX_X + (pos_x - x)]);
+                drawPixelARGB32(pos_x + x, pos_y - y,
+                                epd_bitmap_allArray[0][(pos_y - y) * MAX_X + (pos_x + x)]);
+                drawPixelARGB32(pos_x - x, pos_y + y,
+                                epd_bitmap_allArray[0][(pos_y + y) * MAX_X + (pos_x - x)]);
+            }
+}
+
+// Clear guts field of view
+void clear_fov(int pos_x, int pos_y, int rad)
+{
+    for (int y = 0; y < MAX_Y; y++)
+        for (int x = 0; x < MAX_X; x++)
+            if (x * x + y * y <= rad * rad)
+            {
+                drawPixelARGB32(pos_x + x, pos_y + y, BLACK);
+                drawPixelARGB32(pos_x - x, pos_y - y, BLACK);
+                drawPixelARGB32(pos_x + x, pos_y - y, BLACK);
+                drawPixelARGB32(pos_x - x, pos_y + y, BLACK);
+            }
 }
