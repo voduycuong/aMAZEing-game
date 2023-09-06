@@ -4,6 +4,13 @@
         "mbox.h": "c",
         "game.h": "c",
         "uart.h": "c",
-        "framebf.h": "c"
+        "framebf.h": "c",
+        "about.h": "c",
+        "gpio.h": "c",
+        "clear.h": "c",
+        "level.h": "c",
+        "tutorial.h": "c",
+        "start.h": "c",
+        "exit.h": "c"
     }
 }

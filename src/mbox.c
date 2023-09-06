@@ -80,3 +80,43 @@ int mbox_call(uint32_t buffer_addr, unsigned char channel)
     }
     return 0;
 }
+
+/*
+ * Make a mailbox setup
+ * buffer_addr: address of the being used mailbox buffer
+ * tag_identifier: TAG indentifier value
+ * **res_data: pointer of pointer, used to get the first address of response data
+ * req_length: length of request value in bytes
+ * res_length: length of response value in bytes
+ * ...: list of parameters for request values (if necessary).
+ */
+void mbox_buffer_setup(uint32_t buffer_addr, uint32_t tag_identifier, uint32_t **res_data, uint32_t req_length, uint32_t res_length, ...)
+{
+    va_list ap;               // Type to hold information about variable arguments (type)
+    va_start(ap, res_length); // Initialize a variable argument list (macro)
+
+    uint32_t *buffer = (uint32_t *)((uint64_t)buffer_addr);
+    uint32_t i = 0;
+
+    buffer[i++] = 0;                                                  // mBuf[0]: will be filled later at the end.
+    buffer[i++] = MBOX_REQUEST;                                       // Message Request Code (this is a request message)
+    buffer[i++] = tag_identifier;                                     // TAG Identifier
+    buffer[i++] = req_length >= res_length ? req_length : res_length; // Value buffer size in bytes
+    buffer[i++] = 0;                                                  // REQUEST CODE = 0
+
+    while (1)
+    {
+        int x = va_arg(ap, int); // Get next value
+        if (x != 0)
+            buffer[i++] = x;
+        else
+            break;
+    }
+
+    *res_data = (unsigned int *)&buffer[5];
+
+    buffer[i++] = MBOX_TAG_LAST;
+    buffer[0] = i * 4; // Message Buffer Size in bytes (4 bytes (32 bit) each)
+
+    va_end(ap); // End using variable argument list
+}

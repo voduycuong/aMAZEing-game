@@ -19,14 +19,14 @@ void framebf_init()
     mBuf[2] = MBOX_TAG_SETPHYWH; // Set physical width-height
     mBuf[3] = 8;                 // Value size in bytes
     mBuf[4] = 0;                 // REQUEST CODE = 0
-    mBuf[5] = 1024;              // Value(width)
-    mBuf[6] = 768;               // Value(height)
+    mBuf[5] = 700;               // Value (width)
+    mBuf[6] = 400;               // Value (height)
 
     mBuf[7] = MBOX_TAG_SETVIRTWH; // Set virtual width-height
     mBuf[8] = 8;
     mBuf[9] = 0;
-    mBuf[10] = 1024;
-    mBuf[11] = 768;
+    mBuf[10] = 0;
+    mBuf[11] = 0;
 
     mBuf[12] = MBOX_TAG_SETVIRTOFF; // Set virtual offset
     mBuf[13] = 8;
@@ -119,26 +119,39 @@ void drawRectARGB32(int x1, int y1, int x2, int y2, unsigned int attr, int fill)
         }
 }
 
-void drawALineARGB32(int x1, int y, int x2, unsigned int attr)
+void drawLineARGB32(int x1, int y1, int x2, int y2, unsigned int attr)
 {
-    for (int x = x1; x <= x2; x++)
+    int dx, dy, p, x, y;
+
+    dx = x2 - x1;
+    dy = y2 - y1;
+    x = x1;
+    y = y1;
+    p = 2 * dy - dx;
+
+    while (x < x2)
     {
-        drawPixelARGB32(x, y, attr);
+        if (p >= 0)
+        {
+            drawPixelARGB32(x, y, attr);
+            y++;
+            p = p + 2 * dy - 2 * dx;
+        }
+        else
+        {
+            drawPixelARGB32(x, y, attr);
+            p = p + 2 * dy;
+        }
+        x++;
     }
 }
 
-void drawACircleARGB32(int center_x, int center_y, int radius, unsigned int attr)
+void drawCircleARGB32(int center_x, int center_y, int radius, unsigned int attr)
 {
     for (int x = -radius; x <= radius; x++)
-    {
         for (int y = -radius; y <= radius; y++)
-        {
             if (x * x + y * y <= radius * radius)
-            {
                 drawPixelARGB32(center_x + x, center_y + y, attr);
-            }
-        }
-    }
 }
 
 void display_image(int image_num)
@@ -149,10 +162,13 @@ void display_image(int image_num)
     mBuf[2] = MBOX_TAG_SETVIRTOFF;
     mBuf[3] = 8;
     mBuf[4] = 0;
-    mBuf[5] = 700 * image_num;
+    mBuf[5] = 700 * 4 * image_num;
     mBuf[6] = 0;
     mBuf[7] = MBOX_TAG_LAST;
 
     mbox_call(ADDR(mBuf), MBOX_CH_PROP);
     uart_dec(mBuf[5]);
+    uart_puts("\n");
+    uart_dec(mBuf[6]);
+    uart_puts("\n");
 }
