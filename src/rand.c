@@ -1,4 +1,4 @@
-#include "gpio.h"
+#include "rand.h"
 
 #define RNG_CTRL ((volatile unsigned int *)(MMIO_BASE + 0x00104000))
 #define RNG_STATUS ((volatile unsigned int *)(MMIO_BASE + 0x00104004))
