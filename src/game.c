@@ -28,7 +28,6 @@ void game()
 {
     Position start_pos1 = {PLAYER_STEP / 2, MAZE_WIDTH / 2 - PLAYER_STEP};
     // Position start_pos2 = {200, 400};
-
     Position end_pos = {MAZE_WIDTH - (PLAYER_STEP / 2), MAZE_WIDTH / 2 + PLAYER_STEP};
 
     guts.pos = start_pos1;
@@ -41,7 +40,10 @@ void game()
             uart_puts("ok you win! want some more?\n");
             char input = uart_getc();
             if (input == 'y')
+            {
+                FOV_RADIUS = 60;
                 break;
+            }
             else if (input == 'n')
                 exit();
         }
@@ -62,12 +64,11 @@ void game()
             // uart_puts("\nColor: ");
             // uart_hex(getPixelARGB32(guts.pos.x, guts.pos.y));
 
-            uart_puts("\nWalkable: ");
-            uart_dec(walkable(guts.pos.x, guts.pos.y - PLAYER_STEP));
+            // uart_puts("\nWalkable: ");
+            // uart_dec(walkable(guts.pos.x, guts.pos.y - PLAYER_STEP));
 
             char input = uart_getc();
-            if (walkable(guts.pos.x, guts.pos.y - PLAYER_STEP))
-                handle_input(&guts.pos.x, &guts.pos.y, input);
+            handle_input(&guts.pos.x, &guts.pos.y, input);
         } // handle_input(&griffith.pos.x, &griffith.pos.y, input);
     }
 }
@@ -75,27 +76,42 @@ void game()
 // Function for input directions
 void handle_input(int *pos_x, int *pos_y, int input)
 {
-    clear_fov(*pos_x, *pos_y, FOV_RADIUS);
     switch (input)
     {
     case 'w': // Up
-        if (*pos_y - PLAYER_STEP > 0)
-            *pos_y -= PLAYER_STEP;
+        if (walkable(*pos_x, *pos_y - PLAYER_STEP))
+        {
+            clear_fov(*pos_x, *pos_y, FOV_RADIUS);
+            if (*pos_y - PLAYER_STEP > 0)
+                *pos_y -= PLAYER_STEP;
+        }
         break;
 
     case 's': // Down
-        if (*pos_y + PLAYER_STEP < MAZE_WIDTH)
-            *pos_y += PLAYER_STEP;
+        if (walkable(*pos_x, *pos_y + PLAYER_STEP))
+        {
+            clear_fov(*pos_x, *pos_y, FOV_RADIUS);
+            if (*pos_y + PLAYER_STEP < MAZE_WIDTH)
+                *pos_y += PLAYER_STEP;
+        }
         break;
 
     case 'a': // Left
-        if (*pos_x - PLAYER_STEP > 0)
-            *pos_x -= PLAYER_STEP;
+        if (walkable(*pos_x - PLAYER_STEP, *pos_y))
+        {
+            clear_fov(*pos_x, *pos_y, FOV_RADIUS);
+            if (*pos_x - PLAYER_STEP > 0)
+                *pos_x -= PLAYER_STEP;
+        }
         break;
 
     case 'd': // Right
-        if (*pos_x + PLAYER_STEP < MAZE_HEIGHT)
-            *pos_x += PLAYER_STEP;
+        if (walkable(*pos_x + PLAYER_STEP, *pos_y))
+        {
+            clear_fov(*pos_x, *pos_y, FOV_RADIUS);
+            if (*pos_x + PLAYER_STEP < MAZE_HEIGHT)
+                *pos_x += PLAYER_STEP;
+        }
         break;
 
     case 'o': // Star
