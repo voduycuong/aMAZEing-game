@@ -24,11 +24,13 @@ void game();
 void handle_input(Position *pos, int input);
 void make_fov(Position pos, int rad);
 void clear_fov(Position pos, int rad);
-void increase_fov();
-void decrease_fov();
-int win(Position pos, Position win);
-char interact(int pos_x, int pos_y);
+void increase_fov(Position pos);
+void decrease_fov(Position pos);
+int win(Position pos, Position win, int flag);
+int interact(int pos_x, int pos_y);
 Position set_random_position();
-void check_entity(int pos_x, int pos_y, int *flag);
+void load_full_maze();
+void clear_maze();
+void check_entity(Position pos, int *flag);
 
 #endif
