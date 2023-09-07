@@ -15,13 +15,16 @@ void main()
 
 	while (1)
 	{
-		// cli();
-		game();
+		cli();
+		// game();
 	}
 }
 
 void cli()
 {
+	// drawStringARGB32(100, 100, "Hello world!", 0x00ffffff);
+	drawCharARGB32('C', 100, 100, 0x00ffffff);
+
 	static int cmd_index = 0; // Indexing commands
 
 	char input = uart_getc();
@@ -47,13 +50,13 @@ void cli()
 	else if (input == '\n')
 	{
 		// Check buffer with available commands
-		if (cmd_index == 0) // help command
-			start();
+		if (cmd_index == 0) // start command
+			game();
 
-		else if (cmd_index == 1) // clear command
+		else if (cmd_index == 1) // choose level command
 			choose_level();
 
-		else if (cmd_index == 2) // game command
+		else if (cmd_index == 2) // help command
 			show_tutorial();
 
 		else if (cmd_index == 3) // about command
@@ -70,7 +73,6 @@ void cli()
 void show_welcome_screen()
 {
 	show_about(); // Welcome screen
-	uart_puts("\n");
 }
 
 void clear_screen()

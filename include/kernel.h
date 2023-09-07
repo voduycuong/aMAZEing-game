@@ -3,9 +3,9 @@
 
 #include "uart.h"
 #include "framebf.h"
+#include "font.h"
 
 // Commands
-#include "start.h"
 #include "level.h"
 #include "tutorial.h"
 #include "about.h"

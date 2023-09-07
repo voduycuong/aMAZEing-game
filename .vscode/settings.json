@@ -12,6 +12,7 @@
         "tutorial.h": "c",
         "start.h": "c",
         "exit.h": "c",
-        "maze.h": "c"
+        "maze.h": "c",
+        "font.h": "c"
     }
 }
