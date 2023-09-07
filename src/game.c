@@ -9,7 +9,7 @@
 #define WALL 0x00000000
 #define PATH 0x00FFFFFF
 #define BOMB 0x00DC143C
-#define STAR 0x00FFC000
+#define STAR 0x00A459D1
 #define KEY 0x0070AD47
 
 int32_t FOV_RADIUS = 60;
