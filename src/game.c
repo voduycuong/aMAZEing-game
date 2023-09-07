@@ -98,9 +98,9 @@ void handle_input(Position *pos, int input)
     case 'w': // Up
         if (interact(pos->x, pos->y - PLAYER_STEP) == 's')
             star_flag = 0;
-        else if (interact(pos->x, pos->y - PLAYER_STEP) == 'b')
+        if (interact(pos->x, pos->y - PLAYER_STEP) == 'b')
             bomb_flag = 2;
-        else if (interact(pos->x, pos->y - PLAYER_STEP) == 'k')
+        if (interact(pos->x, pos->y - PLAYER_STEP) == 'k')
             key_flag = 3;
         if (interact(pos->x, pos->y - PLAYER_STEP) != 'w')
         {
@@ -118,9 +118,9 @@ void handle_input(Position *pos, int input)
     case 's': // Down
         if (interact(pos->x, pos->y + PLAYER_STEP) == 's')
             star_flag = 0;
-        else if (interact(pos->x, pos->y + PLAYER_STEP) == 'b')
+        if (interact(pos->x, pos->y + PLAYER_STEP) == 'b')
             bomb_flag = 2;
-        else if (interact(pos->x, pos->y + PLAYER_STEP) == 'k')
+        if (interact(pos->x, pos->y + PLAYER_STEP) == 'k')
             key_flag = 3;
         if (interact(pos->x, pos->y + PLAYER_STEP) != 'w')
         {
@@ -138,9 +138,9 @@ void handle_input(Position *pos, int input)
     case 'a': // Left
         if (interact(pos->x - PLAYER_STEP, pos->y) == 's')
             star_flag = 0;
-        else if (interact(pos->x - PLAYER_STEP, pos->y) == 'b')
+        if (interact(pos->x - PLAYER_STEP, pos->y) == 'b')
             bomb_flag = 2;
-        else if (interact(pos->x - PLAYER_STEP, pos->y) == 'k')
+        if (interact(pos->x - PLAYER_STEP, pos->y) == 'k')
             key_flag = 3;
         if (interact(pos->x - PLAYER_STEP, pos->y) != 'w')
         {
@@ -158,9 +158,9 @@ void handle_input(Position *pos, int input)
     case 'd': // Right
         if (interact(pos->x + PLAYER_STEP, pos->y) == 's')
             star_flag = 0;
-        else if (interact(pos->x + PLAYER_STEP, pos->y) == 'b')
+        if (interact(pos->x + PLAYER_STEP, pos->y) == 'b')
             bomb_flag = 2;
-        else if (interact(pos->x + PLAYER_STEP, pos->y) == 'k')
+        if (interact(pos->x + PLAYER_STEP, pos->y) == 'k')
             key_flag = 3;
         if (interact(pos->x + PLAYER_STEP, pos->y) != 'w')
         {
