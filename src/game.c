@@ -23,7 +23,7 @@ Entity star;
 Entity bomb;
 Entity key;
 
-void game()
+void game(int level)
 {
     Position start_pos1 = {PLAYER_STEP / 2, MAZE_WIDTH / 2 - PLAYER_STEP};
     Position start_pos2 = {MAZE_WIDTH / 2 - PLAYER_STEP, PLAYER_STEP / 2 + PLAYER_STEP};
@@ -44,7 +44,7 @@ void game()
     bomb.box = bomb_box;
     key.box = key_box;
 
-    load_full_maze();
+    load_full_maze(level);
 
     do
     {
@@ -80,8 +80,8 @@ void game()
 
         else
         {
-            make_fov(guts.box.pos, FOV_RADIUS);
-            make_fov(griffith.box.pos, FOV_RADIUS);
+            make_fov(guts.box.pos, FOV_RADIUS, level);
+            make_fov(griffith.box.pos, FOV_RADIUS, level);
             drawCircleARGB32(guts.box.pos.x, guts.box.pos.y, PLAYER_RADIUS, GUTS);
             drawCircleARGB32(griffith.box.pos.x, griffith.box.pos.y, PLAYER_RADIUS, GRIFFITH);
 
@@ -198,20 +198,20 @@ void handle_input(Position *pos, int input)
 }
 
 // Draw field of view
-void make_fov(Position pos, int rad)
+void make_fov(Position pos, int rad, int level)
 {
     for (int y = 0; y < MAZE_HEIGHT; y++)
         for (int x = 0; x < MAZE_WIDTH; x++)
             if (x * x + y * y < rad * rad)
             {
                 if (pos.x + x < MAZE_WIDTH && pos.y + y < MAZE_HEIGHT)
-                    drawPixelARGB32(pos.x + x, pos.y + y, epd_bitmap_allArray[0][(pos.y + y) * MAZE_WIDTH + (pos.x + x)]);
+                    drawPixelARGB32(pos.x + x, pos.y + y, epd_bitmap_allArray[level][(pos.y + y) * MAZE_WIDTH + (pos.x + x)]);
                 if (pos.x - x > 0 && pos.y - y > 0)
-                    drawPixelARGB32(pos.x - x, pos.y - y, epd_bitmap_allArray[0][(pos.y - y) * MAZE_WIDTH + (pos.x - x)]);
+                    drawPixelARGB32(pos.x - x, pos.y - y, epd_bitmap_allArray[level][(pos.y - y) * MAZE_WIDTH + (pos.x - x)]);
                 if (pos.x + x < MAZE_HEIGHT && pos.y - y > 0)
-                    drawPixelARGB32(pos.x + x, pos.y - y, epd_bitmap_allArray[0][(pos.y - y) * MAZE_WIDTH + (pos.x + x)]);
+                    drawPixelARGB32(pos.x + x, pos.y - y, epd_bitmap_allArray[level][(pos.y - y) * MAZE_WIDTH + (pos.x + x)]);
                 if (pos.x - x > 0 && pos.y + y < MAZE_HEIGHT)
-                    drawPixelARGB32(pos.x - x, pos.y + y, epd_bitmap_allArray[0][(pos.y + y) * MAZE_WIDTH + (pos.x - x)]);
+                    drawPixelARGB32(pos.x - x, pos.y + y, epd_bitmap_allArray[level][(pos.y + y) * MAZE_WIDTH + (pos.x - x)]);
             }
 }
 
@@ -299,11 +299,11 @@ Position set_random_position()
     return temp_pos;
 }
 
-void load_full_maze()
+void load_full_maze(int level)
 {
     for (int y = 0; y <= MAZE_HEIGHT; y++)
         for (int x = 0; x <= MAZE_WIDTH; x++)
-            drawPixelARGB32(x, y, epd_bitmap_allArray[0][y * MAZE_WIDTH + x]);
+            drawPixelARGB32(x, y, epd_bitmap_allArray[level][y * MAZE_WIDTH + x]);
 }
 
 void clear_maze()
