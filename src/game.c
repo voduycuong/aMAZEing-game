@@ -258,17 +258,17 @@ int interact(int pos_x, int pos_y)
 {
     if (getPixelARGB32(pos_x, pos_y) == WALL)
         return 'w';
-    else if (detect_collision(guts.box, star.box) == 1)
+    else if (((detect_collision(guts.box, star.box) == 1) || (detect_collision(guts.box, star.box) == 1)) && star_flag == 1)
     {
         uart_puts("Star found\n");
         return 's';
     }
-    else if (detect_collision(guts.box, bomb.box) == 1)
+    else if (((detect_collision(guts.box, bomb.box) == 1) || (detect_collision(griffith.box, bomb.box) == 1)) && bomb_flag == 1) 
     {
         uart_puts("Bomb found\n");
         return 'b';
     }
-    else if (detect_collision(guts.box, key.box) == 1)
+    else if ((detect_collision(griffith.box, key.box) == 1) && key_flag == 1)
     {
         uart_puts("Key found\n");
         return 'k';
