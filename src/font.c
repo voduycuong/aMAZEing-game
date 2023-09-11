@@ -236,7 +236,7 @@ unsigned char font[FONT_NUMGLYPHS][FONT_BPG] = {
     {0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00},                                                 // U+2580 (top half)
 };
 
-void drawCharARGB32(unsigned char ch, int x, int y, unsigned int attr)
+void drawCharARGB32(unsigned char ch, int x, int y, unsigned int attr, int zoom)
 {
     unsigned char *glyph = (unsigned char *)&font + (ch < FONT_NUMGLYPHS ? ch : 0) * FONT_BPG;
 
@@ -244,23 +244,23 @@ void drawCharARGB32(unsigned char ch, int x, int y, unsigned int attr)
     // uart_puts("\n");
     // uart_sendc(ch);
 
-    for (int i = 0; i < FONT_HEIGHT; i++)
+    for (int i = 0; i <= (FONT_HEIGHT*zoom); i++)
     {
         uart_hex(*glyph);
         uart_puts("\n");
 
-        for (int j = 0; j < FONT_WIDTH; j++)
+        for (int j = 0; j < (FONT_WIDTH*zoom); j++)
         {
-            unsigned char mask = 1 << j;
+            unsigned char mask = 1 << (j/zoom);
             unsigned char col = (*glyph & mask) ? attr : (attr & 0x00);
 
             drawPixelARGB32(x + j, y + i, col);
         }
-        glyph += FONT_BPL;
+        glyph += (i%zoom) ? 0 : FONT_BPL;
     }
 }
 
-void drawStringARGB32(int x, int y, char *s, unsigned int attr)
+void drawStringARGB32(int x, int y, char *s, unsigned int attr, int zoom)
 {
     while (*s)
     {
@@ -271,12 +271,12 @@ void drawStringARGB32(int x, int y, char *s, unsigned int attr)
         else if (*s == '\n')
         {
             x = 0;
-            y += FONT_HEIGHT;
+            y += FONT_HEIGHT*zoom;
         }
         else
         {
-            drawCharARGB32(*s, x, y, attr);
-            x += FONT_WIDTH;
+            drawCharARGB32(*s, x, y, attr, zoom);
+            x += FONT_WIDTH*zoom;
         }
         s++;
     }

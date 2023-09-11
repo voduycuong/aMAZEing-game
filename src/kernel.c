@@ -22,8 +22,8 @@ void main()
 
 void cli()
 {
-	drawStringARGB32(100, 100, "abcdefghijklmnopqrstuvwxyz", 0x0000ff);
-	drawStringARGB32(100, 120, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 0x0000ff);
+	drawStringARGB32(0, 100, "abcdefghijklmnopqrstuvwxyz", 0x00FF0000, 3);
+	drawStringARGB32(0, 150, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 0x00AA0000, 3);
 	// drawCharARGB32('a', 100, 100, 0x00ffffff);
 
 	static int cmd_index = 0; // Indexing commands
