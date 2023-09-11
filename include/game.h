@@ -18,6 +18,13 @@ typedef struct
 typedef struct
 {
     Position pos;
+    int width;
+    int height;
+} Box;
+
+typedef struct
+{
+    Box box;
 } Entity;
 
 void game();
@@ -28,6 +35,7 @@ void increase_fov(Position pos);
 void decrease_fov(Position pos);
 int win(Position pos, Position win, int flag);
 int interact(int pos_x, int pos_y);
+int detect_collision(Box a, Box b);
 Position set_random_position();
 void load_full_maze();
 void clear_maze();
