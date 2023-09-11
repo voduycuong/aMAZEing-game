@@ -92,9 +92,6 @@ void game()
             if (key_flag == 1)
                 drawCircleARGB32(key.box.pos.x, key.box.pos.y, PLAYER_RADIUS, KEY);
 
-            // uart_puts("\nColor: ");
-            // uart_hex(getPixelARGB32(guts.box.pos.x, guts.box.pos.y));
-
             char input = uart_getc();
             handle_input(&guts.box.pos, input);
             handle_input(&griffith.box.pos, input);
@@ -261,15 +258,18 @@ int interact(int pos_x, int pos_y)
 {
     if (getPixelARGB32(pos_x, pos_y) == WALL)
         return 'w';
-    else if (detect_collision(guts.box, star.box) == 1){
+    else if (detect_collision(guts.box, star.box) == 1)
+    {
         uart_puts("Star found\n");
         return 's';
     }
-    else if (detect_collision(guts.box, bomb.box) == 1){
+    else if (detect_collision(guts.box, bomb.box) == 1)
+    {
         uart_puts("Bomb found\n");
         return 'b';
     }
-    else if (detect_collision(guts.box, key.box) == 1) {
+    else if (detect_collision(guts.box, key.box) == 1)
+    {
         uart_puts("Key found\n");
         return 'k';
     }
