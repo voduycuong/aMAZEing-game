@@ -18,6 +18,13 @@ typedef struct
 typedef struct
 {
     Position pos;
+    int width;
+    int height;
+} Box;
+
+typedef struct
+{
+    Box box;
 } Entity;
 
 void game();

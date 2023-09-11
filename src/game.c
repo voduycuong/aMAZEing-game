@@ -28,28 +28,31 @@ void game()
     Position start_pos1 = {PLAYER_STEP / 2, MAZE_WIDTH / 2 - PLAYER_STEP};
     Position start_pos2 = {MAZE_WIDTH / 2 - PLAYER_STEP, PLAYER_STEP / 2 + PLAYER_STEP};
     Position end_pos = {MAZE_WIDTH - (PLAYER_STEP / 2), MAZE_WIDTH / 2 + PLAYER_STEP};
-
-    guts.pos = start_pos1;
-    griffith.pos = start_pos2;
+    
+    Box guts_box = {start_pos1, 5, 5};
+    Box griffith_box = {start_pos2, 5, 5};
+    
+    guts.box = guts_box;
+    griffith.box = griffith_box;
 
     load_full_maze();
 
     do
     {
-        star.pos = set_random_position();
-        bomb.pos = set_random_position();
-        key.pos = set_random_position();
-    } while (getPixelARGB32(star.pos.x, star.pos.y) == WALL ||
-             getPixelARGB32(bomb.pos.x, bomb.pos.y) == WALL ||
-             getPixelARGB32(key.pos.x, key.pos.y) == WALL ||
-             star.pos.x == bomb.pos.x ||
-             star.pos.y == bomb.pos.y);
+        star.box.pos = set_random_position();
+        bomb.box.pos = set_random_position();
+        key.box.pos = set_random_position();
+    } while (getPixelARGB32(star.box.pos.x, star.box.pos.y) == WALL ||
+             getPixelARGB32(bomb.box.pos.x, bomb.box.pos.y) == WALL ||
+             getPixelARGB32(key.box.pos.x, key.box.pos.y) == WALL ||
+             star.box.pos.x == bomb.box.pos.x ||
+             star.box.pos.y == bomb.box.pos.y);
 
     clear_maze();
 
     while (1)
     {
-        if (win(guts.pos, end_pos, key_flag))
+        if (win(guts.box.pos, end_pos, key_flag))
         {
             clear_maze();
             uart_puts("ok you win! more?\n");
@@ -68,24 +71,24 @@ void game()
 
         else
         {
-            make_fov(guts.pos, FOV_RADIUS);
-            make_fov(griffith.pos, FOV_RADIUS);
-            drawCircleARGB32(guts.pos.x, guts.pos.y, PLAYER_RADIUS, GUTS);
-            drawCircleARGB32(griffith.pos.x, griffith.pos.y, PLAYER_RADIUS, GRIFFITH);
+            make_fov(guts.box.pos, FOV_RADIUS);
+            make_fov(griffith.box.pos, FOV_RADIUS);
+            drawCircleARGB32(guts.box.pos.x, guts.box.pos.y, PLAYER_RADIUS, GUTS);
+            drawCircleARGB32(griffith.box.pos.x, griffith.box.pos.y, PLAYER_RADIUS, GRIFFITH);
 
             if (star_flag == 1)
-                drawCircleARGB32(star.pos.x, star.pos.y, PLAYER_RADIUS, STAR);
+                drawCircleARGB32(star.box.pos.x, star.box.pos.y, PLAYER_RADIUS, STAR);
             if (bomb_flag == 1)
-                drawCircleARGB32(bomb.pos.x, bomb.pos.y, PLAYER_RADIUS, BOMB);
+                drawCircleARGB32(bomb.box.pos.x, bomb.box.pos.y, PLAYER_RADIUS, BOMB);
             if (key_flag == 1)
-                drawCircleARGB32(key.pos.x, key.pos.y, PLAYER_RADIUS, KEY);
+                drawCircleARGB32(key.box.pos.x, key.box.pos.y, PLAYER_RADIUS, KEY);
 
             // uart_puts("\nColor: ");
-            // uart_hex(getPixelARGB32(guts.pos.x, guts.pos.y));
+            // uart_hex(getPixelARGB32(guts.box.pos.x, guts.box.pos.y));
 
             char input = uart_getc();
-            handle_input(&guts.pos, input);
-            handle_input(&griffith.pos, input);
+            handle_input(&guts.box.pos, input);
+            handle_input(&griffith.box.pos, input);
         }
     }
 }
@@ -257,6 +260,18 @@ int interact(int pos_x, int pos_y)
         return 'k';
     else
         return 'n';
+}
+
+int detect_collision(Box a, Box b)
+{
+    if (a.pos.x < b.pos.x + b.width &&
+        a.pos.x + a.width > b.pos.x &&
+        a.pos.y < b.pos.y + b.height &&
+        a.pos.y + a.height > b.pos.y)
+    {
+        return 1; // Collision detected
+    }
+    return 0; // No collision
 }
 
 Position set_random_position()
