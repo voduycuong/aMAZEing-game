@@ -28,12 +28,21 @@ void game()
     Position start_pos1 = {PLAYER_STEP / 2, MAZE_WIDTH / 2 - PLAYER_STEP};
     Position start_pos2 = {MAZE_WIDTH / 2 - PLAYER_STEP, PLAYER_STEP / 2 + PLAYER_STEP};
     Position end_pos = {MAZE_WIDTH - (PLAYER_STEP / 2), MAZE_WIDTH / 2 + PLAYER_STEP};
-    
+    Position star_pos = {0, 0};
+    Position bomb_pos = {0, 0};
+    Position key_pos = {0, 0};
+
     Box guts_box = {start_pos1, 5, 5};
     Box griffith_box = {start_pos2, 5, 5};
-    
+    Box star_box = {star_pos, 5, 5};
+    Box bomb_box = {bomb_pos, 5, 5};
+    Box key_box = {key_pos, 5, 5};
+
     guts.box = guts_box;
     griffith.box = griffith_box;
+    star.box = star_box;
+    bomb.box = bomb_box;
+    key.box = key_box;
 
     load_full_maze();
 
@@ -252,12 +261,18 @@ int interact(int pos_x, int pos_y)
 {
     if (getPixelARGB32(pos_x, pos_y) == WALL)
         return 'w';
-    else if (getPixelARGB32(pos_x, pos_y) == STAR)
+    else if (detect_collision(guts.box, star.box) == 1){
+        uart_puts("Star found\n");
         return 's';
-    else if (getPixelARGB32(pos_x, pos_y) == BOMB)
+    }
+    else if (detect_collision(guts.box, bomb.box) == 1){
+        uart_puts("Bomb found\n");
         return 'b';
-    else if (getPixelARGB32(pos_x, pos_y) == KEY)
+    }
+    else if (detect_collision(guts.box, key.box) == 1) {
+        uart_puts("Key found\n");
         return 'k';
+    }
     else
         return 'n';
 }
