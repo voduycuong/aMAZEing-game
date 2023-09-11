@@ -1,6 +1,7 @@
 #include "kernel.h"
 
 char *commands[] = {"start", "level", "tutorial", "about", "exit"};
+int index_pos = 150;
 
 void main()
 {
@@ -9,27 +10,22 @@ void main()
 	framebf_init(); // Initialize frame buffer
 
 	// Set up
-	clear_screen(); // Clear screen
-	// show_welcome_screen(); // Show welcome screen
-	// main_menu();
+	clear_screen();		   // Clear screen
+	show_welcome_screen(); // Show welcome screen
+	show_main_menu();
 
 	while (1)
 	{
 		cli();
-		// game();
 	}
 }
 
 void cli()
 {
-	// drawStringARGB32(0, 0, "abcdefghijklmnopqrstuvwxyz", 0x00FFFFFF, 3);
-	// drawStringARGB32(0, 50, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 0x00FFFFFF, 3);
-	// drawStringARGB32(0, 100, "abcdefghijklmnopqrstuvwxyz", 0x00AA0000, 3);
-	// drawStringARGB32(0, 150, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 0x00FFFF00, 3);
-
-	drawCharARGB32('W', 100, 100, 0x00A459D1, 5);
-
 	static int cmd_index = 0; // Indexing commands
+
+	if (cmd_index == 0)
+		drawCharARGB32('>', 200, 150, 0x00ffffff, 2);
 
 	char input = uart_getc();
 
@@ -39,6 +35,16 @@ void cli()
 		cmd_index++;
 		if (cmd_index > 4)
 			cmd_index = 0;
+
+		uart_puts("\nIndex = ");
+		uart_dec(cmd_index);
+
+		drawCharARGB32('>', 200, index_pos, 0x00000000, 3);
+		if (index_pos < 350)
+			index_pos += 50;
+		else
+			index_pos = 150;
+		drawCharARGB32('>', 200, index_pos, 0x00ffffff, 2);
 	}
 
 	// 'w' key is pressed
@@ -46,13 +52,25 @@ void cli()
 	{
 		cmd_index--;
 		// Reset command index if exceeded
-		if (cmd_index < 0)
+		if (cmd_index == 0)
 			cmd_index = 4;
+
+		uart_puts("\nIndex = ");
+		uart_dec(cmd_index);
+
+		drawCharARGB32('>', 200, index_pos, 0x00000000, 3);
+		if (index_pos > 150)
+			index_pos -= 50;
+		else
+			index_pos = 350;
+		drawCharARGB32('>', 200, index_pos, 0x00ffffff, 2);
 	}
 
 	// Return key is pressed
-	else if (input == '\n')
+	if (input == '\n')
 	{
+		drawCharARGB32('>', 200, index_pos, 0x00000000, 3);
+
 		// Check buffer with available commands
 		if (cmd_index == 0) // start command
 			game();
@@ -70,6 +88,7 @@ void cli()
 			exit();
 
 		cmd_index = 0;
+		index_pos = 150;
 	}
 }
 
@@ -82,4 +101,19 @@ void show_welcome_screen()
 void clear_screen()
 {
 	uart_puts("\033[2J\033[f"); // Clear entire screen + Move cursor to upper left corner
+}
+
+void show_main_menu()
+{
+	int start_pos = 140;
+
+	drawStringARGB32(250, start_pos, "start", 0x00FFFFFF, 2);
+	start_pos += 50;
+	drawStringARGB32(250, start_pos, "choose level", 0x00FFB84C, 2);
+	start_pos += 50;
+	drawStringARGB32(250, start_pos, "how to play", 0x00F266AB, 2);
+	start_pos += 50;
+	drawStringARGB32(250, start_pos, "about", 0x00A459D1, 2);
+	start_pos += 50;
+	drawStringARGB32(250, start_pos, "exit", 0x002CD3E1, 2);
 }

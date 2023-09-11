@@ -243,8 +243,6 @@ void drawCharARGB32(unsigned char ch, int x, int y, unsigned int attr, int zoom)
 
     for (int i = 0; i <= (FONT_HEIGHT * zoom); i++)
     {
-        uart_hex(*glyph);
-        uart_puts("\n");
         for (int j = 0; j < (FONT_WIDTH * zoom); j++)
         {
 
@@ -257,7 +255,7 @@ void drawCharARGB32(unsigned char ch, int x, int y, unsigned int attr, int zoom)
     }
 }
 
-void drawStringARGB32(int x, int y, char *s, unsigned char attr, int zoom)
+void drawStringARGB32(int x, int y, char *s, unsigned int attr, int zoom)
 {
     while (*s)
     {

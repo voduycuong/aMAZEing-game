@@ -22,5 +22,6 @@ extern char *commands[];
 void cli();
 void show_welcome_screen();
 void clear_screen();
+void show_main_menu();
 
 #endif
