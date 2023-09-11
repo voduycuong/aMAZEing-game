@@ -22,12 +22,12 @@ void main()
 
 void cli()
 {
-	drawStringARGB32(0, 0, "abcdefghijklmnopqrstuvwxyz", 0x00FFFFFF, 3);
-	drawStringARGB32(0, 50, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 0x00FFFFFF, 3);
-	drawStringARGB32(0, 100, "abcdefghijklmnopqrstuvwxyz", 0x00AA0000, 3);
-	drawStringARGB32(0, 150, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 0x00FFFF00, 3);
+	// drawStringARGB32(0, 0, "abcdefghijklmnopqrstuvwxyz", 0x00FFFFFF, 3);
+	// drawStringARGB32(0, 50, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 0x00FFFFFF, 3);
+	// drawStringARGB32(0, 100, "abcdefghijklmnopqrstuvwxyz", 0x00AA0000, 3);
+	// drawStringARGB32(0, 150, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 0x00FFFF00, 3);
 
-	// drawCharARGB32('a', 100, 100, 0x00ffffff);
+	drawCharARGB32('W', 100, 100, 0x00A459D1, 5);
 
 	static int cmd_index = 0; // Indexing commands
 
