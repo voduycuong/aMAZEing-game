@@ -28,7 +28,7 @@ typedef struct
 } Entity;
 
 void game();
-void handle_input(Position *pos, int input);
+void handle_input(Box *box, int input);
 void make_fov(Position pos, int rad);
 void clear_fov(Position pos, int rad);
 void increase_fov(Position pos);

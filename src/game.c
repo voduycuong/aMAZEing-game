@@ -93,115 +93,69 @@ void game()
                 drawCircleARGB32(key.box.pos.x, key.box.pos.y, PLAYER_RADIUS, KEY);
 
             char input = uart_getc();
-            handle_input(&guts.box.pos, input);
+            handle_input(&guts.box, input);
             // handle_input(&griffith.box.pos, input);
         }
     }
 }
 
 // Function for input directions
-void handle_input(Position *pos, int input)
+void handle_input(Box *box, int input)
 {
     switch (input)
     {
-    case 'w': // Up
-        uart_puts("\nstar_x = ");
-        uart_dec(star.box.pos.x);
-        uart_puts("\nstar_y = ");
-        uart_dec(star.box.pos.y);
-        uart_puts("\n");
-
-        uart_puts("\npos_x = ");
-        uart_dec(guts.box.pos.x);
-        uart_puts("\npos_y - step = ");
-        uart_dec(guts.box.pos.y - PLAYER_STEP);
-        uart_puts("\n");
-
-        if (interact(pos->x, pos->y - PLAYER_STEP) == 's')
-            star_flag = 0;
-        if (interact(pos->x, pos->y - PLAYER_STEP) == 'b')
-            bomb_flag = 2;
-        if (interact(pos->x, pos->y - PLAYER_STEP) == 'k')
-            key_flag = 3;
-        // if (interact(pos->x, pos->y - PLAYER_STEP) != 'w') // Walkable
+    case 'w':                                                        // Up
+        if (interact(*box->pos.x, *box->pos.y - PLAYER_STEP) != 'w') // Walkable
         {
-            clear_fov(*pos, FOV_RADIUS);
-            if (pos->y - PLAYER_STEP > 0)
+            // clear_fov(box.pos, FOV_RADIUS);
+            if (*box->pos.y - PLAYER_STEP > 0)
             {
-                pos->y -= PLAYER_STEP;
-                check_entity(*pos, &star_flag);
-                check_entity(*pos, &bomb_flag);
-                check_entity(*pos, &key_flag);
+                *box->pos.y -= PLAYER_STEP;
+                // if (detect_collision(guts.box, star.box))
+                //     decrease_fov(guts.box.pos);
             }
         }
         break;
 
     case 's': // Down
-        if (interact(pos->x, pos->y + PLAYER_STEP) == 's')
-            star_flag = 0;
-        if (interact(pos->x, pos->y + PLAYER_STEP) == 'b')
-            bomb_flag = 2;
-        if (interact(pos->x, pos->y + PLAYER_STEP) == 'k')
-            key_flag = 3;
         // if (interact(pos->x, pos->y + PLAYER_STEP) != 'w')
         {
-            clear_fov(*pos, FOV_RADIUS);
-            if (pos->y + PLAYER_STEP < MAZE_WIDTH)
+            clear_fov(box.pos, FOV_RADIUS);
+            if (box.pos.y + PLAYER_STEP < MAZE_WIDTH)
             {
-                pos->y += PLAYER_STEP;
-                check_entity(*pos, &star_flag);
-                check_entity(*pos, &bomb_flag);
-                check_entity(*pos, &key_flag);
+                box.pos.y += PLAYER_STEP;
             }
         }
         break;
 
     case 'a': // Left
-        if (interact(pos->x - PLAYER_STEP, pos->y) == 's')
-            star_flag = 0;
-        if (interact(pos->x - PLAYER_STEP, pos->y) == 'b')
-            bomb_flag = 2;
-        if (interact(pos->x - PLAYER_STEP, pos->y) == 'k')
-            key_flag = 3;
         // if (interact(pos->x - PLAYER_STEP, pos->y) != 'w')
         {
-            clear_fov(*pos, FOV_RADIUS);
-            if (pos->x - PLAYER_STEP > 0)
+            clear_fov(box.pos, FOV_RADIUS);
+            if (box.pos.x - PLAYER_STEP > 0)
             {
-                pos->x -= PLAYER_STEP;
-                check_entity(*pos, &star_flag);
-                check_entity(*pos, &bomb_flag);
-                check_entity(*pos, &key_flag);
+                box.pos.x -= PLAYER_STEP;
             }
         }
         break;
 
     case 'd': // Right
-        if (interact(pos->x + PLAYER_STEP, pos->y) == 's')
-            star_flag = 0;
-        if (interact(pos->x + PLAYER_STEP, pos->y) == 'b')
-            bomb_flag = 2;
-        if (interact(pos->x + PLAYER_STEP, pos->y) == 'k')
-            key_flag = 3;
         // if (interact(pos->x + PLAYER_STEP, pos->y) != 'w')
         {
-            clear_fov(*pos, FOV_RADIUS);
-            if (pos->x + PLAYER_STEP < MAZE_HEIGHT)
+            clear_fov(box.pos, FOV_RADIUS);
+            if (box.pos.x + PLAYER_STEP < MAZE_HEIGHT)
             {
-                pos->x += PLAYER_STEP;
-                check_entity(*pos, &star_flag);
-                check_entity(*pos, &bomb_flag);
-                check_entity(*pos, &key_flag);
+                box.pos.x += PLAYER_STEP;
             }
         }
         break;
 
     case 'o': // Star
-        increase_fov(*pos);
+        increase_fov(box.pos);
         break;
 
     case 'p': // Bomb
-        decrease_fov(*pos);
+        decrease_fov(box.pos);
         break;
 
     default:
