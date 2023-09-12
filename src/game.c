@@ -106,7 +106,7 @@ void game(int level)
 
             char input = uart_getc();
             handle_input(&guts, input);
-            // handle_input(&griffith, input);
+            handle_input(&griffith, input);
         }
     }
 }
@@ -117,7 +117,7 @@ void handle_input(Entity *entity, int input)
     switch (input)
     {
     case 'w': // Up
-        // if (!walkable(entity->box.pos.x, entity->box.pos.y - PLAYER_STEP))
+        if (!walkable(entity->box.pos.x, entity->box.pos.y - PLAYER_STEP))
         {
             clear_fov(entity->box.pos, entity->FOV_radius);
             if (entity->box.pos.y - PLAYER_STEP > 0)
@@ -131,7 +131,7 @@ void handle_input(Entity *entity, int input)
         break;
 
     case 's': // Down
-        // if (!walkable(entity->box.pos.x, entity->box.pos.y + PLAYER_STEP))
+        if (!walkable(entity->box.pos.x, entity->box.pos.y + PLAYER_STEP))
         {
             clear_fov(entity->box.pos, entity->FOV_radius);
             if (entity->box.pos.y + PLAYER_STEP < MAZE_WIDTH)
@@ -145,7 +145,7 @@ void handle_input(Entity *entity, int input)
         break;
 
     case 'a': // Left
-        // if (!walkable(entity->box.pos.x - PLAYER_STEP, entity->box.pos.y))
+        if (!walkable(entity->box.pos.x - PLAYER_STEP, entity->box.pos.y))
         {
             clear_fov(entity->box.pos, entity->FOV_radius);
             if (entity->box.pos.x - PLAYER_STEP > 0)
@@ -159,7 +159,7 @@ void handle_input(Entity *entity, int input)
         break;
 
     case 'd': // Right
-        // if (!walkable(entity->box.pos.x + PLAYER_STEP, entity->box.pos.y))
+        if (!walkable(entity->box.pos.x + PLAYER_STEP, entity->box.pos.y))
         {
             clear_fov(entity->box.pos, entity->FOV_radius);
             if (entity->box.pos.x + PLAYER_STEP < MAZE_HEIGHT)
