@@ -2,6 +2,7 @@
 
 char *commands[] = {"start", "level", "tutorial", "about", "exit"};
 int index_pos = 150;
+int level = 0;
 
 void main()
 {
@@ -16,8 +17,8 @@ void main()
 
 	while (1)
 	{
-		// cli();
-		game(0);
+		cli();
+		// game(2);
 	}
 }
 
@@ -68,10 +69,22 @@ void cli()
 
 		// Check buffer with available commands
 		if (cmd_index == 0) // start command
-			game(0);		// start with level 1
+		{
+			while (level < 5)
+				game(&level); // start with level 1
+
+			clear_maze();
+			drawStringARGB32(200, 400, "the end", 0x00ffffff, 3);
+			wait_msec(2000000);
+			clear_maze();
+			show_main_menu();
+		}
 
 		else if (cmd_index == 1) // choose level command
+		{
 			choose_level();
+			show_main_menu();
+		}
 
 		else if (cmd_index == 2) // help command
 			show_tutorial();

@@ -6,9 +6,8 @@ void choose_level()
 {
     while (1)
     {
-        drawRectARGB32(0, 70, MAZE_WIDTH, MAZE_HEIGHT - 300, 0x00000000, 1);       // Clear screen
         drawStringARGB32(MAZE_WIDTH / 2 - 150, 20, "CHOOSE LEVEL", 0x00DC143C, 3); // Show title
-        drawStringARGB32(300, 400, "back", 0x00DC143C, 2);                         // back button
+        drawStringARGB32(300, 600, "back", 0x00DC143C, 2);                         // back button
 
         static int level_index = 0; // Indexing commands
 
@@ -37,48 +36,19 @@ void choose_level()
         // Return key is pressed
         if (input == '\n')
         {
-            // Check buffer with available commands
-            if (level_index == 0) // Level 1
-            {
-                game(0);
-                break;
-            }
-            else if (level_index == 1) // Level 2
-            {
-                // game(1);
-                break;
-            }
-            else if (level_index == 2) // Level 3
-            {
-                // game(2);
-                break;
-            }
-            else if (level_index == 3) // Level 4
-            {
-                // game(3);
-                break;
-            }
-            else if (level_index == 4) // Level 5
-            {
-                // game(4);
-                break;
-            }
-
-            else if (level_index == 5) // Back
-            {
-                show_main_menu();
-                break;
-            }
+            if (level_index >= 0 && level_index < 5)
+                game(&level_index);
 
             level_index = 0;
+            break;
         }
     }
 }
 
 void show_box(int level)
 {
-    drawRectARGB32(0, 70, MAZE_WIDTH, MAZE_HEIGHT - 300, 0x00000000, 1); // Clear screen
-    drawCharARGB32('>', 270, 410, 0x00000000, 2);
+    drawRectARGB32(0, 70, MAZE_WIDTH, MAZE_HEIGHT - 500, 0x00000000, 1); // Clear screen
+    drawCharARGB32('>', 270, 610, 0x00000000, 2);
 
     int square_size = 100;
 

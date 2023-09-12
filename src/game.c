@@ -4,14 +4,15 @@
 #define ENTITY_RADIUS 10
 
 // Colors
-#define GUTS 0x0068ADFF
-#define GRIFFITH 0x007030A0
+#define GUTS 0x0068ADFF     // 1st character
+#define GRIFFITH 0x007030A0 // 2nd character
 #define WALL 0x00000000
 #define PATH 0x00FFFFFF
-#define BOMB 0x00FFC000
-#define STAR 0x00FFC000
-#define KEY 0x0070AD47
+#define BOMB 0x00FF0101 // Red
+#define STAR 0x00FFC000 // Yellow == Battery
+#define KEY 0x0070AD47  // Green
 
+int default_fov = 60;
 int star_flag = 1;
 int bomb_flag = 2;
 int key_flag = 3;
@@ -22,7 +23,7 @@ Entity star;
 Entity bomb;
 Entity key;
 
-void game(int level)
+void game(int *level)
 {
     // Default position of main character and exit gate
     Position start_pos1 = {PLAYER_STEP / 2, PLAYER_STEP * 10 - PLAYER_STEP / 2};                 // No modify
@@ -33,9 +34,8 @@ void game(int level)
     Position star_pos;
     Position bomb_pos;
     Position key_pos;
-    int default_fov = 0;
 
-    set_maze_entity_position(level, &start_pos2, &star_pos, &bomb_pos, &key_pos, default_fov);
+    set_maze_entity_position(*level, &start_pos2, &star_pos, &bomb_pos, &key_pos, &default_fov);
 
     // Initialize hitbox
     Box guts_box = {start_pos1, ENTITY_RADIUS, ENTITY_RADIUS};
@@ -54,17 +54,44 @@ void game(int level)
     key.box = key_box;
 
     clear_maze();
+    switch (*level)
+    {
+    case 0:
+        drawStringARGB32(200, 400, "Level 1", 0x00ffffff, 4);
+        break;
+    case 1:
+        drawStringARGB32(200, 400, "Level 2", 0x00ffffff, 4);
+        break;
+    case 2:
+        drawStringARGB32(200, 400, "Level 3", 0x00ffffff, 4);
+        break;
+    case 3:
+        drawStringARGB32(200, 400, "Level 4", 0x00ffffff, 4);
+        break;
+    case 4:
+        drawStringARGB32(200, 400, "Level 5", 0x00ffffff, 4);
+        break;
+    default:
+        break;
+    }
+    wait_msec(1000000);
+    clear_maze();
 
     while (1)
     {
         if (win(guts.box.pos, end_pos, key_flag))
         {
             clear_maze();
-            uart_puts("ok you win! more?\n");
-            char input = uart_getc();
-            if (input == 'y')
+            drawStringARGB32(200, 400, "ok you win!", 0x00ffffff, 3);
+            wait_msec(1000000);
+            if (*level < 5)
             {
-                // Reset FOV
+                // Next level
+                int temp_level = *level;
+                temp_level++;
+                *level = temp_level;
+
+                // Set FOV
                 guts.FOV_radius = default_fov;
                 griffith.FOV_radius = default_fov;
 
@@ -75,15 +102,12 @@ void game(int level)
 
                 break;
             }
-
-            else if (input == 'n')
-                exit();
         }
 
         else
         {
-            make_fov(guts.box.pos, guts.FOV_radius, level);
-            make_fov(griffith.box.pos, griffith.FOV_radius, level);
+            make_fov(guts.box.pos, guts.FOV_radius, *level);
+            make_fov(griffith.box.pos, griffith.FOV_radius, *level);
             drawCircleARGB32(guts.box.pos.x, guts.box.pos.y, ENTITY_RADIUS, GUTS);
             drawCircleARGB32(griffith.box.pos.x, griffith.box.pos.y, ENTITY_RADIUS, GRIFFITH);
 
@@ -107,7 +131,7 @@ void handle_input(Entity *entity, int input)
     switch (input)
     {
     case 'w': // Up
-        if (!walkable(entity->box.pos.x, entity->box.pos.y - PLAYER_STEP))
+        // if (!walkable(entity->box.pos.x, entity->box.pos.y - PLAYER_STEP))
         {
             clear_fov(entity->box.pos, entity->FOV_radius);
             if (entity->box.pos.y - PLAYER_STEP > 0)
@@ -121,7 +145,7 @@ void handle_input(Entity *entity, int input)
         break;
 
     case 's': // Down
-        if (!walkable(entity->box.pos.x, entity->box.pos.y + PLAYER_STEP))
+        // if (!walkable(entity->box.pos.x, entity->box.pos.y + PLAYER_STEP))
         {
             clear_fov(entity->box.pos, entity->FOV_radius);
             if (entity->box.pos.y + PLAYER_STEP < MAZE_WIDTH)
@@ -135,7 +159,7 @@ void handle_input(Entity *entity, int input)
         break;
 
     case 'a': // Left
-        if (!walkable(entity->box.pos.x - PLAYER_STEP, entity->box.pos.y))
+        // if (!walkable(entity->box.pos.x - PLAYER_STEP, entity->box.pos.y))
         {
             clear_fov(entity->box.pos, entity->FOV_radius);
             if (entity->box.pos.x - PLAYER_STEP > 0)
@@ -149,7 +173,7 @@ void handle_input(Entity *entity, int input)
         break;
 
     case 'd': // Right
-        if (!walkable(entity->box.pos.x + PLAYER_STEP, entity->box.pos.y))
+        // if (!walkable(entity->box.pos.x + PLAYER_STEP, entity->box.pos.y))
         {
             clear_fov(entity->box.pos, entity->FOV_radius);
             if (entity->box.pos.x + PLAYER_STEP < MAZE_HEIGHT)
@@ -162,11 +186,14 @@ void handle_input(Entity *entity, int input)
         }
         break;
 
-    case 'o': // Star
+        // Cheat
+    case 'o':
         increase_fov(entity->box.pos, &entity->FOV_radius);
         break;
-
-    case 'p': // Bomb
+    case 'p':
+        decrease_fov(entity->box.pos, &entity->FOV_radius);
+        break;
+    case 'm':
         decrease_fov(entity->box.pos, &entity->FOV_radius);
         break;
 
@@ -298,7 +325,7 @@ void check_entity(Entity *entity1, Entity *entity2, int *flag)
     *flag = temp;
 }
 
-void set_maze_entity_position(int level, Position *start2, Position *star, Position *bomb, Position *key, int fov)
+void set_maze_entity_position(int level, Position *start2, Position *star, Position *bomb, Position *key, int *fov)
 {
     switch (level)
     {
@@ -315,7 +342,24 @@ void set_maze_entity_position(int level, Position *start2, Position *star, Posit
         key->x = PLAYER_STEP / 2 + PLAYER_STEP;
         key->y = MAZE_WIDTH / 2 + PLAYER_STEP + PLAYER_STEP;
 
-        fov = 60;
+        *fov = 60;
+
+        break;
+
+    case 1:
+        // Level 2
+
+        break;
+    case 2:
+        // Level 3
+
+        break;
+    case 3:
+        // Level 4
+
+        break;
+    case 4:
+        // Level 5
 
         break;
 

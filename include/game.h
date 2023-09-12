@@ -9,6 +9,8 @@
 #include "maze.h"
 #include "exit.h"
 
+extern int level;
+
 typedef struct
 {
     int x;
@@ -28,7 +30,7 @@ typedef struct
     int FOV_radius;
 } Entity;
 
-void game(int level);
+void game(int *level);
 void handle_input(Entity *entity, int input);
 void make_fov(Position pos, int radius, int level);
 void clear_fov(Position pos, int radius);
@@ -40,6 +42,6 @@ int detect_collision(Box a, Box b);
 void load_full_maze(int level);
 void clear_maze();
 void check_entity(Entity *entity1, Entity *entity2, int *flag);
-void set_maze_entity_position(int level, Position *start2, Position *star, Position *bomb, Position *key, int fov);
+void set_maze_entity_position(int level, Position *start2, Position *star, Position *bomb, Position *key, int *fov);
 
 #endif
