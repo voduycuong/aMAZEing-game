@@ -32,11 +32,11 @@ void game()
     Position bomb_pos = {0, 0};
     Position key_pos = {0, 0};
 
-    Box guts_box = {start_pos1, 5, 5};
-    Box griffith_box = {start_pos2, 5, 5};
-    Box star_box = {star_pos, 5, 5};
-    Box bomb_box = {bomb_pos, 5, 5};
-    Box key_box = {key_pos, 5, 5};
+    Box guts_box = {start_pos1, PLAYER_RADIUS, PLAYER_RADIUS};
+    Box griffith_box = {start_pos2, PLAYER_RADIUS, PLAYER_RADIUS};
+    Box star_box = {star_pos, PLAYER_RADIUS, PLAYER_RADIUS};
+    Box bomb_box = {bomb_pos, PLAYER_RADIUS, PLAYER_RADIUS};
+    Box key_box = {key_pos, PLAYER_RADIUS, PLAYER_RADIUS};
 
     guts.box = guts_box;
     griffith.box = griffith_box;
@@ -94,7 +94,7 @@ void game()
 
             char input = uart_getc();
             handle_input(&guts.box.pos, input);
-            handle_input(&griffith.box.pos, input);
+            // handle_input(&griffith.box.pos, input);
         }
     }
 }
@@ -105,13 +105,25 @@ void handle_input(Position *pos, int input)
     switch (input)
     {
     case 'w': // Up
+        uart_puts("\nstar_x = ");
+        uart_dec(star.box.pos.x);
+        uart_puts("\nstar_y = ");
+        uart_dec(star.box.pos.y);
+        uart_puts("\n");
+
+        uart_puts("\npos_x = ");
+        uart_dec(guts.box.pos.x);
+        uart_puts("\npos_y - step = ");
+        uart_dec(guts.box.pos.y - PLAYER_STEP);
+        uart_puts("\n");
+
         if (interact(pos->x, pos->y - PLAYER_STEP) == 's')
             star_flag = 0;
         if (interact(pos->x, pos->y - PLAYER_STEP) == 'b')
             bomb_flag = 2;
         if (interact(pos->x, pos->y - PLAYER_STEP) == 'k')
             key_flag = 3;
-        if (interact(pos->x, pos->y - PLAYER_STEP) != 'w')
+        // if (interact(pos->x, pos->y - PLAYER_STEP) != 'w') // Walkable
         {
             clear_fov(*pos, FOV_RADIUS);
             if (pos->y - PLAYER_STEP > 0)
@@ -131,7 +143,7 @@ void handle_input(Position *pos, int input)
             bomb_flag = 2;
         if (interact(pos->x, pos->y + PLAYER_STEP) == 'k')
             key_flag = 3;
-        if (interact(pos->x, pos->y + PLAYER_STEP) != 'w')
+        // if (interact(pos->x, pos->y + PLAYER_STEP) != 'w')
         {
             clear_fov(*pos, FOV_RADIUS);
             if (pos->y + PLAYER_STEP < MAZE_WIDTH)
@@ -151,7 +163,7 @@ void handle_input(Position *pos, int input)
             bomb_flag = 2;
         if (interact(pos->x - PLAYER_STEP, pos->y) == 'k')
             key_flag = 3;
-        if (interact(pos->x - PLAYER_STEP, pos->y) != 'w')
+        // if (interact(pos->x - PLAYER_STEP, pos->y) != 'w')
         {
             clear_fov(*pos, FOV_RADIUS);
             if (pos->x - PLAYER_STEP > 0)
@@ -171,7 +183,7 @@ void handle_input(Position *pos, int input)
             bomb_flag = 2;
         if (interact(pos->x + PLAYER_STEP, pos->y) == 'k')
             key_flag = 3;
-        if (interact(pos->x + PLAYER_STEP, pos->y) != 'w')
+        // if (interact(pos->x + PLAYER_STEP, pos->y) != 'w')
         {
             clear_fov(*pos, FOV_RADIUS);
             if (pos->x + PLAYER_STEP < MAZE_HEIGHT)
@@ -257,13 +269,15 @@ int win(Position pos, Position win, int flag)
 int interact(int pos_x, int pos_y)
 {
     if (getPixelARGB32(pos_x, pos_y) == WALL)
+    {
         return 'w';
-    else if (((detect_collision(guts.box, star.box) == 1) || (detect_collision(guts.box, star.box) == 1)) && star_flag == 1)
+    }
+    else if (((detect_collision(guts.box, star.box) == 1) || (detect_collision(griffith.box, star.box) == 1)))
     {
         uart_puts("Star found\n");
         return 's';
     }
-    else if (((detect_collision(guts.box, bomb.box) == 1) || (detect_collision(griffith.box, bomb.box) == 1)) && bomb_flag == 1) 
+    else if (((detect_collision(guts.box, bomb.box) == 1) || (detect_collision(griffith.box, bomb.box) == 1)) && bomb_flag == 1)
     {
         uart_puts("Bomb found\n");
         return 'b';
