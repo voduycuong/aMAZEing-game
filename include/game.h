@@ -25,20 +25,21 @@ typedef struct
 typedef struct
 {
     Box box;
+    int FOV_radius;
 } Entity;
 
 void game(int level);
-void handle_input(Box *box, int input);
+void handle_input(Entity *entity, int input);
 void make_fov(Position pos, int rad, int level);
 void clear_fov(Position pos, int rad);
-void increase_fov(Position pos);
-void decrease_fov(Position pos);
+void increase_fov(Position pos, int *radius);
+void decrease_fov(Position pos, int *radius);
 int win(Position pos, Position win, int flag);
 int walkable(int pos_x, int pos_y);
 int detect_collision(Box a, Box b);
 Position set_random_position();
 void load_full_maze(int level);
 void clear_maze();
-void check_entity(Box box1, Box box2, int *flag);
+void check_entity(Entity *entity1, Entity *entity2, int *flag);
 
 #endif
