@@ -34,11 +34,11 @@ void clear_fov(Position pos, int rad);
 void increase_fov(Position pos);
 void decrease_fov(Position pos);
 int win(Position pos, Position win, int flag);
-int interact(int pos_x, int pos_y);
+int walkable(int pos_x, int pos_y);
 int detect_collision(Box a, Box b);
 Position set_random_position();
 void load_full_maze();
 void clear_maze();
-void check_entity(Position pos, int *flag);
+void check_entity(Box box1, Box box2, int *flag);
 
 #endif

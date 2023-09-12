@@ -14,8 +14,8 @@
 
 int32_t FOV_RADIUS = 60;
 int32_t star_flag = 1;
-int32_t bomb_flag = 1;
-int32_t key_flag = 1;
+int32_t bomb_flag = 2;
+int32_t key_flag = 3;
 
 Entity guts;
 Entity griffith;
@@ -29,8 +29,8 @@ void game()
     Position start_pos2 = {MAZE_WIDTH / 2 - PLAYER_STEP, PLAYER_STEP / 2 + PLAYER_STEP};
     Position end_pos = {MAZE_WIDTH - (PLAYER_STEP / 2), MAZE_WIDTH / 2 + PLAYER_STEP};
     Position star_pos = {PLAYER_STEP / 2 + PLAYER_STEP, MAZE_WIDTH / 2};
-    Position bomb_pos = {0, 0};
-    Position key_pos = {0, 0};
+    Position bomb_pos = {PLAYER_STEP / 2 + PLAYER_STEP, MAZE_WIDTH / 2 + PLAYER_STEP};
+    Position key_pos = {PLAYER_STEP / 2 + PLAYER_STEP, MAZE_WIDTH / 2 + PLAYER_STEP + PLAYER_STEP};
 
     Box guts_box = {start_pos1, PLAYER_RADIUS, PLAYER_RADIUS};
     Box griffith_box = {start_pos2, PLAYER_RADIUS, PLAYER_RADIUS};
@@ -70,8 +70,8 @@ void game()
             {
                 FOV_RADIUS = 60;
                 star_flag = 1;
-                bomb_flag = 1;
-                key_flag = 1;
+                bomb_flag = 2;
+                key_flag = 3;
                 break;
             }
             else if (input == 'n')
@@ -87,14 +87,14 @@ void game()
 
             if (star_flag == 1)
                 drawCircleARGB32(star.box.pos.x, star.box.pos.y, PLAYER_RADIUS, STAR);
-            if (bomb_flag == 1)
+            if (bomb_flag == 2)
                 drawCircleARGB32(bomb.box.pos.x, bomb.box.pos.y, PLAYER_RADIUS, BOMB);
-            if (key_flag == 1)
+            if (key_flag == 3)
                 drawCircleARGB32(key.box.pos.x, key.box.pos.y, PLAYER_RADIUS, KEY);
 
             char input = uart_getc();
             handle_input(&guts.box, input);
-            // handle_input(&griffith.box.pos, input);
+            handle_input(&griffith.box.pos, input);
         }
     }
 }
@@ -104,52 +104,58 @@ void handle_input(Box *box, int input)
 {
     switch (input)
     {
-    case 'w':                                                      // Up
-        if (interact(box->pos.x, box->pos.y - PLAYER_STEP) != 'w') // Walkable
+    case 'w': // Up
+        if (!walkable(box->pos.x, box->pos.y - PLAYER_STEP))
         {
             clear_fov(box->pos, FOV_RADIUS);
             if (box->pos.y - PLAYER_STEP > 0)
             {
                 box->pos.y -= PLAYER_STEP;
-                if (detect_collision(guts.box, star.box))
-                {
-                    drawCircleARGB32(star.box.pos.x, star.box.pos.y, PLAYER_RADIUS, PATH);
-                    star_flag = 0;
-                    increase_fov(guts.box.pos);
-                }
+                check_entity(*box, star.box, &star_flag);
+                check_entity(*box, bomb.box, &bomb_flag);
+                check_entity(*box, key.box, &key_flag);
             }
         }
         break;
 
     case 's': // Down
-        if (interact(box->pos.x, box->pos.y + PLAYER_STEP) != 'w')
+        if (!walkable(box->pos.x, box->pos.y + PLAYER_STEP))
         {
             clear_fov(box->pos, FOV_RADIUS);
             if (box->pos.y + PLAYER_STEP < MAZE_WIDTH)
             {
                 box->pos.y += PLAYER_STEP;
+                check_entity(*box, star.box, &star_flag);
+                check_entity(*box, bomb.box, &bomb_flag);
+                check_entity(*box, key.box, &key_flag);
             }
         }
         break;
 
     case 'a': // Left
-        if (interact(box->pos.x - PLAYER_STEP, box->pos.y) != 'w')
+        if (!walkable(box->pos.x - PLAYER_STEP, box->pos.y))
         {
             clear_fov(box->pos, FOV_RADIUS);
             if (box->pos.x - PLAYER_STEP > 0)
             {
                 box->pos.x -= PLAYER_STEP;
+                check_entity(*box, star.box, &star_flag);
+                check_entity(*box, bomb.box, &bomb_flag);
+                check_entity(*box, key.box, &key_flag);
             }
         }
         break;
 
     case 'd': // Right
-        if (interact(box->pos.x + PLAYER_STEP, box->pos.y) != 'w')
+        if (!walkable(box->pos.x + PLAYER_STEP, box->pos.y))
         {
             clear_fov(box->pos, FOV_RADIUS);
             if (box->pos.x + PLAYER_STEP < MAZE_HEIGHT)
             {
                 box->pos.x += PLAYER_STEP;
+                check_entity(*box, star.box, &star_flag);
+                check_entity(*box, bomb.box, &bomb_flag);
+                check_entity(*box, key.box, &key_flag);
             }
         }
         break;
@@ -224,27 +230,13 @@ int win(Position pos, Position win, int flag)
         return 0;
 }
 
-int interact(int pos_x, int pos_y)
+int walkable(int pos_x, int pos_y)
 {
     if (getPixelARGB32(pos_x, pos_y) == WALL)
-        return 'w';
-    // else if (((detect_collision(guts.box, star.box) == 1) || (detect_collision(griffith.box, star.box) == 1)))
-    // {
-    //     uart_puts("Star found\n");
-    //     return 's';
-    // }
-    // else if (((detect_collision(guts.box, bomb.box) == 1) || (detect_collision(griffith.box, bomb.box) == 1)) && bomb_flag == 1)
-    // {
-    //     uart_puts("Bomb found\n");
-    //     return 'b';
-    // }
-    // else if ((detect_collision(griffith.box, key.box) == 1) && key_flag == 1)
-    // {
-    //     uart_puts("Key found\n");
-    //     return 'k';
-    // }
+        return 1;
+
     else
-        return 'n';
+        return 0;
 }
 
 int detect_collision(Box a, Box b)
@@ -283,28 +275,33 @@ void clear_maze()
             drawPixelARGB32(x, y, WALL);
 }
 
-void check_entity(Position pos, int *flag)
+void check_entity(Box box1, Box box2, int *flag)
 {
     int temp = *flag;
 
-    if (temp == 0)
+    if (detect_collision(box1, box2))
     {
-        drawCircleARGB32(pos.x, pos.y, PLAYER_RADIUS, WALL);
-        increase_fov(pos);
-        temp = -1;
-    }
+        if (temp == 1)
+        {
+            drawCircleARGB32(box2.pos.x, box2.pos.y, PLAYER_RADIUS, PATH);
+            temp = -1;
+            increase_fov(box1.pos);
+            increase_fov(box2.pos);
+        }
 
-    else if (temp == 2)
-    {
-        drawCircleARGB32(pos.x, pos.y, PLAYER_RADIUS, WALL);
-        decrease_fov(pos);
-        temp = -1;
-    }
+        else if (temp == 2)
+        {
+            drawCircleARGB32(box2.pos.x, box2.pos.y, PLAYER_RADIUS, PATH);
+            decrease_fov(box1.pos);
+            decrease_fov(box2.pos);
+            temp = -1;
+        }
 
-    else if (temp == 3)
-    {
-        drawCircleARGB32(pos.x, pos.y, PLAYER_RADIUS, WALL);
-        temp = -1;
+        else if (temp == 3)
+        {
+            drawCircleARGB32(box2.pos.x, box2.pos.y, PLAYER_RADIUS, PATH);
+            temp = -1;
+        }
     }
 
     *flag = temp;
