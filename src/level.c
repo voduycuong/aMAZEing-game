@@ -39,19 +39,30 @@ void choose_level()
         {
             // Check buffer with available commands
             if (level_index == 0) // Level 1
+            {
                 game(0);
-
+                break;
+            }
             else if (level_index == 1) // Level 2
-                game(1);
-
+            {
+                // game(1);
+                break;
+            }
             else if (level_index == 2) // Level 3
-                game(2);
-
+            {
+                // game(2);
+                break;
+            }
             else if (level_index == 3) // Level 4
-                game(3);
-
+            {
+                // game(3);
+                break;
+            }
             else if (level_index == 4) // Level 5
-                game(4);
+            {
+                // game(4);
+                break;
+            }
 
             else if (level_index == 5) // Back
             {

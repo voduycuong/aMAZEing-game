@@ -12,10 +12,10 @@
 #define STAR 0x00FFC000
 #define KEY 0x0070AD47
 
-int32_t FOV_RADIUS = 60;
-int32_t star_flag = 1;
-int32_t bomb_flag = 2;
-int32_t key_flag = 3;
+int FOV_RADIUS = 60;
+int star_flag = 1;
+int bomb_flag = 2;
+int key_flag = 3;
 
 Entity guts;
 Entity griffith;
@@ -94,7 +94,7 @@ void game(int level)
 
             char input = uart_getc();
             handle_input(&guts.box, input);
-            handle_input(&griffith.box.pos, input);
+            handle_input(&griffith.box, input);
         }
     }
 }

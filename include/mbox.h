@@ -3,9 +3,6 @@
 
 #include "gpio.h"
 #include "uart.h"
-#include "./gcclib/stddef.h"
-#include "./gcclib/stdint.h"
-#include "./gcclib/stdarg.h"
 
 /* a properly aligned buffer */
 extern volatile unsigned int mBuf[36];
