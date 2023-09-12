@@ -28,7 +28,7 @@ void game()
     Position start_pos1 = {PLAYER_STEP / 2, MAZE_WIDTH / 2 - PLAYER_STEP};
     Position start_pos2 = {MAZE_WIDTH / 2 - PLAYER_STEP, PLAYER_STEP / 2 + PLAYER_STEP};
     Position end_pos = {MAZE_WIDTH - (PLAYER_STEP / 2), MAZE_WIDTH / 2 + PLAYER_STEP};
-    Position star_pos = {0, 0};
+    Position star_pos = {PLAYER_STEP / 2 + PLAYER_STEP, MAZE_WIDTH / 2};
     Position bomb_pos = {0, 0};
     Position key_pos = {0, 0};
 
@@ -46,16 +46,16 @@ void game()
 
     load_full_maze();
 
-    do
-    {
-        star.box.pos = set_random_position();
-        bomb.box.pos = set_random_position();
-        key.box.pos = set_random_position();
-    } while (getPixelARGB32(star.box.pos.x, star.box.pos.y) == WALL ||
-             getPixelARGB32(bomb.box.pos.x, bomb.box.pos.y) == WALL ||
-             getPixelARGB32(key.box.pos.x, key.box.pos.y) == WALL ||
-             star.box.pos.x == bomb.box.pos.x ||
-             star.box.pos.y == bomb.box.pos.y);
+    // do
+    // {
+    //     star.box.pos = set_random_position();
+    //     bomb.box.pos = set_random_position();
+    //     key.box.pos = set_random_position();
+    // } while (getPixelARGB32(star.box.pos.x, star.box.pos.y) == WALL ||
+    //          getPixelARGB32(bomb.box.pos.x, bomb.box.pos.y) == WALL ||
+    //          getPixelARGB32(key.box.pos.x, key.box.pos.y) == WALL ||
+    //          star.box.pos.x == bomb.box.pos.x ||
+    //          star.box.pos.y == bomb.box.pos.y);
 
     clear_maze();
 
@@ -104,58 +104,62 @@ void handle_input(Box *box, int input)
 {
     switch (input)
     {
-    case 'w':                                                        // Up
-        if (interact(*box->pos.x, *box->pos.y - PLAYER_STEP) != 'w') // Walkable
+    case 'w':                                                      // Up
+        if (interact(box->pos.x, box->pos.y - PLAYER_STEP) != 'w') // Walkable
         {
-            // clear_fov(box.pos, FOV_RADIUS);
-            if (*box->pos.y - PLAYER_STEP > 0)
+            clear_fov(box->pos, FOV_RADIUS);
+            if (box->pos.y - PLAYER_STEP > 0)
             {
-                *box->pos.y -= PLAYER_STEP;
-                // if (detect_collision(guts.box, star.box))
-                //     decrease_fov(guts.box.pos);
+                box->pos.y -= PLAYER_STEP;
+                if (detect_collision(guts.box, star.box))
+                {
+                    drawCircleARGB32(star.box.pos.x, star.box.pos.y, PLAYER_RADIUS, PATH);
+                    star_flag = 0;
+                    increase_fov(guts.box.pos);
+                }
             }
         }
         break;
 
     case 's': // Down
-        // if (interact(pos->x, pos->y + PLAYER_STEP) != 'w')
+        if (interact(box->pos.x, box->pos.y + PLAYER_STEP) != 'w')
         {
-            clear_fov(box.pos, FOV_RADIUS);
-            if (box.pos.y + PLAYER_STEP < MAZE_WIDTH)
+            clear_fov(box->pos, FOV_RADIUS);
+            if (box->pos.y + PLAYER_STEP < MAZE_WIDTH)
             {
-                box.pos.y += PLAYER_STEP;
+                box->pos.y += PLAYER_STEP;
             }
         }
         break;
 
     case 'a': // Left
-        // if (interact(pos->x - PLAYER_STEP, pos->y) != 'w')
+        if (interact(box->pos.x - PLAYER_STEP, box->pos.y) != 'w')
         {
-            clear_fov(box.pos, FOV_RADIUS);
-            if (box.pos.x - PLAYER_STEP > 0)
+            clear_fov(box->pos, FOV_RADIUS);
+            if (box->pos.x - PLAYER_STEP > 0)
             {
-                box.pos.x -= PLAYER_STEP;
+                box->pos.x -= PLAYER_STEP;
             }
         }
         break;
 
     case 'd': // Right
-        // if (interact(pos->x + PLAYER_STEP, pos->y) != 'w')
+        if (interact(box->pos.x + PLAYER_STEP, box->pos.y) != 'w')
         {
-            clear_fov(box.pos, FOV_RADIUS);
-            if (box.pos.x + PLAYER_STEP < MAZE_HEIGHT)
+            clear_fov(box->pos, FOV_RADIUS);
+            if (box->pos.x + PLAYER_STEP < MAZE_HEIGHT)
             {
-                box.pos.x += PLAYER_STEP;
+                box->pos.x += PLAYER_STEP;
             }
         }
         break;
 
     case 'o': // Star
-        increase_fov(box.pos);
+        increase_fov(box->pos);
         break;
 
     case 'p': // Bomb
-        decrease_fov(box.pos);
+        decrease_fov(box->pos);
         break;
 
     default:
@@ -223,24 +227,22 @@ int win(Position pos, Position win, int flag)
 int interact(int pos_x, int pos_y)
 {
     if (getPixelARGB32(pos_x, pos_y) == WALL)
-    {
         return 'w';
-    }
-    else if (((detect_collision(guts.box, star.box) == 1) || (detect_collision(griffith.box, star.box) == 1)))
-    {
-        uart_puts("Star found\n");
-        return 's';
-    }
-    else if (((detect_collision(guts.box, bomb.box) == 1) || (detect_collision(griffith.box, bomb.box) == 1)) && bomb_flag == 1)
-    {
-        uart_puts("Bomb found\n");
-        return 'b';
-    }
-    else if ((detect_collision(griffith.box, key.box) == 1) && key_flag == 1)
-    {
-        uart_puts("Key found\n");
-        return 'k';
-    }
+    // else if (((detect_collision(guts.box, star.box) == 1) || (detect_collision(griffith.box, star.box) == 1)))
+    // {
+    //     uart_puts("Star found\n");
+    //     return 's';
+    // }
+    // else if (((detect_collision(guts.box, bomb.box) == 1) || (detect_collision(griffith.box, bomb.box) == 1)) && bomb_flag == 1)
+    // {
+    //     uart_puts("Bomb found\n");
+    //     return 'b';
+    // }
+    // else if ((detect_collision(griffith.box, key.box) == 1) && key_flag == 1)
+    // {
+    //     uart_puts("Key found\n");
+    //     return 'k';
+    // }
     else
         return 'n';
 }
