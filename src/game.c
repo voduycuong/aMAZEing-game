@@ -367,6 +367,7 @@ void set_maze_entity_position(int level, Position *start2, Position *star, Posit
     switch (level)
     {
     case 0:
+        // level 1
         start2->x = PLAYER_STEP * 3 - PLAYER_STEP / 2;
         start2->y = PLAYER_STEP * 18 - PLAYER_STEP / 2;
 
@@ -391,22 +392,99 @@ void set_maze_entity_position(int level, Position *start2, Position *star, Posit
 
     case 1:
         // Level 2
+        start2->x = PLAYER_STEP * 2 - PLAYER_STEP / 2;
+        start2->y = PLAYER_STEP * 6 - PLAYER_STEP / 2;
 
+        star->x = PLAYER_STEP * 8 - PLAYER_STEP / 2,
+        star->y = PLAYER_STEP * 17 - PLAYER_STEP / 2;
+
+        bomb->x = PLAYER_STEP * 2 - PLAYER_STEP / 2;
+        bomb->y = PLAYER_STEP * 15 - PLAYER_STEP / 2;
+
+        key->x = PLAYER_STEP * 18 - PLAYER_STEP / 2;
+        key->y = PLAYER_STEP * 2 - PLAYER_STEP / 2;
+
+        trap->x = PLAYER_STEP * 18 - PLAYER_STEP / 2;
+        trap->y = PLAYER_STEP * 5 - PLAYER_STEP / 2;
+
+        trapless->x = PLAYER_STEP * 5 - PLAYER_STEP / 2;
+        trapless->y = PLAYER_STEP * 18 - PLAYER_STEP / 2;
+
+        *fov = 60;
         break;
+
     case 2:
         // Level 3
+        start2->x = PLAYER_STEP * 14 - PLAYER_STEP / 2;
+        start2->y = PLAYER_STEP * 8 - PLAYER_STEP / 2;
 
+        star->x = PLAYER_STEP * 4 - PLAYER_STEP / 2,
+        star->y = PLAYER_STEP * 12 - PLAYER_STEP / 2;
+
+        bomb->x = PLAYER_STEP * 14 - PLAYER_STEP / 2;
+        bomb->y = PLAYER_STEP * 15 - PLAYER_STEP / 2;
+
+        key->x = PLAYER_STEP * 14 - PLAYER_STEP / 2;
+        key->y = PLAYER_STEP * 18 - PLAYER_STEP / 2;
+
+        trap->x = PLAYER_STEP * 18 - PLAYER_STEP / 2;
+        trap->y = PLAYER_STEP * 10 - PLAYER_STEP / 2;
+
+        trapless->x = PLAYER_STEP * 2 - PLAYER_STEP / 2;
+        trapless->y = PLAYER_STEP * 6 - PLAYER_STEP / 2;
+
+        *fov = 60;
         break;
+
     case 3:
         // Level 4
+        start2->x = PLAYER_STEP * 8 - PLAYER_STEP / 2;
+        start2->y = PLAYER_STEP * 6 - PLAYER_STEP / 2;
 
+        star->x = PLAYER_STEP * 10 - PLAYER_STEP / 2,
+        star->y = PLAYER_STEP * 6 - PLAYER_STEP / 2;
+
+        bomb->x = PLAYER_STEP * 18 - PLAYER_STEP / 2;
+        bomb->y = PLAYER_STEP * 15 - PLAYER_STEP / 2;
+
+        key->x = PLAYER_STEP * 2 - PLAYER_STEP / 2;
+        key->y = PLAYER_STEP * 15 - PLAYER_STEP / 2;
+
+        trap->x = PLAYER_STEP * 6 - PLAYER_STEP / 2;
+        trap->y = PLAYER_STEP * 14 - PLAYER_STEP / 2;
+
+        trapless->x = PLAYER_STEP * 16 - PLAYER_STEP / 2;
+        trapless->y = PLAYER_STEP * 6 - PLAYER_STEP / 2;
+
+        *fov = 60;
         break;
+
     case 4:
         // Level 5
+        start2->x = PLAYER_STEP * 3 - PLAYER_STEP / 2;
+        start2->y = PLAYER_STEP * 2 - PLAYER_STEP / 2;
 
+        star->x = PLAYER_STEP * 16 - PLAYER_STEP / 2,
+        star->y = PLAYER_STEP * 8 - PLAYER_STEP / 2;
+
+        bomb->x = PLAYER_STEP * 13 - PLAYER_STEP / 2;
+        bomb->y = PLAYER_STEP * 10 - PLAYER_STEP / 2;
+
+        key->x = PLAYER_STEP * 18 - PLAYER_STEP / 2;
+        key->y = PLAYER_STEP * 8 - PLAYER_STEP / 2;
+
+        trap->x = PLAYER_STEP * 4 - PLAYER_STEP / 2;
+        trap->y = PLAYER_STEP * 8 - PLAYER_STEP / 2;
+
+        trapless->x = PLAYER_STEP * 8 - PLAYER_STEP / 2;
+        trapless->y = PLAYER_STEP * 17 - PLAYER_STEP / 2;
+
+        *fov = 60;
         break;
+
 
     default:
         break;
+
     }
 }
