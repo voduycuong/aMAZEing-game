@@ -4,14 +4,14 @@
 #include "uart.h"
 #include "framebf.h"
 #include "font.h"
+#include "printf.h"
 
 // Commands
+#include "game.h"
 #include "level.h"
 #include "tutorial.h"
 #include "about.h"
 #include "exit.h"
-
-#include "game.h"
 
 extern char *commands[];
 

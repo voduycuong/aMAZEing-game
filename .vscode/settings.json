@@ -13,6 +13,8 @@
         "start.h": "c",
         "exit.h": "c",
         "maze.h": "c",
-        "font.h": "c"
+        "font.h": "c",
+        "printf.h": "c",
+        "math.h": "c"
     }
 }

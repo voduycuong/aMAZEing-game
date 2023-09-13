@@ -12,6 +12,9 @@
 #define STAR 0x00FFC000 // Yellow == Battery
 #define KEY 0x0070AD47  // Green
 
+#define WHITE 0x00ffffff
+#define BLACK 0x00000000
+
 int default_fov = 60;
 int star_flag = 1;
 int bomb_flag = 2;
@@ -25,6 +28,7 @@ Entity key;
 
 void game(int *level)
 {
+
     // Default position of main character and exit gate
     Position start_pos1 = {PLAYER_STEP / 2, PLAYER_STEP * 10 - PLAYER_STEP / 2};                 // No modify
     Position end_pos = {PLAYER_STEP * 19 - PLAYER_STEP / 2, PLAYER_STEP * 10 - PLAYER_STEP / 2}; // No modify
@@ -106,16 +110,27 @@ void game(int *level)
 
         else
         {
+            // printf("\nGuts: X = %d, Y = %d", guts.box.pos.x, guts.box.pos.y);
+            // printf("\nKey: X = %d, Y = %d", key.box.pos.x, key.box.pos.y);
+            // printf("\nGuts' FOV = %d", guts.FOV_radius);
+            // printf("\nDistance = %f", distance(guts.box.pos.x, key.box.pos.x, guts.box.pos.y, key.box.pos.y));
+
             make_fov(guts.box.pos, guts.FOV_radius, *level);
             make_fov(griffith.box.pos, griffith.FOV_radius, *level);
             drawCircleARGB32(guts.box.pos.x, guts.box.pos.y, ENTITY_RADIUS, GUTS);
             drawCircleARGB32(griffith.box.pos.x, griffith.box.pos.y, ENTITY_RADIUS, GRIFFITH);
+            drawCircleARGB32(star.box.pos.x, star.box.pos.y, ENTITY_RADIUS, BLACK);
+            drawCircleARGB32(bomb.box.pos.x, bomb.box.pos.y, ENTITY_RADIUS, BLACK);
+            drawCircleARGB32(key.box.pos.x, key.box.pos.y, ENTITY_RADIUS, BLACK);
 
-            if (star_flag == 1)
+            if (star_flag == 1 && (guts.FOV_radius > distance(guts.box.pos.x, star.box.pos.x, guts.box.pos.y, star.box.pos.y) ||
+                                   griffith.FOV_radius > distance(griffith.box.pos.x, star.box.pos.x, griffith.box.pos.y, star.box.pos.y)))
                 drawCircleARGB32(star.box.pos.x, star.box.pos.y, ENTITY_RADIUS, STAR);
-            if (bomb_flag == 2)
+            if (bomb_flag == 2 && (guts.FOV_radius > distance(guts.box.pos.x, bomb.box.pos.x, guts.box.pos.y, bomb.box.pos.y) ||
+                                   griffith.FOV_radius > distance(griffith.box.pos.x, bomb.box.pos.x, griffith.box.pos.y, bomb.box.pos.y)))
                 drawCircleARGB32(bomb.box.pos.x, bomb.box.pos.y, ENTITY_RADIUS, BOMB);
-            if (key_flag == 3)
+            if (key_flag == 3 && (guts.FOV_radius > distance(guts.box.pos.x, key.box.pos.x, guts.box.pos.y, key.box.pos.y) ||
+                                  griffith.FOV_radius > distance(griffith.box.pos.x, key.box.pos.x, griffith.box.pos.y, key.box.pos.y)))
                 drawCircleARGB32(key.box.pos.x, key.box.pos.y, ENTITY_RADIUS, KEY);
 
             char input = uart_getc();

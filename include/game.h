@@ -7,6 +7,8 @@
 #include "rand.h"
 #include "level.h"
 #include "maze.h"
+#include "printf.h"
+#include "math.h"
 #include "exit.h"
 
 extern int level;
