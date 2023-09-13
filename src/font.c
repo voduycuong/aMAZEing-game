@@ -238,7 +238,6 @@ unsigned char font[FONT_NUMGLYPHS][FONT_BPG] = {
 
 void drawCharARGB32(unsigned char ch, int x, int y, unsigned int attr, int zoom)
 {
-    drawPixelARGB32(100, 100, 0x00ffffff);
     unsigned char *glyph = (unsigned char *)&font + (ch < FONT_NUMGLYPHS ? ch : 0) * FONT_BPG;
 
     for (int i = 0; i <= (FONT_HEIGHT * zoom); i++)

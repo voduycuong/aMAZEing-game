@@ -6,8 +6,8 @@ void choose_level()
 {
     while (1)
     {
-        drawStringARGB32(MAZE_WIDTH / 2 - 150, 20, "CHOOSE LEVEL", 0x00DC143C, 3); // Show title
-        drawStringARGB32(300, 600, "back", 0x00DC143C, 2);                         // back button
+        drawStringARGB32(MAZE_WIDTH / 2 - 130, 20, "CHOOSE LEVEL", 0x00DC143C, 3); // Show title
+        drawStringARGB32(MAZE_WIDTH / 2 - 50, 650, "back", 0x00DC143C, 2);         // back button
 
         static int level_index = 0; // Indexing commands
 
@@ -28,7 +28,7 @@ void choose_level()
         if (input == 'a')
         {
             level_index--;
-            if (level_index == 0)
+            if (level_index < 0)
                 level_index = 5;
             show_box(level_index);
         }
@@ -47,13 +47,13 @@ void choose_level()
 
 void show_box(int level)
 {
-    drawRectARGB32(0, 70, MAZE_WIDTH, MAZE_HEIGHT - 500, 0x00000000, 1); // Clear screen
-    drawCharARGB32('>', 270, 610, 0x00000000, 2);
+    drawRectARGB32(0, 70, MAZE_WIDTH, MAZE_HEIGHT - 300, 0x00000000, 1); // Clear screen
+    drawCharARGB32('>', MAZE_WIDTH / 2 - 80, 660, 0x00000000, 2);
 
-    int square_size = 100;
+    int square_size = 150;
 
-    int x1 = 148; // Left padding
-    int y1 = 100; // Top padding
+    int x1 = 115; // Left padding
+    int y1 = 150; // Top padding
     int x2 = x1 + square_size;
     int y2 = y1 + square_size;
 
@@ -64,23 +64,27 @@ void show_box(int level)
         drawRectARGB32(x1, y1, x2, y2, 0x00ABCDAC, 0);
         break;
     case 1:
-        drawRectARGB32(x1 + 150, y1, x2 + 150, y2, 0x00ABCDAC, 0);
+        drawRectARGB32(x1 + (square_size + x1), y1,
+                       x2 + (square_size + x1), y2, 0x00ABCDAC, 0);
         break;
     case 2:
-        drawRectARGB32(x1 + 150 * 2, y1, x2 + 150 * 2, y2, 0x00ABCDAC, 0);
+        drawRectARGB32(x1 + (square_size + x1) * 2, y1,
+                       x2 + (square_size + x1) * 2, y2, 0x00ABCDAC, 0);
         break;
 
     // Second line (last 2 levels)
     case 3:
-        drawRectARGB32(223, y2 + 50, 223 + 100, y2 + 150, 0x00ABCDAC, 0);
+        drawRectARGB32(248, y2 + y1,
+                       248 + square_size, y2 + y1 + square_size, 0x00ABCDAC, 0);
         break;
     case 4:
-        drawRectARGB32(223 + 100 + 50, y2 + 50, 223 + 100 + 50 + 100, y2 + 150, 0x00ABCDAC, 0);
+        drawRectARGB32(248 + square_size + x1, y2 + y1,
+                       248 + x1 + 2 * square_size, y2 + y1 + square_size, 0x00ABCDAC, 0);
         break;
 
     // Back
     case 5:
-        drawCharARGB32('>', 270, 410, 0x00ffffff, 2);
+        drawCharARGB32('>', MAZE_WIDTH / 2 - 80, 660, 0x00ffffff, 2);
         break;
 
     default:
