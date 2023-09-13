@@ -193,9 +193,6 @@ void handle_input(Entity *entity, int input)
     case 'p':
         decrease_fov(entity->box.pos, &entity->FOV_radius);
         break;
-    case 'm':
-        decrease_fov(entity->box.pos, &entity->FOV_radius);
-        break;
 
     default:
         break;
