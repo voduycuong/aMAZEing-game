@@ -131,7 +131,7 @@ void handle_input(Entity *entity, int input)
     switch (input)
     {
     case 'w': // Up
-        // if (!walkable(entity->box.pos.x, entity->box.pos.y - PLAYER_STEP))
+        if (walkable(entity->box.pos.x, entity->box.pos.y - PLAYER_STEP))
         {
             clear_fov(entity->box.pos, entity->FOV_radius);
             if (entity->box.pos.y - PLAYER_STEP > 0)
@@ -145,7 +145,7 @@ void handle_input(Entity *entity, int input)
         break;
 
     case 's': // Down
-        // if (!walkable(entity->box.pos.x, entity->box.pos.y + PLAYER_STEP))
+        if (walkable(entity->box.pos.x, entity->box.pos.y + PLAYER_STEP))
         {
             clear_fov(entity->box.pos, entity->FOV_radius);
             if (entity->box.pos.y + PLAYER_STEP < MAZE_WIDTH)
@@ -159,7 +159,7 @@ void handle_input(Entity *entity, int input)
         break;
 
     case 'a': // Left
-        // if (!walkable(entity->box.pos.x - PLAYER_STEP, entity->box.pos.y))
+        if (walkable(entity->box.pos.x - PLAYER_STEP, entity->box.pos.y))
         {
             clear_fov(entity->box.pos, entity->FOV_radius);
             if (entity->box.pos.x - PLAYER_STEP > 0)
@@ -173,7 +173,7 @@ void handle_input(Entity *entity, int input)
         break;
 
     case 'd': // Right
-        // if (!walkable(entity->box.pos.x + PLAYER_STEP, entity->box.pos.y))
+        if (walkable(entity->box.pos.x + PLAYER_STEP, entity->box.pos.y))
         {
             clear_fov(entity->box.pos, entity->FOV_radius);
             if (entity->box.pos.x + PLAYER_STEP < MAZE_HEIGHT)
@@ -262,7 +262,10 @@ int win(Position pos, Position win, int flag)
 
 int walkable(int pos_x, int pos_y)
 {
-    if (getPixelARGB32(pos_x, pos_y) == WALL)
+    if (getPixelARGB32(pos_x, pos_y) == PATH ||
+        getPixelARGB32(pos_x, pos_y) == STAR ||
+        getPixelARGB32(pos_x, pos_y) == BOMB ||
+        getPixelARGB32(pos_x, pos_y) == KEY)
         return 1;
 
     else
