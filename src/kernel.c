@@ -11,8 +11,7 @@ void main()
 	framebf_init(); // Initialize frame buffer
 
 	// Set up
-	clear_screen();		   // Clear screen
-	show_welcome_screen(); // Show welcome screen
+	clear_screen(); // Clear screen
 	show_main_menu();
 
 	while (1)
@@ -102,12 +101,6 @@ void cli()
 		cmd_index = 0;
 		index_pos = 350;
 	}
-}
-
-// Show welcome screen when OS boot up
-void show_welcome_screen()
-{
-	show_about(); // Welcome screen
 }
 
 void clear_screen()
