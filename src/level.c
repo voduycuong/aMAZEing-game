@@ -8,7 +8,7 @@ void choose_level()
     {
         load_background();
         drawStringARGB32(MAZE_WIDTH / 2 - 130, 20, "CHOOSE LEVEL", 0x00DC143C, 3); // Show title
-        drawStringARGB32(MAZE_WIDTH / 2 - 50, 650, "back", 0x00DC143C, 2);         // back button
+        drawStringARGB32(MAZE_WIDTH / 2 - 50, 750, "back", 0x00DC143C, 2);         // back button
 
         static int level_index = 0; // Indexing commands
 
@@ -82,7 +82,7 @@ void show_box(int level)
 
     // Back
     case 5:
-        drawCharARGB32('>', MAZE_WIDTH / 2 - 80, 660, 0x00ffffff, 2);
+        drawCharARGB32('>', MAZE_WIDTH / 2 - 80, 760, 0x00ffffff, 2);
         break;
 
     default:
