@@ -119,9 +119,13 @@ void game(int *level)
             make_fov(griffith.box.pos, griffith.FOV_radius, *level);
             drawCircleARGB32(guts.box.pos.x, guts.box.pos.y, ENTITY_RADIUS, GUTS);
             drawCircleARGB32(griffith.box.pos.x, griffith.box.pos.y, ENTITY_RADIUS, GRIFFITH);
-            drawCircleARGB32(star.box.pos.x, star.box.pos.y, ENTITY_RADIUS, BLACK);
-            drawCircleARGB32(bomb.box.pos.x, bomb.box.pos.y, ENTITY_RADIUS, BLACK);
-            drawCircleARGB32(key.box.pos.x, key.box.pos.y, ENTITY_RADIUS, BLACK);
+
+            if (star_flag == 1)
+                drawCircleARGB32(star.box.pos.x, star.box.pos.y, ENTITY_RADIUS, BLACK);
+            if (bomb_flag == 1)
+                drawCircleARGB32(bomb.box.pos.x, bomb.box.pos.y, ENTITY_RADIUS, BLACK);
+            if (key_flag == 1)
+                drawCircleARGB32(key.box.pos.x, key.box.pos.y, ENTITY_RADIUS, BLACK);
 
             if (star_flag == 1 && (guts.FOV_radius > distance(guts.box.pos.x, star.box.pos.x, guts.box.pos.y, star.box.pos.y) ||
                                    griffith.FOV_radius > distance(griffith.box.pos.x, star.box.pos.x, griffith.box.pos.y, star.box.pos.y)))
