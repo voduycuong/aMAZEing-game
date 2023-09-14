@@ -204,6 +204,63 @@ void clearCharacterFrame(Position pos)
     }
 }
 
+void handleAndAnimateCharacterMovement(Position pos, int input)
+{
+    uart_puts("calling this function.\n");
+    AnimationState animations[4];
+
+    switch (input)
+    {
+    case 'w':
+        animations[0] = BACK_IDLE;
+        animations[1] = BACK_WALK1;
+        animations[2] = BACK_WALK2;
+        animations[3] = BACK_IDLE;
+        break;
+    case 's':
+        animations[0] = FRONT_IDLE;
+        animations[1] = FRONT_WALK1;
+        animations[2] = FRONT_WALK2;
+        animations[3] = FRONT_IDLE;
+        break;
+    case 'a':
+    case 'd':
+        animations[0] = SIDE_IDLE;
+        animations[1] = SIDE_WALK1;
+        animations[2] = SIDE_WALK2;
+        animations[3] = SIDE_IDLE;
+        break;
+    default:
+        return;
+    }
+
+    for (int i = 0; i < 4; i++)
+    {
+        clearCharacterFrame(guts.box.pos);
+
+        switch (input)
+        {
+        case 'w':
+            pos.y -= FRAME_CHANGE_INTERVAL;
+            break;
+        case 's':
+            pos.y += FRAME_CHANGE_INTERVAL;
+            break;
+        case 'a':
+            pos.x -= FRAME_CHANGE_INTERVAL;
+            break;
+        case 'd':
+            pos.x += FRAME_CHANGE_INTERVAL;
+            break;
+        }
+
+        guts.box.pos = pos;
+        guts_animation_state = animations[i];
+        drawCharacterFrame(guts.box.pos, guts_animation_state);
+        wait_msec(30000);
+    }
+}
+
 void game()
 {
     Position start_pos1 = {PLAYER_STEP / 2, MAZE_WIDTH / 2 - PLAYER_STEP};
@@ -300,26 +357,7 @@ void handle_input(Position *pos, int input)
             clear_fov(*pos, FOV_RADIUS);
             if (pos->y - PLAYER_STEP > 0)
             {
-                clearCharacterFrame(guts.box.pos);
-                pos->y -= FRAME_CHANGE_INTERVAL;
-                guts_animation_state = BACK_IDLE;
-                drawCharacterFrame(guts.box.pos, guts_animation_state);
-                wait_msec(30000);
-                clearCharacterFrame(guts.box.pos);
-                pos->y -= FRAME_CHANGE_INTERVAL;
-                guts_animation_state = BACK_WALK1;
-                drawCharacterFrame(guts.box.pos, guts_animation_state);
-                wait_msec(30000);
-                clearCharacterFrame(guts.box.pos);
-                pos->y -= FRAME_CHANGE_INTERVAL;
-                guts_animation_state = BACK_WALK2;
-                drawCharacterFrame(guts.box.pos, guts_animation_state);
-                wait_msec(30000);
-                clearCharacterFrame(guts.box.pos);
-                pos->y -= FRAME_CHANGE_INTERVAL;
-                guts_animation_state = BACK_IDLE;
-                drawCharacterFrame(guts.box.pos, guts_animation_state);
-                wait_msec(30000);
+                handleAndAnimateCharacterMovement(guts.box.pos, input);
                 check_entity(*pos, &star_flag);
                 check_entity(*pos, &bomb_flag);
                 check_entity(*pos, &key_flag);
@@ -339,26 +377,7 @@ void handle_input(Position *pos, int input)
             clear_fov(*pos, FOV_RADIUS);
             if (pos->y + PLAYER_STEP < MAZE_WIDTH)
             {
-                clearCharacterFrame(guts.box.pos);
-                pos->y += FRAME_CHANGE_INTERVAL;
-                guts_animation_state = FRONT_IDLE;
-                drawCharacterFrame(guts.box.pos, guts_animation_state);
-                wait_msec(30000);
-                clearCharacterFrame(guts.box.pos);
-                pos->y += FRAME_CHANGE_INTERVAL;
-                guts_animation_state = FRONT_WALK1;
-                drawCharacterFrame(guts.box.pos, guts_animation_state);
-                wait_msec(30000);
-                clearCharacterFrame(guts.box.pos);
-                pos->y += FRAME_CHANGE_INTERVAL;
-                guts_animation_state = FRONT_WALK2;
-                drawCharacterFrame(guts.box.pos, guts_animation_state);
-                wait_msec(30000);
-                clearCharacterFrame(guts.box.pos);
-                pos->y += FRAME_CHANGE_INTERVAL;
-                guts_animation_state = FRONT_IDLE;
-                drawCharacterFrame(guts.box.pos, guts_animation_state);
-                wait_msec(30000);
+                handleAndAnimateCharacterMovement(guts.box.pos, input);
                 check_entity(*pos, &star_flag);
                 check_entity(*pos, &bomb_flag);
                 check_entity(*pos, &key_flag);
@@ -378,26 +397,7 @@ void handle_input(Position *pos, int input)
             clear_fov(*pos, FOV_RADIUS);
             if (pos->x - PLAYER_STEP > 0)
             {
-                clearCharacterFrame(guts.box.pos);
-                pos->x -= FRAME_CHANGE_INTERVAL;
-                guts_animation_state = SIDE_IDLE;
-                drawCharacterFrame(guts.box.pos, guts_animation_state);
-                wait_msec(30000);
-                clearCharacterFrame(guts.box.pos);
-                pos->x -= FRAME_CHANGE_INTERVAL;
-                guts_animation_state = SIDE_WALK1;
-                drawCharacterFrame(guts.box.pos, guts_animation_state);
-                wait_msec(30000);
-                clearCharacterFrame(guts.box.pos);
-                pos->x -= FRAME_CHANGE_INTERVAL;
-                guts_animation_state = SIDE_WALK2;
-                drawCharacterFrame(guts.box.pos, guts_animation_state);
-                wait_msec(30000);
-                clearCharacterFrame(guts.box.pos);
-                pos->x -= FRAME_CHANGE_INTERVAL;
-                guts_animation_state = SIDE_IDLE;
-                drawCharacterFrame(guts.box.pos, guts_animation_state);
-                wait_msec(30000);
+                handleAndAnimateCharacterMovement(guts.box.pos, input);
                 check_entity(*pos, &star_flag);
                 check_entity(*pos, &bomb_flag);
                 check_entity(*pos, &key_flag);
@@ -417,26 +417,7 @@ void handle_input(Position *pos, int input)
             clear_fov(*pos, FOV_RADIUS);
             if (pos->x + PLAYER_STEP < MAZE_HEIGHT)
             {
-                clearCharacterFrame(guts.box.pos);
-                pos->x += FRAME_CHANGE_INTERVAL;
-                guts_animation_state = SIDE_IDLE;
-                drawCharacterFrame(guts.box.pos, guts_animation_state);
-                wait_msec(30000);
-                clearCharacterFrame(guts.box.pos);
-                pos->x += FRAME_CHANGE_INTERVAL;
-                guts_animation_state = SIDE_WALK1;
-                drawCharacterFrame(guts.box.pos, guts_animation_state);
-                wait_msec(30000);
-                clearCharacterFrame(guts.box.pos);
-                pos->x += FRAME_CHANGE_INTERVAL;
-                guts_animation_state = SIDE_WALK2;
-                drawCharacterFrame(guts.box.pos, guts_animation_state);
-                wait_msec(30000);
-                clearCharacterFrame(guts.box.pos);
-                pos->x += FRAME_CHANGE_INTERVAL;
-                guts_animation_state = SIDE_IDLE;
-                drawCharacterFrame(guts.box.pos, guts_animation_state);
-                wait_msec(30000);
+                handleAndAnimateCharacterMovement(guts.box.pos, input);
                 check_entity(*pos, &star_flag);
                 check_entity(*pos, &bomb_flag);
                 check_entity(*pos, &key_flag);
