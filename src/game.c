@@ -1,4 +1,5 @@
 #include "game.h"
+#include "uart.h"
 
 #define PLAYER_STEP 24
 #define PLAYER_RADIUS 5
@@ -11,6 +12,7 @@
 #define BOMB 0x00DC143C
 #define STAR 0x00A459D1
 #define KEY 0x0070AD47
+#define FRAME_CHANGE_INTERVAL 6
 
 int32_t FOV_RADIUS = 60;
 int32_t star_flag = 1;
@@ -22,6 +24,185 @@ Entity griffith;
 Entity star;
 Entity bomb;
 Entity key;
+
+uint32_t front_idle[100] = {
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00061123, 0x00061123, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x000a101a, 0x00f1d0ab, 0x00f1d0ab, 0x00f2d2ad, 0x00f0d1ac, 0x00f0d2aa, 0x00ecd6a5, 0x00081016, 0x00000000,
+    0x00000000, 0x00edd1ad, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00ecd2b0, 0x00000000,
+    0x00000000, 0x00f0d1ae, 0x00edd2ad, 0x000a0f1a, 0x00ead7a7, 0x00f0d2a8, 0x000b0d24, 0x00efd2ab, 0x00e3d4bf, 0x00000000,
+    0x00000000, 0x00f0d1af, 0x00f0d1ac, 0x00ebd1a8, 0x00efd2a9, 0x00f0d2aa, 0x00eed2b3, 0x00f0d1ac, 0x00e3d4bf, 0x00000000,
+    0x00000000, 0x00f3d3a8, 0x00f0d1ac, 0x00edcfa9, 0x00f0d2a9, 0x00f0d2aa, 0x00edd4b1, 0x00ecd4ab, 0x00f1d1ad, 0x00000000,
+    0x00000000, 0x00071120, 0x00a4a154, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00a7a454, 0x0009101d, 0x00000000,
+    0x00021125, 0x00eed2ac, 0x007c7266, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x007c7066, 0x00efd2ab, 0x0006131e,
+    0x00000000, 0x000d0f1d, 0x00f0d2aa, 0x00f0d1ac, 0x00eed2ab, 0x00eed2ad, 0x00f0d1ac, 0x00f0d1ab, 0x000a101d, 0x00000000,
+    0x00000000, 0x00000000, 0x00041024, 0x00041024, 0x00000000, 0x00000000, 0x0003111d, 0x00060e23, 0x00000000, 0x00000000};
+
+uint32_t front_walk1[100] = {
+    0x00000000, 0x00000000, 0x00000000, 0x000a0f25, 0x00061123, 0x00051123, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00061019, 0x00eed1ac, 0x00f0d2aa, 0x00f0d1ac, 0x00f0d1ac, 0x00f1d3ad, 0x00f5d1a9, 0x00000000, 0x00000000,
+    0x0007131b, 0x00eed3a8, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x000f0f10, 0x00000000,
+    0x0007111a, 0x00f0d2a8, 0x00130f0f, 0x0008101c, 0x00f0d2aa, 0x00080f24, 0x000d0c24, 0x00f0d1ac, 0x00160e05, 0x00000000,
+    0x00071217, 0x00eed3a8, 0x00f0d1ab, 0x00090d1e, 0x00f0d1ac, 0x00071329, 0x00f5d0ad, 0x00efd1ac, 0x00160e05, 0x00000000,
+    0x00081117, 0x00ecd4a8, 0x00eed2ab, 0x0009101f, 0x00f0d2aa, 0x00021025, 0x00f2d1ad, 0x00e6d8a8, 0x00120e0d, 0x00000000,
+    0x00000000, 0x0007101f, 0x00a7a255, 0x00eed1b2, 0x00efd1ac, 0x00f0d1ac, 0x00efd1ac, 0x00a9a052, 0x005b58a4, 0x000d101b,
+    0x00041118, 0x00f0d1ac, 0x007c7264, 0x00eed2a7, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d2aa, 0x00f0d3a9, 0x000a0e22, 0x00000000,
+    0x00000000, 0x000b101e, 0x00f1d3a9, 0x00edd3ad, 0x00edd3ad, 0x00edd1b1, 0x00edd2ae, 0x00f3d0b0, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x000d1013, 0x000b111b, 0x000d1419, 0x00000000, 0x00000000};
+
+uint32_t front_walk2[100] = {
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00061123, 0x00061123, 0x00061123, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00f3d0a2, 0x00f0d0ac, 0x00f1d2af, 0x00f0d1ac, 0x00f0d1ac, 0x00f1d3ad, 0x00151007, 0x00000000,
+    0x00000000, 0x000f1015, 0x00eed2ae, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d2aa, 0x00071020,
+    0x00000000, 0x000e0f14, 0x00edd3ac, 0x000a101c, 0x00031122, 0x00f0d1ab, 0x00080f24, 0x000a0f21, 0x00f0d2aa, 0x000b1017,
+    0x00000000, 0x000e1011, 0x00eed2ac, 0x00f0d1ac, 0x00070d25, 0x00f0d1ac, 0x00071329, 0x00f1d3ad, 0x00f0d2aa, 0x000b1017,
+    0x00000000, 0x00130d13, 0x00f3cfac, 0x00efd2aa, 0x00051027, 0x00f0d1ac, 0x00030f21, 0x00f0d2ac, 0x00f2d2a4, 0x00090f24,
+    0x000a0f1d, 0x005b5ba4, 0x000e1022, 0x00f0d1aa, 0x00efd1ac, 0x00f0d1ac, 0x00f0d3ab, 0x00a69f5b, 0x00090f20, 0x00000000,
+    0x00000000, 0x000a1022, 0x00f1d2a6, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f1d3ad, 0x007e7166, 0x00f0d3ab, 0x00080e1e,
+    0x00000000, 0x00000000, 0x00f0d1a9, 0x00edd2ac, 0x00eed2ac, 0x00edd2ab, 0x00edd3ab, 0x00edd3ab, 0x000b0d23, 0x00000000,
+    0x00000000, 0x00000000, 0x00080e16, 0x00081017, 0x000d121a, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000};
+
+uint32_t back_idle[100] = {
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00061124, 0x00031125, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00061018, 0x00f0d1ab, 0x00f0d1ab, 0x00f1d1ac, 0x00efd2ab, 0x00f1d1ab, 0x00edd4a6, 0x00070e1b, 0x00000000,
+    0x00000000, 0x00edd2b2, 0x00f0d1ac, 0x00f0d1ab, 0x00f0d1ad, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00e8d4b8, 0x00000000,
+    0x00000000, 0x00f0d1ac, 0x00efd1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00e3d4bf, 0x00000000,
+    0x00000000, 0x00eed1b2, 0x00efd1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00e3d4bf, 0x00000000,
+    0x00000000, 0x00f3d2a6, 0x00efd1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00edd3ac, 0x00ebd1b2, 0x00000000,
+    0x00000000, 0x00f1ceb3, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f1d1ab, 0x00ebd3b1, 0x00000000,
+    0x00041221, 0x007e6f66, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00efd2ab, 0x007f7162, 0x0006141b,
+    0x00000000, 0x0007121b, 0x00efd2ab, 0x00f0d1ac, 0x00efd2aa, 0x00f0d1ab, 0x00f0d1ac, 0x00efd2aa, 0x000b101f, 0x00000000,
+    0x00000000, 0x00000000, 0x00041123, 0x00061021, 0x00000000, 0x00000000, 0x0003111c, 0x00040f24, 0x00000000, 0x00000000};
+
+uint32_t back_walk1[100] = {
+    0x00000000, 0x000c0c13, 0x000b0d1d, 0x005d574f, 0x005f5852, 0x005e5852, 0x002f3335, 0x000a111c, 0x00000000, 0x00000000,
+    0x0024272e, 0x00726a5f, 0x00b6a188, 0x00edceaa, 0x00efd1ab, 0x00efd2aa, 0x00c4ad90, 0x009c8b78, 0x00262b30, 0x00001c1c,
+    0x004b4845, 0x00f0d1aa, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d2ac, 0x006e6358, 0x0007111c,
+    0x004b4746, 0x00f0d1aa, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x006e6456, 0x0007111c,
+    0x004b4844, 0x00f0d1aa, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x006e6456, 0x0007111c,
+    0x00433f3f, 0x00bda88c, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00dabf9f, 0x00484340, 0x0007111c,
+    0x00101527, 0x0034333d, 0x00cdb597, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00b7a387, 0x0027294c, 0x001f213c,
+    0x00202443, 0x007b73a2, 0x00dec3aa, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00e8cba6, 0x005f5952, 0x000a0f1d, 0x000e0e22,
+    0x0014172a, 0x00191c35, 0x00998878, 0x00b5a188, 0x00b7a087, 0x005c5760, 0x003c3b55, 0x00413f76, 0x00090e19, 0x00000000,
+    0x00000000, 0x00000000, 0x000e0e1c, 0x000b0d20, 0x000b0d1d, 0x00232848, 0x00292b4f, 0x0026274a, 0x00060c18, 0x00000000};
+
+uint32_t back_walk2[100] = {
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00061124, 0x00051124, 0x00041222, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00f1d2a6, 0x00f0d1ad, 0x00efd3aa, 0x00efd1ac, 0x00efd1ad, 0x00f0d1ab, 0x00120f0e, 0x00000000,
+    0x00000000, 0x000f0f10, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ab, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f1d2ab, 0x000a101a,
+    0x00000000, 0x000f0f13, 0x00efd1ac, 0x00eed2ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ab, 0x000c1015,
+    0x00000000, 0x000c1110, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ab, 0x000e0f15,
+    0x00000000, 0x00140d0e, 0x00f1d1ad, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f4d1a6, 0x000c0e1e,
+    0x00091014, 0x005d599d, 0x00f1d1a8, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1a9, 0x00100b19, 0x00000000,
+    0x00000000, 0x000a101c, 0x007d7160, 0x00efd2ab, 0x00efd1ad, 0x00f0d1ac, 0x00f0d1ac, 0x00edd3a8, 0x00605a99, 0x00080f18,
+    0x00000000, 0x00000000, 0x005d57a5, 0x000a0f1d, 0x00051124, 0x00efd2a9, 0x00efd2a9, 0x00ebd3af, 0x00070e1e, 0x00000000,
+    0x00000000, 0x00000000, 0x00090f1b, 0x00090f17, 0x000c1319, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000};
+
+uint32_t side_idle[100] = {
+    0x00000000, 0x00000000, 0x00000000, 0x00041127, 0x00050f21, 0x00031122, 0x00031325, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00051122, 0x00f2d3a9, 0x00f0d3ab, 0x00f2d1ac, 0x00f0d1ab, 0x00f0d1ac, 0x00f0d1a6, 0x00061022, 0x00000000,
+    0x0008111a, 0x00f2d2ab, 0x00eed2ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00efd2a9, 0x00090d1e,
+    0x000a1019, 0x00f0d1ab, 0x007a7267, 0x00071021, 0x00edd2ab, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00efd2a9, 0x000b0f1a,
+    0x000a101a, 0x00f0d1aa, 0x00797364, 0x00f0d3a4, 0x00f0d2ad, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00efd2a9, 0x000b0f1a,
+    0x000b0f1a, 0x00eed3aa, 0x00787363, 0x00f3d0ae, 0x00f0d1ad, 0x00f0d1ab, 0x00f0d1ac, 0x00f0d1ac, 0x00f3d2a3, 0x000c0e1c,
+    0x00000000, 0x00011122, 0x00f0d2aa, 0x00efd1ac, 0x00efd3a7, 0x00071020, 0x00031021, 0x007d7264, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x007b7165, 0x00f0d1ac, 0x00817062, 0x00f1d2ad, 0x00f3ceac, 0x000d101c, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x007c7160, 0x00f0d2a9, 0x00f0d2b0, 0x000b111e, 0x00021325, 0x007f7068, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00041027, 0x00041320, 0x0003131a, 0x00021120, 0x00000000, 0x00000000, 0x00000000};
+
+uint32_t side_walk1[100] = {
+    0x00000000, 0x00000000, 0x00000000, 0x00041125, 0x00050f23, 0x00060f24, 0x00051224, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00051122, 0x00f2d2ab, 0x00f0d3ab, 0x00f2d2aa, 0x00f0d1ac, 0x00f0d1ab, 0x00f0d1a8, 0x00041022, 0x00000000,
+    0x0008111a, 0x00f2d2ab, 0x00eed2ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00efd2aa, 0x00090e1d,
+    0x000a101a, 0x00f0d2aa, 0x007a7267, 0x00071021, 0x00edd2ab, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00efd2ab, 0x000b0f1a,
+    0x000a101a, 0x00f0d1aa, 0x00797364, 0x00f0d3a4, 0x00f0d2ad, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00efd2ab, 0x000b0f1a,
+    0x000b0f1a, 0x00eed3aa, 0x00787363, 0x00f2d0ae, 0x00f0d2ad, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f3d2a3, 0x000e0e1a,
+    0x00000000, 0x00011122, 0x00f0d2aa, 0x00eed2ae, 0x000a0f1e, 0x00f1d3ad, 0x00efd1ac, 0x007b7065, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x007b7165, 0x0001101e, 0x006156aa, 0x00a695ac, 0x007d7264, 0x0040413f, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x007c7162, 0x00eed1a9, 0x00090f1b, 0x00061120, 0x00f0d1ab, 0x00a696a3, 0x00080e1b, 0x00000000,
+    0x00000000, 0x00000000, 0x00071019, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00080d17, 0x00000000, 0x00000000};
+
+uint32_t side_walk2[100] = {
+    0x00000000, 0x00000000, 0x00000000, 0x00041125, 0x00050f23, 0x00031124, 0x00031324, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00051122, 0x00f2d2ab, 0x00f0d3ab, 0x00f2d2aa, 0x00f0d1ac, 0x00f0d1ab, 0x00f0d1a8, 0x00061022, 0x00000000,
+    0x0008111a, 0x00f2d2ab, 0x00eed2ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00efd2aa, 0x00080e1b,
+    0x000a101a, 0x00f0d2aa, 0x007a7267, 0x00071021, 0x00edd2ab, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00efd2ab, 0x000b0f1a,
+    0x000a101a, 0x00f0d1aa, 0x00797364, 0x00f0d3a4, 0x00f0d2ad, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ac, 0x00efd2ab, 0x000b0f1a,
+    0x000b0f1a, 0x00eed3aa, 0x00787363, 0x00f3d0ae, 0x00f0d1ad, 0x00f0d1ac, 0x00f0d1ac, 0x00f0d1ab, 0x00f3d2a3, 0x000c0e1a,
+    0x00000000, 0x00011122, 0x00f0d2aa, 0x00f0d1ad, 0x00f0d1ab, 0x00f0d1ac, 0x00f1d3a4, 0x000a1020, 0x00000000, 0x00000000,
+    0x00000000, 0x000a101a, 0x007b7165, 0x00f0d1ac, 0x00f0d1ab, 0x007c7264, 0x00a894a1, 0x00323462, 0x00000000, 0x00000000,
+    0x00080f20, 0x005c58a6, 0x00a595aa, 0x00f0d1ad, 0x00ecd3ad, 0x00e8d5ad, 0x0009111d, 0x00353461, 0x00080e1a, 0x00000000,
+    0x00000000, 0x00000000, 0x000a1018, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00070e16, 0x00000000, 0x00000000};
+
+AnimationState guts_animation_state = FRONT_IDLE;
+
+void drawCharacterFrame(Position pos, AnimationState state)
+{
+    uint32_t *currentFrame;
+    switch (state)
+    {
+    case FRONT_IDLE:
+        currentFrame = front_idle;
+        uart_puts("Drawing FRONT_IDLE frame.\n");
+        break;
+    case FRONT_WALK1:
+        currentFrame = front_walk1;
+        uart_puts("Drawing FRONT_WALK1 frame.\n");
+        break;
+    case FRONT_WALK2:
+        currentFrame = front_walk2;
+        uart_puts("Drawing FRONT_WALK2 frame.\n");
+        break;
+    case BACK_IDLE:
+        currentFrame = back_idle;
+        break;
+    case BACK_WALK1:
+        currentFrame = back_walk1;
+        break;
+    case BACK_WALK2:
+        currentFrame = back_walk2;
+        break;
+    case SIDE_IDLE:
+        currentFrame = side_idle;
+        break;
+    case SIDE_WALK1:
+        currentFrame = front_walk1;
+        break;
+    case SIDE_WALK2:
+        currentFrame = side_walk2;
+        break;
+    default:
+        currentFrame = front_idle;
+    }
+
+    int frameWidth = 10;
+
+    int startX = pos.x - frameWidth / 2;
+    int startY = pos.y - frameWidth / 2;
+
+    for (int y = 0; y < frameWidth; y++)
+    {
+        for (int x = 0; x < frameWidth; x++)
+        {
+            drawPixelARGB32(startX + x, startY + y, currentFrame[y * frameWidth + x]);
+        }
+    }
+}
+
+void clearCharacterFrame(Position pos)
+{
+    int frameWidth = 10;
+
+    int startX = pos.x - frameWidth / 2;
+    int startY = pos.y - frameWidth / 2;
+
+    for (int y = 0; y < frameWidth; y++)
+    {
+        for (int x = 0; x < frameWidth; x++)
+        {
+            drawPixelARGB32(startX + x, startY + y, WALL);
+        }
+    }
+}
 
 void game()
 {
@@ -82,7 +263,7 @@ void game()
         {
             make_fov(guts.box.pos, FOV_RADIUS);
             make_fov(griffith.box.pos, FOV_RADIUS);
-            drawCircleARGB32(guts.box.pos.x, guts.box.pos.y, PLAYER_RADIUS, GUTS);
+            drawCharacterFrame(guts.box.pos, guts_animation_state);
             drawCircleARGB32(griffith.box.pos.x, griffith.box.pos.y, PLAYER_RADIUS, GRIFFITH);
 
             if (star_flag == 1)
@@ -119,7 +300,26 @@ void handle_input(Position *pos, int input)
             clear_fov(*pos, FOV_RADIUS);
             if (pos->y - PLAYER_STEP > 0)
             {
-                pos->y -= PLAYER_STEP;
+                clearCharacterFrame(guts.box.pos);
+                pos->y -= FRAME_CHANGE_INTERVAL;
+                guts_animation_state = BACK_IDLE;
+                drawCharacterFrame(guts.box.pos, guts_animation_state);
+                wait_msec(30000);
+                clearCharacterFrame(guts.box.pos);
+                pos->y -= FRAME_CHANGE_INTERVAL;
+                guts_animation_state = BACK_WALK1;
+                drawCharacterFrame(guts.box.pos, guts_animation_state);
+                wait_msec(30000);
+                clearCharacterFrame(guts.box.pos);
+                pos->y -= FRAME_CHANGE_INTERVAL;
+                guts_animation_state = BACK_WALK2;
+                drawCharacterFrame(guts.box.pos, guts_animation_state);
+                wait_msec(30000);
+                clearCharacterFrame(guts.box.pos);
+                pos->y -= FRAME_CHANGE_INTERVAL;
+                guts_animation_state = BACK_IDLE;
+                drawCharacterFrame(guts.box.pos, guts_animation_state);
+                wait_msec(30000);
                 check_entity(*pos, &star_flag);
                 check_entity(*pos, &bomb_flag);
                 check_entity(*pos, &key_flag);
@@ -139,7 +339,26 @@ void handle_input(Position *pos, int input)
             clear_fov(*pos, FOV_RADIUS);
             if (pos->y + PLAYER_STEP < MAZE_WIDTH)
             {
-                pos->y += PLAYER_STEP;
+                clearCharacterFrame(guts.box.pos);
+                pos->y += FRAME_CHANGE_INTERVAL;
+                guts_animation_state = FRONT_IDLE;
+                drawCharacterFrame(guts.box.pos, guts_animation_state);
+                wait_msec(30000);
+                clearCharacterFrame(guts.box.pos);
+                pos->y += FRAME_CHANGE_INTERVAL;
+                guts_animation_state = FRONT_WALK1;
+                drawCharacterFrame(guts.box.pos, guts_animation_state);
+                wait_msec(30000);
+                clearCharacterFrame(guts.box.pos);
+                pos->y += FRAME_CHANGE_INTERVAL;
+                guts_animation_state = FRONT_WALK2;
+                drawCharacterFrame(guts.box.pos, guts_animation_state);
+                wait_msec(30000);
+                clearCharacterFrame(guts.box.pos);
+                pos->y += FRAME_CHANGE_INTERVAL;
+                guts_animation_state = FRONT_IDLE;
+                drawCharacterFrame(guts.box.pos, guts_animation_state);
+                wait_msec(30000);
                 check_entity(*pos, &star_flag);
                 check_entity(*pos, &bomb_flag);
                 check_entity(*pos, &key_flag);
@@ -159,7 +378,26 @@ void handle_input(Position *pos, int input)
             clear_fov(*pos, FOV_RADIUS);
             if (pos->x - PLAYER_STEP > 0)
             {
-                pos->x -= PLAYER_STEP;
+                clearCharacterFrame(guts.box.pos);
+                pos->x -= FRAME_CHANGE_INTERVAL;
+                guts_animation_state = SIDE_IDLE;
+                drawCharacterFrame(guts.box.pos, guts_animation_state);
+                wait_msec(30000);
+                clearCharacterFrame(guts.box.pos);
+                pos->x -= FRAME_CHANGE_INTERVAL;
+                guts_animation_state = SIDE_WALK1;
+                drawCharacterFrame(guts.box.pos, guts_animation_state);
+                wait_msec(30000);
+                clearCharacterFrame(guts.box.pos);
+                pos->x -= FRAME_CHANGE_INTERVAL;
+                guts_animation_state = SIDE_WALK2;
+                drawCharacterFrame(guts.box.pos, guts_animation_state);
+                wait_msec(30000);
+                clearCharacterFrame(guts.box.pos);
+                pos->x -= FRAME_CHANGE_INTERVAL;
+                guts_animation_state = SIDE_IDLE;
+                drawCharacterFrame(guts.box.pos, guts_animation_state);
+                wait_msec(30000);
                 check_entity(*pos, &star_flag);
                 check_entity(*pos, &bomb_flag);
                 check_entity(*pos, &key_flag);
@@ -179,7 +417,26 @@ void handle_input(Position *pos, int input)
             clear_fov(*pos, FOV_RADIUS);
             if (pos->x + PLAYER_STEP < MAZE_HEIGHT)
             {
-                pos->x += PLAYER_STEP;
+                clearCharacterFrame(guts.box.pos);
+                pos->x += FRAME_CHANGE_INTERVAL;
+                guts_animation_state = SIDE_IDLE;
+                drawCharacterFrame(guts.box.pos, guts_animation_state);
+                wait_msec(30000);
+                clearCharacterFrame(guts.box.pos);
+                pos->x += FRAME_CHANGE_INTERVAL;
+                guts_animation_state = SIDE_WALK1;
+                drawCharacterFrame(guts.box.pos, guts_animation_state);
+                wait_msec(30000);
+                clearCharacterFrame(guts.box.pos);
+                pos->x += FRAME_CHANGE_INTERVAL;
+                guts_animation_state = SIDE_WALK2;
+                drawCharacterFrame(guts.box.pos, guts_animation_state);
+                wait_msec(30000);
+                clearCharacterFrame(guts.box.pos);
+                pos->x += FRAME_CHANGE_INTERVAL;
+                guts_animation_state = SIDE_IDLE;
+                drawCharacterFrame(guts.box.pos, guts_animation_state);
+                wait_msec(30000);
                 check_entity(*pos, &star_flag);
                 check_entity(*pos, &bomb_flag);
                 check_entity(*pos, &key_flag);
@@ -261,15 +518,18 @@ int interact(int pos_x, int pos_y)
 {
     if (getPixelARGB32(pos_x, pos_y) == WALL)
         return 'w';
-    else if (detect_collision(guts.box, star.box) == 1){
+    else if (detect_collision(guts.box, star.box) == 1)
+    {
         uart_puts("Star found\n");
         return 's';
     }
-    else if (detect_collision(guts.box, bomb.box) == 1){
+    else if (detect_collision(guts.box, bomb.box) == 1)
+    {
         uart_puts("Bomb found\n");
         return 'b';
     }
-    else if (detect_collision(guts.box, key.box) == 1) {
+    else if (detect_collision(guts.box, key.box) == 1)
+    {
         uart_puts("Key found\n");
         return 'k';
     }

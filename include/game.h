@@ -22,9 +22,24 @@ typedef struct
     int height;
 } Box;
 
+typedef enum
+{
+    FRONT_IDLE,
+    FRONT_WALK1,
+    FRONT_WALK2,
+    BACK_IDLE,
+    BACK_WALK1,
+    BACK_WALK2,
+    SIDE_IDLE,
+    SIDE_WALK1,
+    SIDE_WALK2,
+} AnimationState;
+
 typedef struct
 {
     Box box;
+    Position pos;
+    AnimationState currentFrame;
 } Entity;
 
 void game();
