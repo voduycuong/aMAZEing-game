@@ -149,16 +149,20 @@ void game(int *level)
             if (star_flag == 1 && (guts.FOV_radius > distance(guts.box.pos.x, star.box.pos.x, guts.box.pos.y, star.box.pos.y) ||
                                    griffith.FOV_radius > distance(griffith.box.pos.x, star.box.pos.x, griffith.box.pos.y, star.box.pos.y)))
                 drawCircleARGB32(star.box.pos.x, star.box.pos.y, ENTITY_RADIUS, STAR);
+
             if (bomb_flag == 2 && (guts.FOV_radius > distance(guts.box.pos.x, bomb.box.pos.x, guts.box.pos.y, bomb.box.pos.y) ||
                                    griffith.FOV_radius > distance(griffith.box.pos.x, bomb.box.pos.x, griffith.box.pos.y, bomb.box.pos.y)))
                 drawCircleARGB32(bomb.box.pos.x, bomb.box.pos.y, ENTITY_RADIUS, BOMB);
+
             if (key_flag == 3 && (guts.FOV_radius > distance(guts.box.pos.x, key.box.pos.x, guts.box.pos.y, key.box.pos.y) ||
                                   griffith.FOV_radius > distance(griffith.box.pos.x, key.box.pos.x, griffith.box.pos.y, key.box.pos.y)))
                 drawCircleARGB32(key.box.pos.x, key.box.pos.y, ENTITY_RADIUS, KEY);
+
             if (trap_flag == 4 && detrap_flag == 5 &&
                 (guts.FOV_radius > distance(guts.box.pos.x, trap.box.pos.x, guts.box.pos.y, trap.box.pos.y) ||
                  griffith.FOV_radius > distance(griffith.box.pos.x, trap.box.pos.x, griffith.box.pos.y, trap.box.pos.y)))
                 drawCircleARGB32(trap.box.pos.x, trap.box.pos.y, ENTITY_RADIUS, TRAP);
+
             if (detrap_flag == 5 && (guts.FOV_radius > distance(guts.box.pos.x, detrap.box.pos.x, guts.box.pos.y, detrap.box.pos.y) ||
                                      griffith.FOV_radius > distance(griffith.box.pos.x, detrap.box.pos.x, griffith.box.pos.y, detrap.box.pos.y)))
                 drawCircleARGB32(detrap.box.pos.x, detrap.box.pos.y, ENTITY_RADIUS, DETRAP);
