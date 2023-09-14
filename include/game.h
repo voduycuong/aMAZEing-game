@@ -5,7 +5,7 @@
 #include "mbox.h"
 #include "framebf.h"
 #include "rand.h"
-
+#include "animation.h"
 #include "maze.h"
 #include "exit.h"
 
@@ -55,5 +55,9 @@ Position set_random_position();
 void load_full_maze();
 void clear_maze();
 void check_entity(Position pos, int *flag);
+
+void drawCharacterFrame(Position pos, AnimationState state);
+void clearCharacterFrame(Position pos);
+void handleAndAnimateCharacterMovement(Position *pos, int input);
 
 #endif
