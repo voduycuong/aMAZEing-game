@@ -8,18 +8,18 @@
 #define GRIFFITH 0x007030A0 // 2nd character
 #define WALL 0x00000000
 #define PATH 0x00FFFFFF
-#define BOMB 0x00FF0101 // Red
-#define STAR 0x00FFC000 // Yellow == Battery
-#define KEY 0x0070AD47  // Green
-#define TRAP 0x00FF28F0 // Pink
-#define TRAPLESS 0x0027FFDC // Cyan
+#define BOMB 0x00FF0101   // Red
+#define STAR 0x00FFC000   // Yellow == Battery
+#define KEY 0x0070AD47    // Green
+#define TRAP 0x00FF28F0   // Pink
+#define DETRAP 0x0027FFDC // Cyan
 
 int default_fov = 60;
 int star_flag = 1;
 int bomb_flag = 2;
 int key_flag = 3;
 int trap_flag = 4;
-int trapless_flag = 5;
+int detrap_flag = 5;
 
 Entity guts;
 Entity griffith;
@@ -27,8 +27,7 @@ Entity star;
 Entity bomb;
 Entity key;
 Entity trap;
-Entity trapless;
-
+Entity detrap;
 
 void game(int *level)
 {
@@ -42,9 +41,9 @@ void game(int *level)
     Position bomb_pos;
     Position key_pos;
     Position trap_pos;
-    Position trapless_pos;
+    Position detrap_pos;
 
-    set_maze_entity_position(*level, &start_pos2, &star_pos, &bomb_pos, &key_pos, &trap_pos, &trapless_pos, &default_fov);
+    set_maze_entity_position(*level, &start_pos2, &star_pos, &bomb_pos, &key_pos, &trap_pos, &detrap_pos, &default_fov);
 
     // Initialize hitbox
     Box guts_box = {start_pos1, ENTITY_RADIUS, ENTITY_RADIUS};
@@ -53,7 +52,7 @@ void game(int *level)
     Box bomb_box = {bomb_pos, ENTITY_RADIUS, ENTITY_RADIUS};
     Box key_box = {key_pos, ENTITY_RADIUS, ENTITY_RADIUS};
     Box trap_box = {trap_pos, ENTITY_RADIUS, ENTITY_RADIUS};
-    Box trapless_box = {trapless_pos, ENTITY_RADIUS, ENTITY_RADIUS};
+    Box detrap_box = {detrap_pos, ENTITY_RADIUS, ENTITY_RADIUS};
 
     // Initialize entity
     guts.box = guts_box;
@@ -64,7 +63,7 @@ void game(int *level)
     bomb.box = bomb_box;
     key.box = key_box;
     trap.box = trap_box;
-    trapless.box = trapless_box;
+    detrap.box = detrap_box;
 
     clear_maze();
     switch (*level)
@@ -104,16 +103,7 @@ void game(int *level)
                 temp_level++;
                 *level = temp_level;
 
-                // Set FOV
-                guts.FOV_radius = default_fov;
-                griffith.FOV_radius = default_fov;
-
-                // Reset flags
-                star_flag = 1;
-                bomb_flag = 2;
-                key_flag = 3;
-                trap_flag = 4;
-                trapless_flag = 5;
+                set_level();
                 break;
             }
         }
@@ -125,16 +115,29 @@ void game(int *level)
             drawCircleARGB32(guts.box.pos.x, guts.box.pos.y, ENTITY_RADIUS, GUTS);
             drawCircleARGB32(griffith.box.pos.x, griffith.box.pos.y, ENTITY_RADIUS, GRIFFITH);
 
+            if (detrap_flag == 0)
+            {
+                trap.box.pos.x = -1;
+                trap.box.pos.y = -1;
+            }
+            if (trap_flag == 0)
+            {
+                clear_maze();
+                drawStringARGB32(200, 400, "you died", 0x00ffffff, 3);
+                wait_msec(1000000);
+                set_level();
+                break;
+            }
             if (star_flag == 1)
                 drawCircleARGB32(star.box.pos.x, star.box.pos.y, ENTITY_RADIUS, STAR);
             if (bomb_flag == 2)
                 drawCircleARGB32(bomb.box.pos.x, bomb.box.pos.y, ENTITY_RADIUS, BOMB);
             if (key_flag == 3)
                 drawCircleARGB32(key.box.pos.x, key.box.pos.y, ENTITY_RADIUS, KEY);
-            if (trap_flag == 4)
+            if (trap_flag == 4 && detrap_flag == 5)
                 drawCircleARGB32(trap.box.pos.x, trap.box.pos.y, ENTITY_RADIUS, TRAP);
-            if (trapless_flag == 5)
-                drawCircleARGB32(trapless.box.pos.x, trapless.box.pos.y, ENTITY_RADIUS, TRAPLESS);
+            if (detrap_flag == 5)
+                drawCircleARGB32(detrap.box.pos.x, detrap.box.pos.y, ENTITY_RADIUS, DETRAP);
 
             char input = uart_getc();
             handle_input(&guts, input);
@@ -159,7 +162,7 @@ void handle_input(Entity *entity, int input)
                 check_entity(entity, &bomb, &bomb_flag);
                 check_entity(entity, &key, &key_flag);
                 check_entity(entity, &trap, &trap_flag);
-                check_entity(entity, &trapless, &trapless_flag);
+                check_entity(entity, &detrap, &detrap_flag);
             }
         }
         break;
@@ -175,7 +178,7 @@ void handle_input(Entity *entity, int input)
                 check_entity(entity, &bomb, &bomb_flag);
                 check_entity(entity, &key, &key_flag);
                 check_entity(entity, &trap, &trap_flag);
-                check_entity(entity, &trapless, &trapless_flag);
+                check_entity(entity, &detrap, &detrap_flag);
             }
         }
         break;
@@ -191,7 +194,7 @@ void handle_input(Entity *entity, int input)
                 check_entity(entity, &bomb, &bomb_flag);
                 check_entity(entity, &key, &key_flag);
                 check_entity(entity, &trap, &trap_flag);
-                check_entity(entity, &trapless, &trapless_flag);
+                check_entity(entity, &detrap, &detrap_flag);
             }
         }
         break;
@@ -207,7 +210,7 @@ void handle_input(Entity *entity, int input)
                 check_entity(entity, &bomb, &bomb_flag);
                 check_entity(entity, &key, &key_flag);
                 check_entity(entity, &trap, &trap_flag);
-                check_entity(entity, &trapless, &trapless_flag);
+                check_entity(entity, &detrap, &detrap_flag);
             }
         }
         break;
@@ -356,13 +359,14 @@ void check_entity(Entity *entity1, Entity *entity2, int *flag)
         else if (temp == 5) // Trapless
         {
             drawCircleARGB32(entity2->box.pos.x, entity2->box.pos.y, ENTITY_RADIUS, PATH);
-            temp = 0;        }
+            temp = 0;
+        }
     }
 
     *flag = temp;
 }
 
-void set_maze_entity_position(int level, Position *start2, Position *star, Position *bomb, Position *key, Position *trap, Position *trapless, int *fov)
+void set_maze_entity_position(int level, Position *start2, Position *star, Position *bomb, Position *key, Position *trap, Position *detrap, int *fov)
 {
     switch (level)
     {
@@ -383,8 +387,8 @@ void set_maze_entity_position(int level, Position *start2, Position *star, Posit
         trap->x = PLAYER_STEP * 3 - PLAYER_STEP / 2;
         trap->y = PLAYER_STEP * 6 - PLAYER_STEP / 2;
 
-        trapless->x = PLAYER_STEP * 18 - PLAYER_STEP / 2;
-        trapless->y = PLAYER_STEP * 18 - PLAYER_STEP / 2;
+        detrap->x = PLAYER_STEP * 18 - PLAYER_STEP / 2;
+        detrap->y = PLAYER_STEP * 18 - PLAYER_STEP / 2;
 
         *fov = 60;
 
@@ -407,8 +411,8 @@ void set_maze_entity_position(int level, Position *start2, Position *star, Posit
         trap->x = PLAYER_STEP * 18 - PLAYER_STEP / 2;
         trap->y = PLAYER_STEP * 5 - PLAYER_STEP / 2;
 
-        trapless->x = PLAYER_STEP * 5 - PLAYER_STEP / 2;
-        trapless->y = PLAYER_STEP * 18 - PLAYER_STEP / 2;
+        detrap->x = PLAYER_STEP * 5 - PLAYER_STEP / 2;
+        detrap->y = PLAYER_STEP * 18 - PLAYER_STEP / 2;
 
         *fov = 60;
         break;
@@ -430,8 +434,8 @@ void set_maze_entity_position(int level, Position *start2, Position *star, Posit
         trap->x = PLAYER_STEP * 18 - PLAYER_STEP / 2;
         trap->y = PLAYER_STEP * 10 - PLAYER_STEP / 2;
 
-        trapless->x = PLAYER_STEP * 2 - PLAYER_STEP / 2;
-        trapless->y = PLAYER_STEP * 6 - PLAYER_STEP / 2;
+        detrap->x = PLAYER_STEP * 2 - PLAYER_STEP / 2;
+        detrap->y = PLAYER_STEP * 6 - PLAYER_STEP / 2;
 
         *fov = 60;
         break;
@@ -453,8 +457,8 @@ void set_maze_entity_position(int level, Position *start2, Position *star, Posit
         trap->x = PLAYER_STEP * 6 - PLAYER_STEP / 2;
         trap->y = PLAYER_STEP * 14 - PLAYER_STEP / 2;
 
-        trapless->x = PLAYER_STEP * 16 - PLAYER_STEP / 2;
-        trapless->y = PLAYER_STEP * 6 - PLAYER_STEP / 2;
+        detrap->x = PLAYER_STEP * 16 - PLAYER_STEP / 2;
+        detrap->y = PLAYER_STEP * 6 - PLAYER_STEP / 2;
 
         *fov = 60;
         break;
@@ -476,15 +480,27 @@ void set_maze_entity_position(int level, Position *start2, Position *star, Posit
         trap->x = PLAYER_STEP * 4 - PLAYER_STEP / 2;
         trap->y = PLAYER_STEP * 8 - PLAYER_STEP / 2;
 
-        trapless->x = PLAYER_STEP * 8 - PLAYER_STEP / 2;
-        trapless->y = PLAYER_STEP * 17 - PLAYER_STEP / 2;
+        detrap->x = PLAYER_STEP * 8 - PLAYER_STEP / 2;
+        detrap->y = PLAYER_STEP * 17 - PLAYER_STEP / 2;
 
         *fov = 60;
         break;
 
-
     default:
         break;
-
     }
+}
+
+void set_level()
+{
+    // Set FOV
+    guts.FOV_radius = default_fov;
+    griffith.FOV_radius = default_fov;
+
+    // Reset flags
+    star_flag = 1;
+    bomb_flag = 2;
+    key_flag = 3;
+    trap_flag = 4;
+    detrap_flag = 5;
 }
