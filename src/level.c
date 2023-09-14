@@ -6,6 +6,7 @@ void choose_level()
 {
     while (1)
     {
+        load_background();
         drawStringARGB32(MAZE_WIDTH / 2 - 130, 20, "CHOOSE LEVEL", 0x00DC143C, 3); // Show title
         drawStringARGB32(MAZE_WIDTH / 2 - 50, 650, "back", 0x00DC143C, 2);         // back button
 
@@ -47,9 +48,6 @@ void choose_level()
 
 void show_box(int level)
 {
-    drawRectARGB32(0, 70, MAZE_WIDTH, MAZE_HEIGHT - 300, 0x00000000, 1); // Clear screen
-    drawCharARGB32('>', MAZE_WIDTH / 2 - 80, 660, 0x00000000, 2);
-
     int square_size = 150;
 
     int x1 = 115; // Left padding
@@ -90,4 +88,11 @@ void show_box(int level)
     default:
         break;
     }
+}
+
+void load_background()
+{
+    for (int y = 0; y <= MAZE_HEIGHT; y++)
+        for (int x = 0; x <= MAZE_WIDTH; x++)
+            drawPixelARGB32(x, y, epd_bitmap_level_background[0][y * MAZE_WIDTH + x]);
 }

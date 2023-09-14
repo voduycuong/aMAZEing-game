@@ -72,6 +72,8 @@ void cli()
 			clear_maze();
 			drawStringARGB32(250, 400, "the end", 0x00ffffff, 3);
 			wait_msec(2000000);
+			show_about();
+			wait_msec(2000000);
 			clear_maze();
 			show_main_menu();
 		}

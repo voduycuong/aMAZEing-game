@@ -302,8 +302,8 @@ void increase_fov(Position pos, int *radius)
 void decrease_fov(Position pos, int *radius)
 {
     drawCircleARGB32(pos.x, pos.y, *radius, WALL);
-    if (*radius > 60)
-        *radius -= 40;
+    if (*radius > PLAYER_STEP * 2)
+        *radius -= 30;
 }
 
 // Check if player has escaped or not
@@ -438,7 +438,7 @@ void set_maze_entity_position(int level, Position *start2, Position *star, Posit
         detrap->x = PLAYER_STEP * 18 - PLAYER_STEP / 2;
         detrap->y = PLAYER_STEP * 18 - PLAYER_STEP / 2;
 
-        // *fov = 60;
+        *fov = 88;
 
         break;
 
@@ -463,7 +463,7 @@ void set_maze_entity_position(int level, Position *start2, Position *star, Posit
         detrap->x = PLAYER_STEP * 5 - PLAYER_STEP / 2;
         detrap->y = PLAYER_STEP * 18 - PLAYER_STEP / 2;
 
-        // *fov = 60;
+        *fov = 83;
         break;
 
     case 2:
@@ -486,7 +486,7 @@ void set_maze_entity_position(int level, Position *start2, Position *star, Posit
         detrap->x = PLAYER_STEP * 2 - PLAYER_STEP / 2;
         detrap->y = PLAYER_STEP * 6 - PLAYER_STEP / 2;
 
-        // *fov = 60;
+        *fov = 78;
         break;
 
     case 3:
@@ -509,7 +509,7 @@ void set_maze_entity_position(int level, Position *start2, Position *star, Posit
         detrap->x = PLAYER_STEP * 16 - PLAYER_STEP / 2;
         detrap->y = PLAYER_STEP * 6 - PLAYER_STEP / 2;
 
-        // *fov = 60;
+        *fov = 68;
         break;
 
     case 4:
@@ -532,7 +532,7 @@ void set_maze_entity_position(int level, Position *start2, Position *star, Posit
         detrap->x = PLAYER_STEP * 8 - PLAYER_STEP / 2;
         detrap->y = PLAYER_STEP * 17 - PLAYER_STEP / 2;
 
-        // *fov = 60;
+        *fov = 58;
         break;
 
     default:
