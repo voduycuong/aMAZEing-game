@@ -8,9 +8,11 @@
 #define GRIFFITH 0x007030A0 // 2nd character
 #define WALL 0x00000000
 #define PATH 0x00FFFFFF
-#define BOMB 0x00FF0101 // Red
-#define STAR 0x00FFC000 // Yellow == Battery
-#define KEY 0x0070AD47  // Green
+#define BOMB 0x00FF0101   // Red
+#define STAR 0x00FFC000   // Yellow == Battery
+#define KEY 0x0070AD47    // Green
+#define TRAP 0x00FF28F0   // Pink
+#define DETRAP 0x0027FFDC // Cyan
 
 #define WHITE 0x00ffffff
 #define BLACK 0x00000000
@@ -19,16 +21,19 @@ int default_fov = 60;
 int star_flag = 1;
 int bomb_flag = 2;
 int key_flag = 3;
+int trap_flag = 4;
+int detrap_flag = 5;
 
 Entity guts;
 Entity griffith;
 Entity star;
 Entity bomb;
 Entity key;
+Entity trap;
+Entity detrap;
 
 void game(int *level)
 {
-
     // Default position of main character and exit gate
     Position start_pos1 = {PLAYER_STEP / 2, PLAYER_STEP * 10 - PLAYER_STEP / 2};                 // No modify
     Position end_pos = {PLAYER_STEP * 19 - PLAYER_STEP / 2, PLAYER_STEP * 10 - PLAYER_STEP / 2}; // No modify
@@ -38,8 +43,10 @@ void game(int *level)
     Position star_pos;
     Position bomb_pos;
     Position key_pos;
+    Position trap_pos;
+    Position detrap_pos;
 
-    set_maze_entity_position(*level, &start_pos2, &star_pos, &bomb_pos, &key_pos, &default_fov);
+    set_maze_entity_position(*level, &start_pos2, &star_pos, &bomb_pos, &key_pos, &trap_pos, &detrap_pos, &default_fov);
 
     // Initialize hitbox
     Box guts_box = {start_pos1, ENTITY_RADIUS, ENTITY_RADIUS};
@@ -47,6 +54,8 @@ void game(int *level)
     Box star_box = {star_pos, ENTITY_RADIUS, ENTITY_RADIUS};
     Box bomb_box = {bomb_pos, ENTITY_RADIUS, ENTITY_RADIUS};
     Box key_box = {key_pos, ENTITY_RADIUS, ENTITY_RADIUS};
+    Box trap_box = {trap_pos, ENTITY_RADIUS, ENTITY_RADIUS};
+    Box detrap_box = {detrap_pos, ENTITY_RADIUS, ENTITY_RADIUS};
 
     // Initialize entity
     guts.box = guts_box;
@@ -56,6 +65,8 @@ void game(int *level)
     star.box = star_box;
     bomb.box = bomb_box;
     key.box = key_box;
+    trap.box = trap_box;
+    detrap.box = detrap_box;
 
     clear_maze();
     switch (*level)
@@ -95,15 +106,7 @@ void game(int *level)
                 temp_level++;
                 *level = temp_level;
 
-                // Set FOV
-                guts.FOV_radius = default_fov;
-                griffith.FOV_radius = default_fov;
-
-                // Reset flags
-                star_flag = 1;
-                bomb_flag = 2;
-                key_flag = 3;
-
+                set_level();
                 break;
             }
         }
@@ -120,6 +123,19 @@ void game(int *level)
             drawCircleARGB32(guts.box.pos.x, guts.box.pos.y, ENTITY_RADIUS, GUTS);
             drawCircleARGB32(griffith.box.pos.x, griffith.box.pos.y, ENTITY_RADIUS, GRIFFITH);
 
+            if (detrap_flag == 0)
+            {
+                trap.box.pos.x = -1;
+                trap.box.pos.y = -1;
+            }
+            if (trap_flag == 0)
+            {
+                clear_maze();
+                drawStringARGB32(200, 400, "you died", 0x00ffffff, 3);
+                wait_msec(1000000);
+                set_level();
+                break;
+            }
             if (star_flag == 1)
                 drawCircleARGB32(star.box.pos.x, star.box.pos.y, ENTITY_RADIUS, BLACK);
             if (bomb_flag == 1)
@@ -136,6 +152,11 @@ void game(int *level)
             if (key_flag == 3 && (guts.FOV_radius > distance(guts.box.pos.x, key.box.pos.x, guts.box.pos.y, key.box.pos.y) ||
                                   griffith.FOV_radius > distance(griffith.box.pos.x, key.box.pos.x, griffith.box.pos.y, key.box.pos.y)))
                 drawCircleARGB32(key.box.pos.x, key.box.pos.y, ENTITY_RADIUS, KEY);
+
+            if (trap_flag == 4 && detrap_flag == 5)
+                drawCircleARGB32(trap.box.pos.x, trap.box.pos.y, ENTITY_RADIUS, TRAP);
+            if (detrap_flag == 5)
+                drawCircleARGB32(detrap.box.pos.x, detrap.box.pos.y, ENTITY_RADIUS, DETRAP);
 
             char input = uart_getc();
             handle_input(&guts, input);
@@ -159,6 +180,8 @@ void handle_input(Entity *entity, int input)
                 check_entity(entity, &star, &star_flag);
                 check_entity(entity, &bomb, &bomb_flag);
                 check_entity(entity, &key, &key_flag);
+                check_entity(entity, &trap, &trap_flag);
+                check_entity(entity, &detrap, &detrap_flag);
             }
         }
         break;
@@ -173,6 +196,8 @@ void handle_input(Entity *entity, int input)
                 check_entity(entity, &star, &star_flag);
                 check_entity(entity, &bomb, &bomb_flag);
                 check_entity(entity, &key, &key_flag);
+                check_entity(entity, &trap, &trap_flag);
+                check_entity(entity, &detrap, &detrap_flag);
             }
         }
         break;
@@ -187,6 +212,8 @@ void handle_input(Entity *entity, int input)
                 check_entity(entity, &star, &star_flag);
                 check_entity(entity, &bomb, &bomb_flag);
                 check_entity(entity, &key, &key_flag);
+                check_entity(entity, &trap, &trap_flag);
+                check_entity(entity, &detrap, &detrap_flag);
             }
         }
         break;
@@ -201,6 +228,8 @@ void handle_input(Entity *entity, int input)
                 check_entity(entity, &star, &star_flag);
                 check_entity(entity, &bomb, &bomb_flag);
                 check_entity(entity, &key, &key_flag);
+                check_entity(entity, &trap, &trap_flag);
+                check_entity(entity, &detrap, &detrap_flag);
             }
         }
         break;
@@ -339,27 +368,47 @@ void check_entity(Entity *entity1, Entity *entity2, int *flag)
             drawCircleARGB32(entity2->box.pos.x, entity2->box.pos.y, ENTITY_RADIUS, PATH);
             temp = 0;
         }
+
+        else if (temp == 4) // Trap
+        {
+            drawCircleARGB32(entity2->box.pos.x, entity2->box.pos.y, ENTITY_RADIUS, PATH);
+            temp = 0;
+        }
+
+        else if (temp == 5) // Trapless
+        {
+            drawCircleARGB32(entity2->box.pos.x, entity2->box.pos.y, ENTITY_RADIUS, PATH);
+            temp = 0;
+        }
     }
 
     *flag = temp;
 }
 
-void set_maze_entity_position(int level, Position *start2, Position *star, Position *bomb, Position *key, int *fov)
+void set_maze_entity_position(int level, Position *start2, Position *star, Position *bomb, Position *key, Position *trap, Position *detrap, int *fov)
 {
     switch (level)
     {
     case 0:
-        start2->x = PLAYER_STEP * 8 - PLAYER_STEP / 2;
-        start2->y = PLAYER_STEP * 4 - PLAYER_STEP / 2;
 
-        star->x = PLAYER_STEP * 8 - PLAYER_STEP / 2,
-        star->y = PLAYER_STEP * 14 - PLAYER_STEP / 2;
+        // level 1
+        start2->x = PLAYER_STEP * 3 - PLAYER_STEP / 2;
+        start2->y = PLAYER_STEP * 18 - PLAYER_STEP / 2;
 
-        bomb->x = PLAYER_STEP * 16 - PLAYER_STEP / 2;
-        bomb->y = PLAYER_STEP * 8 - PLAYER_STEP / 2;
+        star->x = PLAYER_STEP * 4 - PLAYER_STEP / 2,
+        star->y = PLAYER_STEP * 8 - PLAYER_STEP / 2;
 
-        key->x = PLAYER_STEP / 2 + PLAYER_STEP;
-        key->y = MAZE_WIDTH / 2 + PLAYER_STEP + PLAYER_STEP;
+        bomb->x = PLAYER_STEP * 7 - PLAYER_STEP / 2;
+        bomb->y = PLAYER_STEP * 10 - PLAYER_STEP / 2;
+
+        key->x = PLAYER_STEP * 16 - PLAYER_STEP / 2;
+        key->y = PLAYER_STEP * 12 - PLAYER_STEP / 2;
+
+        trap->x = PLAYER_STEP * 3 - PLAYER_STEP / 2;
+        trap->y = PLAYER_STEP * 6 - PLAYER_STEP / 2;
+
+        detrap->x = PLAYER_STEP * 18 - PLAYER_STEP / 2;
+        detrap->y = PLAYER_STEP * 18 - PLAYER_STEP / 2;
 
         *fov = 60;
 
@@ -368,21 +417,111 @@ void set_maze_entity_position(int level, Position *start2, Position *star, Posit
     case 1:
         // Level 2
 
+        start2->x = PLAYER_STEP * 2 - PLAYER_STEP / 2;
+        start2->y = PLAYER_STEP * 6 - PLAYER_STEP / 2;
+
+        star->x = PLAYER_STEP * 8 - PLAYER_STEP / 2,
+        star->y = PLAYER_STEP * 17 - PLAYER_STEP / 2;
+
+        bomb->x = PLAYER_STEP * 2 - PLAYER_STEP / 2;
+        bomb->y = PLAYER_STEP * 15 - PLAYER_STEP / 2;
+
+        key->x = PLAYER_STEP * 18 - PLAYER_STEP / 2;
+        key->y = PLAYER_STEP * 2 - PLAYER_STEP / 2;
+
+        trap->x = PLAYER_STEP * 18 - PLAYER_STEP / 2;
+        trap->y = PLAYER_STEP * 5 - PLAYER_STEP / 2;
+
+        detrap->x = PLAYER_STEP * 5 - PLAYER_STEP / 2;
+        detrap->y = PLAYER_STEP * 18 - PLAYER_STEP / 2;
+
+        *fov = 60;
         break;
+
     case 2:
         // Level 3
+        start2->x = PLAYER_STEP * 14 - PLAYER_STEP / 2;
+        start2->y = PLAYER_STEP * 8 - PLAYER_STEP / 2;
 
+        star->x = PLAYER_STEP * 4 - PLAYER_STEP / 2,
+        star->y = PLAYER_STEP * 12 - PLAYER_STEP / 2;
+
+        bomb->x = PLAYER_STEP * 14 - PLAYER_STEP / 2;
+        bomb->y = PLAYER_STEP * 15 - PLAYER_STEP / 2;
+
+        key->x = PLAYER_STEP * 14 - PLAYER_STEP / 2;
+        key->y = PLAYER_STEP * 18 - PLAYER_STEP / 2;
+
+        trap->x = PLAYER_STEP * 18 - PLAYER_STEP / 2;
+        trap->y = PLAYER_STEP * 10 - PLAYER_STEP / 2;
+
+        detrap->x = PLAYER_STEP * 2 - PLAYER_STEP / 2;
+        detrap->y = PLAYER_STEP * 6 - PLAYER_STEP / 2;
+
+        *fov = 60;
         break;
+
     case 3:
         // Level 4
+        start2->x = PLAYER_STEP * 8 - PLAYER_STEP / 2;
+        start2->y = PLAYER_STEP * 6 - PLAYER_STEP / 2;
 
+        star->x = PLAYER_STEP * 10 - PLAYER_STEP / 2,
+        star->y = PLAYER_STEP * 6 - PLAYER_STEP / 2;
+
+        bomb->x = PLAYER_STEP * 18 - PLAYER_STEP / 2;
+        bomb->y = PLAYER_STEP * 15 - PLAYER_STEP / 2;
+
+        key->x = PLAYER_STEP * 2 - PLAYER_STEP / 2;
+        key->y = PLAYER_STEP * 15 - PLAYER_STEP / 2;
+
+        trap->x = PLAYER_STEP * 6 - PLAYER_STEP / 2;
+        trap->y = PLAYER_STEP * 14 - PLAYER_STEP / 2;
+
+        detrap->x = PLAYER_STEP * 16 - PLAYER_STEP / 2;
+        detrap->y = PLAYER_STEP * 6 - PLAYER_STEP / 2;
+
+        *fov = 60;
         break;
+
     case 4:
         // Level 5
+        start2->x = PLAYER_STEP * 3 - PLAYER_STEP / 2;
+        start2->y = PLAYER_STEP * 2 - PLAYER_STEP / 2;
 
+        star->x = PLAYER_STEP * 16 - PLAYER_STEP / 2,
+        star->y = PLAYER_STEP * 8 - PLAYER_STEP / 2;
+
+        bomb->x = PLAYER_STEP * 13 - PLAYER_STEP / 2;
+        bomb->y = PLAYER_STEP * 10 - PLAYER_STEP / 2;
+
+        key->x = PLAYER_STEP * 18 - PLAYER_STEP / 2;
+        key->y = PLAYER_STEP * 8 - PLAYER_STEP / 2;
+
+        trap->x = PLAYER_STEP * 4 - PLAYER_STEP / 2;
+        trap->y = PLAYER_STEP * 8 - PLAYER_STEP / 2;
+
+        detrap->x = PLAYER_STEP * 8 - PLAYER_STEP / 2;
+        detrap->y = PLAYER_STEP * 17 - PLAYER_STEP / 2;
+
+        *fov = 60;
         break;
 
     default:
         break;
     }
+}
+
+void set_level()
+{
+    // Set FOV
+    guts.FOV_radius = default_fov;
+    griffith.FOV_radius = default_fov;
+
+    // Reset flags
+    star_flag = 1;
+    bomb_flag = 2;
+    key_flag = 3;
+    trap_flag = 4;
+    detrap_flag = 5;
 }

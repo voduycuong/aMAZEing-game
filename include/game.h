@@ -44,6 +44,7 @@ int detect_collision(Box a, Box b);
 void load_full_maze(int level);
 void clear_maze();
 void check_entity(Entity *entity1, Entity *entity2, int *flag);
-void set_maze_entity_position(int level, Position *start2, Position *star, Position *bomb, Position *key, int *fov);
+void set_maze_entity_position(int level, Position *start2, Position *star, Position *bomb, Position *key, Position *trap, Position *trapless, int *fov);
+void set_level();
 
 #endif
