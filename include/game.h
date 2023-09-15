@@ -10,6 +10,7 @@
 #include "printf.h"
 #include "math.h"
 #include "exit.h"
+#include "animation.h"
 
 extern int level;
 
@@ -26,10 +27,25 @@ typedef struct
     int height;
 } Box;
 
+typedef enum
+{
+    FRONT_IDLE,
+    FRONT_WALK1,
+    FRONT_WALK2,
+    BACK_IDLE,
+    BACK_WALK1,
+    BACK_WALK2,
+    SIDE_IDLE,
+    SIDE_WALK1,
+    SIDE_WALK2,
+} AnimationState;
+
 typedef struct
 {
     Box box;
     int FOV_radius;
+    Position pos;
+    AnimationState currentFrame;
 } Entity;
 
 void game(int *level);

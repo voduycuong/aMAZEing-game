@@ -15,6 +15,9 @@
 #define DETRAP 0x0027FFDC // Cyan
 #define WHITE 0x00ffffff
 #define BLACK 0x00000000
+#define FRAME_CHANGE_INTERVAL 6
+
+#define DELAY_TIME 15000
 
 int default_fov = 66;
 int star_flag = 1;
@@ -537,5 +540,140 @@ void set_maze_entity_position(int level, Position *start2, Position *star, Posit
 
     default:
         break;
+    }
+}
+
+void drawCharacterFrame(Position pos, AnimationState state)
+{
+    uint32_t *currentFrame;
+    switch (state)
+    {
+    case FRONT_IDLE:
+        currentFrame = front_idle;
+        uart_puts("Drawing FRONT_IDLE frame.\n");
+        break;
+    case FRONT_WALK1:
+        currentFrame = front_walk1;
+        uart_puts("Drawing FRONT_WALK1 frame.\n");
+        break;
+    case FRONT_WALK2:
+        currentFrame = front_walk2;
+        uart_puts("Drawing FRONT_WALK2 frame.\n");
+        break;
+    case BACK_IDLE:
+        currentFrame = back_idle;
+        break;
+    case BACK_WALK1:
+        currentFrame = back_walk1;
+        break;
+    case BACK_WALK2:
+        currentFrame = back_walk2;
+        break;
+    case SIDE_IDLE:
+        currentFrame = side_idle;
+        break;
+    case SIDE_WALK1:
+        currentFrame = front_walk1;
+        break;
+    case SIDE_WALK2:
+        currentFrame = side_walk2;
+        break;
+    default:
+        currentFrame = front_idle;
+    }
+
+    int frameWidth = 10;
+
+    int startX = pos.x - frameWidth / 2;
+    int startY = pos.y - frameWidth / 2;
+
+    for (int y = 0; y < frameWidth; y++)
+    {
+        for (int x = 0; x < frameWidth; x++)
+        {
+            drawPixelARGB32(startX + x, startY + y, currentFrame[y * frameWidth + x]);
+        }
+    }
+}
+
+void clearCharacterFrame(Position pos)
+{
+    int frameWidth = 10;
+
+    int startX = pos.x - frameWidth / 2;
+    int startY = pos.y - frameWidth / 2;
+
+    for (int y = 0; y < frameWidth; y++)
+    {
+        for (int x = 0; x < frameWidth; x++)
+        {
+            drawPixelARGB32(startX + x, startY + y, WALL);
+        }
+    }
+}
+
+void handleAndAnimateCharacterMovement(Position *pos, int input)
+{
+
+    Position temp = *pos;
+
+    uart_puts("calling this function.\n");
+    AnimationState animations[4];
+
+    switch (input)
+    {
+    case 'w':
+        animations[0] = BACK_IDLE;
+        animations[1] = BACK_WALK1;
+        animations[2] = BACK_WALK2;
+        animations[3] = BACK_IDLE;
+        break;
+    case 's':
+        animations[0] = FRONT_IDLE;
+        animations[1] = FRONT_WALK1;
+        animations[2] = FRONT_WALK2;
+        animations[3] = FRONT_IDLE;
+        break;
+    case 'a':
+        animations[0] = SIDE_IDLE;
+        animations[1] = SIDE_WALK1;
+        animations[2] = SIDE_WALK2;
+        animations[3] = SIDE_IDLE;
+    case 'd':
+        animations[0] = SIDE_IDLE;
+        animations[1] = SIDE_WALK1;
+        animations[2] = SIDE_WALK2;
+        animations[3] = SIDE_IDLE;
+        break;
+    default:
+        return;
+    }
+
+    for (int i = 0; i < 4; i++)
+    {
+        clearCharacterFrame(temp);
+
+        switch (input)
+        {
+        case 'w':
+            temp.y -= FRAME_CHANGE_INTERVAL;
+            break;
+        case 's':
+            temp.y += FRAME_CHANGE_INTERVAL;
+            break;
+        case 'a':
+            temp.x -= FRAME_CHANGE_INTERVAL;
+            break;
+        case 'd':
+            temp.x += FRAME_CHANGE_INTERVAL;
+            break;
+        }
+
+        *pos = temp;
+
+        guts_animation_state = animations[i];
+
+        drawCharacterFrame(*pos, guts_animation_state);
+        wait_msec(DELAY_TIME);
     }
 }
