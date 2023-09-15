@@ -192,8 +192,7 @@ void handle_input(Entity *entity, int input)
             clear_fov(entity->box.pos, entity->FOV_radius); // Clear previous FOV before moving
             if (entity->box.pos.y - PLAYER_STEP > 0)
             {
-                handleAndAnimateCharacterMovement(&pos, input, &guts);
-                handleAndAnimateCharacterMovement(&pos, input, &griffith);
+                handleAndAnimateCharacterMovement(&(entity->box.pos), input, entity);
                 check_entity(entity, &star, &star_flag);
                 check_entity(entity, &bomb, &bomb_flag);
                 check_entity(entity, &key, &key_flag);
