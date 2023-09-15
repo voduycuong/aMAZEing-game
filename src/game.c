@@ -17,7 +17,7 @@
 #define BLACK 0x00000000
 #define FRAME_CHANGE_INTERVAL 12
 
-#define DELAY_TIME 300000
+#define DELAY_TIME 90000
 
 int default_fov = 66;
 int star_flag = 1;

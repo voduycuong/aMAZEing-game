@@ -70,5 +70,8 @@ void clear_maze();
 void check_entity(Entity *entity1, Entity *entity2, int *flag);
 void set_maze_entity_position(int level, Position *start2, Position *star, Position *bomb, Position *key, Position *trap, Position *trapless, int *fov);
 void set_level();
+void drawCharacterFrame(Position pos, AnimationState state);
+void clearCharacterFrame(Position pos);
+void handleAndAnimateCharacterMovement(Position *pos, int input, Entity *entity);
 
 #endif
