@@ -33,34 +33,34 @@ all: $(TARGET).img
 
 $(TARGET).img: $(BLD_DIR)/boot.o $(OFILES)
 	@echo -------------------------------------
-	aarch64-none-elf-ld $(LDFLAGS) $(BLD_DIR)/boot.o $(OFILES) -T $(LFILES) -o $(BLD_DIR)/$(TARGET).elf
-	aarch64-none-elf-objcopy -O binary $(BLD_DIR)/$(TARGET).elf $(TARGET).img
+	@aarch64-none-elf-ld $(LDFLAGS) $(BLD_DIR)/boot.o $(OFILES) -T $(LFILES) -o $(BLD_DIR)/$(TARGET).elf
+	@aarch64-none-elf-objcopy -O binary $(BLD_DIR)/$(TARGET).elf $(TARGET).img
 	@echo -------------------------------------
 
 # ---------------------------------------------------------------------------------
 $(BLD_DIR)/boot.o: $(SRC_DIR)/boot.S | $(BLD_DIR)
-	$(CC) $(GCCFLAGS) -c $< -o $@
+	@$(CC) $(GCCFLAGS) -c $< -o $@
 
 $(BLD_DIR)/%.o: $(SRC_DIR)/%.c $(INC_DIR) | $(BLD_DIR)
-	$(CC) $(GCCFLAGS) -c $< -o $@ -I$(INC_DIR)
+	@$(CC) $(GCCFLAGS) -c $< -o $@ -I$(INC_DIR)
 # ---------------------------------------------------------------------------------
 
 $(BLD_DIR):
-	if not exist "$(BLD_DIR)" mkdir $(BLD_DIR)
+	@mkdir -p $(BLD_DIR)
 
 clean:
 	@echo -------------------------------------
 	@echo -- Deleting .o files:
-	rmdir /s /q $(BLD_DIR)
+	@rm -rf $(BLD_DIR)
 	@echo -- Deleting .img file:
-	del *.img
+	@rm -f *.img
 	@echo -------------------------------------
 
 diff:
 	@git status
 	@git diff --stat
-	
+
 run:
-	qemu-system-aarch64 -M raspi3 -kernel $(TARGET).img $(OPT)
+	@qemu-system-aarch64 -M raspi3b -kernel $(TARGET).img $(OPT)
 
 .PHONY: all clean diff

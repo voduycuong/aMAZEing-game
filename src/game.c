@@ -17,7 +17,7 @@
 #define BLACK 0x00000000
 #define FRAME_CHANGE_INTERVAL 12
 
-#define DELAY_TIME 15000
+#define DELAY_TIME 100000
 
 int default_fov = 66;
 int star_flag = 1;
@@ -34,8 +34,8 @@ Entity key;
 Entity trap;
 Entity detrap;
 
-AnimationState guts_animation_state = FRONT_IDLE;
-AnimationState griffith_animation_state = BACK_IDLE;
+AnimationState guts_animation_state = GUTS_FRONT_IDLE;
+AnimationState griffith_animation_state = GRIFFITH_FRONT_IDLE;
 
 void game(int *level)
 {
@@ -75,8 +75,8 @@ void game(int *level)
 
     clear_maze();
 
-    guts.currentFrame = FRONT_IDLE;
-    griffith.currentFrame = BACK_IDLE;
+    guts.currentFrame = GUTS_FRONT_IDLE;
+    griffith.currentFrame = GRIFFITH_FRONT_IDLE;
 
     switch (*level) // Show level title
     {
@@ -554,65 +554,83 @@ void drawCharacterFrame(Position pos, AnimationState state)
     uint32_t *currentFrame;
     switch (state)
     {
-    case FRONT_IDLE:
-        currentFrame = front_idle;
+    case GUTS_FRONT_IDLE:
+        currentFrame = guts_front_idle;
         break;
-    case FRONT_WALK1:
-        currentFrame = front_walk1;
+    case GUTS_FRONT_WALK1:
+        currentFrame = guts_front_walk1;
         break;
-    case FRONT_WALK2:
-        currentFrame = front_walk2;
+    case GUTS_FRONT_WALK2:
+        currentFrame = guts_front_walk2;
         break;
-    case BACK_IDLE:
-        currentFrame = back_idle;
+    case GUTS_BACK_IDLE:
+        currentFrame = guts_back_idle;
         break;
-    case BACK_WALK1:
-        currentFrame = back_walk1;
+    case GUTS_BACK_WALK1:
+        currentFrame = guts_back_walk1;
         break;
-    case BACK_WALK2:
-        currentFrame = back_walk2;
+    case GUTS_BACK_WALK2:
+        currentFrame = guts_back_walk2;
         break;
-    case SIDE_IDLE:
-        currentFrame = side_idle;
+    case GUTS_RIGHT_IDLE:
+        currentFrame = guts_right_idle;
         break;
-    case SIDE_WALK1:
-        currentFrame = side_walk1;
+    case GUTS_RIGHT_WALK1:
+        currentFrame = guts_right_walk1;
         break;
-    case SIDE_WALK2:
-        currentFrame = side_walk2;
+    case GUTS_RIGHT_WALK2:
+        currentFrame = guts_right_walk2;
+        break;
+    case GUTS_LEFT_IDLE:
+        currentFrame = guts_left_idle;
+        break;
+    case GUTS_LEFT_WALK1:
+        currentFrame = guts_left_walk1;
+        break;
+    case GUTS_LEFT_WALK2:
+        currentFrame = guts_left_walk2;
         break;
     case GRIFFITH_FRONT_IDLE:
-        currentFrame = side_idle;
+        currentFrame = griffith_front_idle;
         break;
     case GRIFFITH_FRONT_WALK1:
-        currentFrame = side_walk1;
+        currentFrame = griffith_front_walk1;
         break;
     case GRIFFITH_FRONT_WALK2:
-        currentFrame = side_walk2;
+        currentFrame = griffith_front_walk2;
         break;
     case GRIFFITH_BACK_IDLE:
-        currentFrame = front_idle;
+        currentFrame = griffith_back_idle;
         break;
     case GRIFFITH_BACK_WALK1:
-        currentFrame = front_walk1;
+        currentFrame = griffith_back_walk1;
         break;
     case GRIFFITH_BACK_WALK2:
-        currentFrame = front_walk2;
+        currentFrame = griffith_back_walk2;
         break;
-    case GRIFFITH_SIDE_IDLE:
-        currentFrame = back_idle;
+    case GRIFFITH_RIGHT_IDLE:
+        currentFrame = griffith_right_idle;
         break;
-    case GRIFFITH_SIDE_WALK1:
-        currentFrame = back_walk1;
+    case GRIFFITH_RIGHT_WALK1:
+        currentFrame = griffith_right_walk1;
         break;
-    case GRIFFITH_SIDE_WALK2:
-        currentFrame = back_walk2;
+    case GRIFFITH_RIGHT_WALK2:
+        currentFrame = griffith_right_walk2;
+        break;
+    case GRIFFITH_LEFT_IDLE:
+        currentFrame = griffith_left_idle;
+        break;
+    case GRIFFITH_LEFT_WALK1:
+        currentFrame = griffith_left_walk1;
+        break;
+    case GRIFFITH_LEFT_WALK2:
+        currentFrame = griffith_left_walk2;
         break;
     default:
-        currentFrame = front_idle;
+        currentFrame = guts_front_idle;
     }
 
-    int frameWidth = 10;
+    int frameWidth = 20;
     uint32_t black = 0x00000000;
 
     int startX = pos.x - frameWidth / 2;
@@ -634,7 +652,7 @@ void drawCharacterFrame(Position pos, AnimationState state)
 
 void clearCharacterFrame(Position pos)
 {
-    int frameWidth = 10;
+    int frameWidth = 20;
 
     int startX = pos.x - frameWidth / 2;
     int startY = pos.y - frameWidth / 2;
@@ -658,65 +676,65 @@ void handleAndAnimateCharacterMovement(Entity *entity, int input, int level)
     case 'w':
         if (entity == &guts)
         {
-            animations[0] = BACK_IDLE;
-            animations[1] = BACK_WALK1;
-            animations[2] = BACK_WALK2;
-            animations[3] = BACK_IDLE;
+            animations[0] = GUTS_BACK_IDLE;
+            animations[1] = GUTS_BACK_WALK1;
+            animations[2] = GUTS_BACK_WALK2;
+            animations[3] = GUTS_BACK_IDLE;
         }
         else if (entity == &griffith)
         {
-            animations[0] = FRONT_IDLE;
-            animations[1] = FRONT_WALK1;
-            animations[2] = FRONT_WALK2;
-            animations[3] = FRONT_IDLE;
+            animations[0] = GRIFFITH_BACK_IDLE;
+            animations[1] = GRIFFITH_BACK_WALK1;
+            animations[2] = GRIFFITH_BACK_WALK2;
+            animations[3] = GRIFFITH_BACK_IDLE;
         }
         break;
     case 's':
         if (entity == &guts)
         {
-            animations[0] = FRONT_IDLE;
-            animations[1] = FRONT_WALK1;
-            animations[2] = FRONT_WALK2;
-            animations[3] = FRONT_IDLE;
+            animations[0] = GUTS_FRONT_IDLE;
+            animations[1] = GUTS_FRONT_WALK1;
+            animations[2] = GUTS_FRONT_WALK2;
+            animations[3] = GUTS_FRONT_IDLE;
         }
         else if (entity == &griffith)
         {
-            animations[0] = SIDE_IDLE;
-            animations[1] = SIDE_WALK1;
-            animations[2] = SIDE_WALK2;
-            animations[3] = SIDE_IDLE;
+            animations[0] = GRIFFITH_FRONT_IDLE;
+            animations[1] = GRIFFITH_FRONT_WALK1;
+            animations[2] = GRIFFITH_FRONT_WALK2;
+            animations[3] = GRIFFITH_FRONT_IDLE;
         }
         break;
     case 'a':
         if (entity == &guts)
         {
-            animations[0] = SIDE_IDLE;
-            animations[1] = SIDE_WALK1;
-            animations[2] = SIDE_WALK2;
-            animations[3] = SIDE_IDLE;
+            animations[0] = GUTS_LEFT_IDLE;
+            animations[1] = GUTS_LEFT_WALK1;
+            animations[2] = GUTS_LEFT_WALK2;
+            animations[3] = GUTS_LEFT_IDLE;
         }
         else if (entity == &griffith)
         {
-            animations[0] = BACK_IDLE;
-            animations[1] = BACK_WALK1;
-            animations[2] = BACK_WALK2;
-            animations[3] = BACK_IDLE;
+            animations[0] = GRIFFITH_LEFT_IDLE;
+            animations[1] = GRIFFITH_LEFT_WALK1;
+            animations[2] = GRIFFITH_LEFT_WALK2;
+            animations[3] = GRIFFITH_LEFT_IDLE;
         }
         break;
     case 'd':
         if (entity == &guts)
         {
-            animations[0] = SIDE_IDLE;
-            animations[1] = SIDE_WALK1;
-            animations[2] = SIDE_WALK2;
-            animations[3] = SIDE_IDLE;
+            animations[0] = GUTS_RIGHT_IDLE;
+            animations[1] = GUTS_RIGHT_WALK1;
+            animations[2] = GUTS_RIGHT_WALK2;
+            animations[3] = GUTS_RIGHT_IDLE;
         }
         else if (entity == &griffith)
         {
-            animations[0] = BACK_IDLE;
-            animations[1] = BACK_WALK1;
-            animations[2] = BACK_WALK2;
-            animations[3] = BACK_IDLE;
+            animations[0] = GRIFFITH_RIGHT_IDLE;
+            animations[1] = GRIFFITH_RIGHT_WALK1;
+            animations[2] = GRIFFITH_RIGHT_WALK2;
+            animations[3] = GRIFFITH_RIGHT_IDLE;
         }
         break;
     default:
