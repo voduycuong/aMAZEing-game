@@ -15,9 +15,9 @@
 #define DETRAP 0x0027FFDC // Cyan
 #define WHITE 0x00ffffff
 #define BLACK 0x00000000
-#define FRAME_CHANGE_INTERVAL 6
+#define FRAME_CHANGE_INTERVAL 12
 
-#define DELAY_TIME 15000
+#define DELAY_TIME 300000
 
 int default_fov = 66;
 int star_flag = 1;
@@ -75,6 +75,9 @@ void game(int *level)
 
     clear_maze();
 
+    guts.currentFrame = FRONT_IDLE;
+    griffith.currentFrame = BACK_IDLE;
+
     switch (*level) // Show level title
     {
     case 0:
@@ -125,8 +128,8 @@ void game(int *level)
             make_fov(griffith.box.pos, griffith.FOV_radius, *level);
 
             // Draw 2 characters
-            drawCircleARGB32(guts.box.pos.x, guts.box.pos.y, ENTITY_RADIUS, GUTS);
-            drawCircleARGB32(griffith.box.pos.x, griffith.box.pos.y, ENTITY_RADIUS, GRIFFITH);
+            drawCharacterFrame(guts.box.pos, guts.currentFrame);
+            drawCharacterFrame(griffith.box.pos, griffith.currentFrame);
 
             if (detrap_flag == 0) // Check for detrap, if detrapped, deactivate trap
             {
@@ -208,7 +211,7 @@ void handle_input(Entity *entity, int input)
             clear_fov(entity->box.pos, entity->FOV_radius);
             if (entity->box.pos.y + PLAYER_STEP < MAZE_WIDTH)
             {
-                entity->box.pos.y += PLAYER_STEP;
+                handleAndAnimateCharacterMovement(&(entity->box.pos), input, entity);
                 check_entity(entity, &star, &star_flag);
                 check_entity(entity, &bomb, &bomb_flag);
                 check_entity(entity, &key, &key_flag);
@@ -224,7 +227,7 @@ void handle_input(Entity *entity, int input)
             clear_fov(entity->box.pos, entity->FOV_radius);
             if (entity->box.pos.x - PLAYER_STEP > 0)
             {
-                entity->box.pos.x -= PLAYER_STEP;
+                handleAndAnimateCharacterMovement(&(entity->box.pos), input, entity);
                 check_entity(entity, &star, &star_flag);
                 check_entity(entity, &bomb, &bomb_flag);
                 check_entity(entity, &key, &key_flag);
@@ -240,7 +243,7 @@ void handle_input(Entity *entity, int input)
             clear_fov(entity->box.pos, entity->FOV_radius);
             if (entity->box.pos.x + PLAYER_STEP < MAZE_HEIGHT)
             {
-                entity->box.pos.x += PLAYER_STEP;
+                handleAndAnimateCharacterMovement(&(entity->box.pos), input, entity);
                 check_entity(entity, &star, &star_flag);
                 check_entity(entity, &bomb, &bomb_flag);
                 check_entity(entity, &key, &key_flag);
@@ -553,15 +556,12 @@ void drawCharacterFrame(Position pos, AnimationState state)
     {
     case FRONT_IDLE:
         currentFrame = front_idle;
-        uart_puts("Drawing FRONT_IDLE frame.\n");
         break;
     case FRONT_WALK1:
         currentFrame = front_walk1;
-        uart_puts("Drawing FRONT_WALK1 frame.\n");
         break;
     case FRONT_WALK2:
         currentFrame = front_walk2;
-        uart_puts("Drawing FRONT_WALK2 frame.\n");
         break;
     case BACK_IDLE:
         currentFrame = back_idle;
@@ -598,6 +598,7 @@ void drawCharacterFrame(Position pos, AnimationState state)
         break;
     case GRIFFITH_BACK_WALK2:
         currentFrame = front_walk2;
+        break;
     case GRIFFITH_SIDE_IDLE:
         currentFrame = back_idle;
         break;
@@ -646,7 +647,6 @@ void handleAndAnimateCharacterMovement(Position *pos, int input, Entity *entity)
 
     Position temp = *pos;
 
-    uart_puts("calling this function.\n");
     AnimationState animations[4];
 
     switch (input)
@@ -740,12 +740,8 @@ void handleAndAnimateCharacterMovement(Position *pos, int input, Entity *entity)
         }
 
         *pos = temp;
-
-        guts_animation_state = animations[i];
-        griffith_animation_state = animations[i];
-
-        drawCharacterFrame(*pos, guts_animation_state);
-        drawCharacterFrame(*pos, griffith_animation_state);
+        entity->currentFrame = animations[i];
+        drawCharacterFrame(*pos, entity->currentFrame);
         wait_msec(DELAY_TIME);
     }
 }
