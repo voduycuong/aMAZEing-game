@@ -613,6 +613,7 @@ void drawCharacterFrame(Position pos, AnimationState state)
     }
 
     int frameWidth = 10;
+    uint32_t black = 0x00000000;
 
     int startX = pos.x - frameWidth / 2;
     int startY = pos.y - frameWidth / 2;
@@ -621,7 +622,12 @@ void drawCharacterFrame(Position pos, AnimationState state)
     {
         for (int x = 0; x < frameWidth; x++)
         {
-            drawPixelARGB32(startX + x, startY + y, currentFrame[y * frameWidth + x]);
+            uint32_t pixel = currentFrame[y * frameWidth + x];
+
+            if (pixel != black)
+            {
+                drawPixelARGB32(startX + x, startY + y, pixel);
+            }
         }
     }
 }
