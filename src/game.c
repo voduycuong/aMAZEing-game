@@ -573,10 +573,36 @@ void drawCharacterFrame(Position pos, AnimationState state)
         currentFrame = side_idle;
         break;
     case SIDE_WALK1:
-        currentFrame = front_walk1;
+        currentFrame = side_walk1;
         break;
     case SIDE_WALK2:
         currentFrame = side_walk2;
+        break;
+    case GRIFFITH_FRONT_IDLE:
+        currentFrame = side_idle;
+        break;
+    case GRIFFITH_FRONT_WALK1:
+        currentFrame = side_walk1;
+        break;
+    case GRIFFITH_FRONT_WALK2:
+        currentFrame = side_walk2;
+        break;
+    case GRIFFITH_BACK_IDLE:
+        currentFrame = front_idle;
+        break;
+    case GRIFFITH_BACK_WALK1:
+        currentFrame = front_walk1;
+        break;
+    case GRIFFITH_BACK_WALK2:
+        currentFrame = front_walk2;
+    case GRIFFITH_FRONT_IDLE:
+        currentFrame = back_idle;
+        break;
+    case GRIFFITH_FRONT_WALK1:
+        currentFrame = back_walk1;
+        break;
+    case GRIFFITH_FRONT_WALK2:
+        currentFrame = back_walk2;
         break;
     default:
         currentFrame = front_idle;
