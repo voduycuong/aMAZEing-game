@@ -34,6 +34,9 @@ Entity key;
 Entity trap;
 Entity detrap;
 
+AnimationState guts_animation_state = FRONT_IDLE;
+AnimationState griffith_animation_state = BACK_IDLE;
+
 void game(int *level)
 {
     // Default position of main character and exit gate
@@ -189,7 +192,8 @@ void handle_input(Entity *entity, int input)
             clear_fov(entity->box.pos, entity->FOV_radius); // Clear previous FOV before moving
             if (entity->box.pos.y - PLAYER_STEP > 0)
             {
-                entity->box.pos.y -= PLAYER_STEP;
+                handleAndAnimateCharacterMovement(&pos, input, &guts);
+                handleAndAnimateCharacterMovement(&pos, input, &griffith);
                 check_entity(entity, &star, &star_flag);
                 check_entity(entity, &bomb, &bomb_flag);
                 check_entity(entity, &key, &key_flag);
@@ -595,13 +599,13 @@ void drawCharacterFrame(Position pos, AnimationState state)
         break;
     case GRIFFITH_BACK_WALK2:
         currentFrame = front_walk2;
-    case GRIFFITH_FRONT_IDLE:
+    case GRIFFITH_SIDE_IDLE:
         currentFrame = back_idle;
         break;
-    case GRIFFITH_FRONT_WALK1:
+    case GRIFFITH_SIDE_WALK1:
         currentFrame = back_walk1;
         break;
-    case GRIFFITH_FRONT_WALK2:
+    case GRIFFITH_SIDE_WALK2:
         currentFrame = back_walk2;
         break;
     default:
@@ -638,7 +642,7 @@ void clearCharacterFrame(Position pos)
     }
 }
 
-void handleAndAnimateCharacterMovement(Position *pos, int input)
+void handleAndAnimateCharacterMovement(Position *pos, int input, Entity *entity)
 {
 
     Position temp = *pos;
@@ -649,27 +653,68 @@ void handleAndAnimateCharacterMovement(Position *pos, int input)
     switch (input)
     {
     case 'w':
-        animations[0] = BACK_IDLE;
-        animations[1] = BACK_WALK1;
-        animations[2] = BACK_WALK2;
-        animations[3] = BACK_IDLE;
+        if (entity == &guts)
+        {
+            animations[0] = BACK_IDLE;
+            animations[1] = BACK_WALK1;
+            animations[2] = BACK_WALK2;
+            animations[3] = BACK_IDLE;
+        }
+        else if (entity == &griffith)
+        {
+            animations[0] = FRONT_IDLE;
+            animations[1] = FRONT_WALK1;
+            animations[2] = FRONT_WALK2;
+            animations[3] = FRONT_IDLE;
+        }
         break;
     case 's':
-        animations[0] = FRONT_IDLE;
-        animations[1] = FRONT_WALK1;
-        animations[2] = FRONT_WALK2;
-        animations[3] = FRONT_IDLE;
+        if (entity == &guts)
+        {
+            animations[0] = FRONT_IDLE;
+            animations[1] = FRONT_WALK1;
+            animations[2] = FRONT_WALK2;
+            animations[3] = FRONT_IDLE;
+        }
+        else if (entity == &griffith)
+        {
+            animations[0] = SIDE_IDLE;
+            animations[1] = SIDE_WALK1;
+            animations[2] = SIDE_WALK2;
+            animations[3] = SIDE_IDLE;
+        }
         break;
     case 'a':
-        animations[0] = SIDE_IDLE;
-        animations[1] = SIDE_WALK1;
-        animations[2] = SIDE_WALK2;
-        animations[3] = SIDE_IDLE;
+        if (entity == &guts)
+        {
+            animations[0] = SIDE_IDLE;
+            animations[1] = SIDE_WALK1;
+            animations[2] = SIDE_WALK2;
+            animations[3] = SIDE_IDLE;
+        }
+        else if (entity == &griffith)
+        {
+            animations[0] = BACK_IDLE;
+            animations[1] = BACK_WALK1;
+            animations[2] = BACK_WALK2;
+            animations[3] = BACK_IDLE;
+        }
+        break;
     case 'd':
-        animations[0] = SIDE_IDLE;
-        animations[1] = SIDE_WALK1;
-        animations[2] = SIDE_WALK2;
-        animations[3] = SIDE_IDLE;
+        if (entity == &guts)
+        {
+            animations[0] = SIDE_IDLE;
+            animations[1] = SIDE_WALK1;
+            animations[2] = SIDE_WALK2;
+            animations[3] = SIDE_IDLE;
+        }
+        else if (entity == &griffith)
+        {
+            animations[0] = BACK_IDLE;
+            animations[1] = BACK_WALK1;
+            animations[2] = BACK_WALK2;
+            animations[3] = BACK_IDLE;
+        }
         break;
     default:
         return;
@@ -698,8 +743,10 @@ void handleAndAnimateCharacterMovement(Position *pos, int input)
         *pos = temp;
 
         guts_animation_state = animations[i];
+        griffith_animation_state = animations[i];
 
         drawCharacterFrame(*pos, guts_animation_state);
+        drawCharacterFrame(*pos, griffith_animation_state);
         wait_msec(DELAY_TIME);
     }
 }
