@@ -53,12 +53,11 @@ typedef struct
 {
     Box box;
     int FOV_radius;
-    Position pos;
     AnimationState currentFrame;
 } Entity;
 
 void game(int *level);
-void handle_input(Entity *entity, int input);
+void handle_input(Entity *entity, int input, int level);
 void make_fov(Position pos, int radius, int level);
 void clear_fov(Position pos, int radius);
 void increase_fov(Position pos, int *radius);
@@ -72,6 +71,6 @@ void set_maze_entity_position(int level, Position *start2, Position *star, Posit
 void set_level();
 void drawCharacterFrame(Position pos, AnimationState state);
 void clearCharacterFrame(Position pos);
-void handleAndAnimateCharacterMovement(Position *pos, int input, Entity *entity);
+void handleAndAnimateCharacterMovement(Entity *entity, int input, int level);
 
 #endif

@@ -17,7 +17,7 @@
 #define BLACK 0x00000000
 #define FRAME_CHANGE_INTERVAL 12
 
-#define DELAY_TIME 90000
+#define DELAY_TIME 15000
 
 int default_fov = 66;
 int star_flag = 1;
@@ -178,24 +178,24 @@ void game(int *level)
 
             // Get direction from player
             char input = uart_getc();
-            handle_input(&guts, input);
-            handle_input(&griffith, input);
+            handle_input(&guts, input, *level);
+            handle_input(&griffith, input, *level);
         }
     }
 }
 
 // Function for input directions
-void handle_input(Entity *entity, int input)
+void handle_input(Entity *entity, int input, int level)
 {
     switch (input)
     {
     case 'w':                                                             // Up
         if (walkable(entity->box.pos.x, entity->box.pos.y - PLAYER_STEP)) // Check for wall for next step
         {
-            clear_fov(entity->box.pos, entity->FOV_radius); // Clear previous FOV before moving
+            // clear_fov(entity->box.pos, entity->FOV_radius); // Clear previous FOV before moving
             if (entity->box.pos.y - PLAYER_STEP > 0)
             {
-                handleAndAnimateCharacterMovement(&(entity->box.pos), input, entity);
+                handleAndAnimateCharacterMovement(entity, input, level);
                 check_entity(entity, &star, &star_flag);
                 check_entity(entity, &bomb, &bomb_flag);
                 check_entity(entity, &key, &key_flag);
@@ -208,10 +208,10 @@ void handle_input(Entity *entity, int input)
     case 's': // Down
         if (walkable(entity->box.pos.x, entity->box.pos.y + PLAYER_STEP))
         {
-            clear_fov(entity->box.pos, entity->FOV_radius);
+            // clear_fov(entity->box.pos, entity->FOV_radius);
             if (entity->box.pos.y + PLAYER_STEP < MAZE_WIDTH)
             {
-                handleAndAnimateCharacterMovement(&(entity->box.pos), input, entity);
+                handleAndAnimateCharacterMovement(entity, input, level);
                 check_entity(entity, &star, &star_flag);
                 check_entity(entity, &bomb, &bomb_flag);
                 check_entity(entity, &key, &key_flag);
@@ -224,10 +224,10 @@ void handle_input(Entity *entity, int input)
     case 'a': // Left
         if (walkable(entity->box.pos.x - PLAYER_STEP, entity->box.pos.y))
         {
-            clear_fov(entity->box.pos, entity->FOV_radius);
+            // clear_fov(entity->box.pos, entity->FOV_radius);
             if (entity->box.pos.x - PLAYER_STEP > 0)
             {
-                handleAndAnimateCharacterMovement(&(entity->box.pos), input, entity);
+                handleAndAnimateCharacterMovement(entity, input, level);
                 check_entity(entity, &star, &star_flag);
                 check_entity(entity, &bomb, &bomb_flag);
                 check_entity(entity, &key, &key_flag);
@@ -240,10 +240,10 @@ void handle_input(Entity *entity, int input)
     case 'd': // Right
         if (walkable(entity->box.pos.x + PLAYER_STEP, entity->box.pos.y))
         {
-            clear_fov(entity->box.pos, entity->FOV_radius);
+            // clear_fov(entity->box.pos, entity->FOV_radius);
             if (entity->box.pos.x + PLAYER_STEP < MAZE_HEIGHT)
             {
-                handleAndAnimateCharacterMovement(&(entity->box.pos), input, entity);
+                handleAndAnimateCharacterMovement(entity, input, level);
                 check_entity(entity, &star, &star_flag);
                 check_entity(entity, &bomb, &bomb_flag);
                 check_entity(entity, &key, &key_flag);
@@ -643,16 +643,14 @@ void clearCharacterFrame(Position pos)
     {
         for (int x = 0; x < frameWidth; x++)
         {
-            drawPixelARGB32(startX + x, startY + y, WALL);
+            drawPixelARGB32(startX + x, startY + y, PATH);
         }
     }
 }
 
-void handleAndAnimateCharacterMovement(Position *pos, int input, Entity *entity)
+void handleAndAnimateCharacterMovement(Entity *entity, int input, int level)
 {
-
-    Position temp = *pos;
-
+    Position temp_pos = entity->box.pos;
     AnimationState animations[4];
 
     switch (input)
@@ -727,27 +725,30 @@ void handleAndAnimateCharacterMovement(Position *pos, int input, Entity *entity)
 
     for (int i = 0; i < 4; i++)
     {
-        clearCharacterFrame(temp);
+        clearCharacterFrame(temp_pos);
+        clear_fov(entity->box.pos, entity->FOV_radius); // Clear previous FOV before moving
 
         switch (input)
         {
         case 'w':
-            temp.y -= FRAME_CHANGE_INTERVAL;
+            temp_pos.y -= FRAME_CHANGE_INTERVAL;
             break;
         case 's':
-            temp.y += FRAME_CHANGE_INTERVAL;
+            temp_pos.y += FRAME_CHANGE_INTERVAL;
             break;
         case 'a':
-            temp.x -= FRAME_CHANGE_INTERVAL;
+            temp_pos.x -= FRAME_CHANGE_INTERVAL;
             break;
         case 'd':
-            temp.x += FRAME_CHANGE_INTERVAL;
+            temp_pos.x += FRAME_CHANGE_INTERVAL;
             break;
         }
 
-        *pos = temp;
+        entity->box.pos = temp_pos;
         entity->currentFrame = animations[i];
-        drawCharacterFrame(*pos, entity->currentFrame);
+
+        make_fov(guts.box.pos, guts.FOV_radius, level);
+        drawCharacterFrame(entity->box.pos, entity->currentFrame);
         wait_msec(DELAY_TIME);
     }
 }
