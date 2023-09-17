@@ -3,20 +3,10 @@
 #define PLAYER_STEP MAZE_HEIGHT / 19
 #define ENTITY_RADIUS 10
 
-// Colors
-#define GUTS 0x0068ADFF     // 1st character
-#define GRIFFITH 0x007030A0 // 2nd character
 #define WALL 0x00000000
 #define PATH 0x00FFFFFF
-#define BOMB 0x00FF0101   // Red
-#define STAR 0x00FFC000   // Yellow == Battery
-#define KEY 0x0070AD47    // Green
-#define TRAP 0x00FF28F0   // Pink
-#define DETRAP 0x0027FFDC // Cyan
-#define WHITE 0x00ffffff
-#define BLACK 0x00000000
-#define FRAME_CHANGE_INTERVAL 12
 
+#define FRAME_CHANGE_INTERVAL 12
 #define DELAY_TIME 15000
 
 IconType maze[MAZE_WIDTH][MAZE_HEIGHT];
@@ -153,14 +143,6 @@ void game(int *level)
                 break;
             }
 
-            // // Draw star & bomb & key hidden
-            // if (star_flag == 1)
-            //     drawIconFrame(star.box.pos, star.iconFrame);
-            // if (bomb_flag == 1)
-            //     drawIconFrame(bomb.box.pos, bomb.iconFrame);
-            // if (key_flag == 1)
-            //     drawIconFrame(key.box.pos, key.iconFrame);
-
             // If entities are inside characters' FOV, they're shown
             if (star_flag == 1 && (guts.FOV_radius > distance(guts.box.pos.x, star.box.pos.x, guts.box.pos.y, star.box.pos.y) ||
                                    griffith.FOV_radius > distance(griffith.box.pos.x, star.box.pos.x, griffith.box.pos.y, star.box.pos.y)))
@@ -199,7 +181,6 @@ void handle_input(Entity *entity, int input, int level)
     case 'w':                                                             // Up
         if (walkable(entity->box.pos.x, entity->box.pos.y - PLAYER_STEP)) // Check for wall for next step
         {
-            // clear_fov(entity->box.pos, entity->FOV_radius); // Clear previous FOV before moving
             if (entity->box.pos.y - PLAYER_STEP > 0)
             {
                 handleAndAnimateCharacterMovement(entity, input, level);
@@ -215,7 +196,6 @@ void handle_input(Entity *entity, int input, int level)
     case 's': // Down
         if (walkable(entity->box.pos.x, entity->box.pos.y + PLAYER_STEP))
         {
-            // clear_fov(entity->box.pos, entity->FOV_radius);
             if (entity->box.pos.y + PLAYER_STEP < MAZE_WIDTH)
             {
                 handleAndAnimateCharacterMovement(entity, input, level);
@@ -231,7 +211,6 @@ void handle_input(Entity *entity, int input, int level)
     case 'a': // Left
         if (walkable(entity->box.pos.x - PLAYER_STEP, entity->box.pos.y))
         {
-            // clear_fov(entity->box.pos, entity->FOV_radius);
             if (entity->box.pos.x - PLAYER_STEP > 0)
             {
                 handleAndAnimateCharacterMovement(entity, input, level);
@@ -247,7 +226,6 @@ void handle_input(Entity *entity, int input, int level)
     case 'd': // Right
         if (walkable(entity->box.pos.x + PLAYER_STEP, entity->box.pos.y))
         {
-            // clear_fov(entity->box.pos, entity->FOV_radius);
             if (entity->box.pos.x + PLAYER_STEP < MAZE_HEIGHT)
             {
                 handleAndAnimateCharacterMovement(entity, input, level);
@@ -637,23 +615,19 @@ void drawCharacterFrame(Position pos, AnimationState state)
     }
 
     int frameWidth = 20;
-    uint32_t black = 0x00000000;
+    uint32_t mask = 0x00000000;
 
     int startX = pos.x - frameWidth / 2;
     int startY = pos.y - frameWidth / 2;
 
     for (int y = 0; y < frameWidth; y++)
-    {
         for (int x = 0; x < frameWidth; x++)
         {
             uint32_t pixel = currentFrame[y * frameWidth + x];
 
-            if (pixel != black)
-            {
+            if (pixel != mask)
                 drawPixelARGB32(startX + x, startY + y, pixel);
-            }
         }
-    }
 }
 
 void clearCharacterFrame(Position pos)
@@ -664,12 +638,8 @@ void clearCharacterFrame(Position pos)
     int startY = pos.y - frameWidth / 2;
 
     for (int y = 0; y < frameWidth; y++)
-    {
         for (int x = 0; x < frameWidth; x++)
-        {
             drawPixelARGB32(startX + x, startY + y, PATH);
-        }
-    }
 }
 
 void handleAndAnimateCharacterMovement(Entity *entity, int input, int level)
@@ -810,7 +780,7 @@ void drawIconFrame(Position pos, IconFrame frame)
     }
 
     int frameWidth = 20;
-    uint32_t black = 0x00000000;
+    uint32_t mask = 0x0;
 
     int startX = pos.x - frameWidth / 2;
     int startY = pos.y - frameWidth / 2;
@@ -821,7 +791,7 @@ void drawIconFrame(Position pos, IconFrame frame)
         {
             uint32_t pixel = iconFrame[y * frameWidth + x];
 
-            if (pixel != black)
+            if (pixel != mask)
             {
                 drawPixelARGB32(startX + x, startY + y, pixel);
                 maze[startX + x][startY + y] = IconType; // Update maze

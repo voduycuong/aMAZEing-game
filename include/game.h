@@ -56,7 +56,8 @@ typedef enum
     GRIFFITH_LEFT_WALK2,
 } AnimationState;
 
-typedef enum _{
+typedef enum _
+{
     TRAP_FRAME,
     STAR_FRAME,
     KEY_FRAME,
@@ -64,7 +65,8 @@ typedef enum _{
     LEVER_FRAME,
 } IconFrame;
 
-typedef enum {
+typedef enum
+{
     EMPTY,
     STAR,
     BOMB,
@@ -72,6 +74,7 @@ typedef enum {
     LEVER,
     TRAP,
 } IconType;
+
 typedef struct
 {
     Box box;
