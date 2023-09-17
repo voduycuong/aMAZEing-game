@@ -11,6 +11,7 @@
 
 IconType maze[MAZE_WIDTH][MAZE_HEIGHT];
 
+// Initialize default value
 int default_fov = 66;
 int star_flag = 1;
 int bomb_flag = 2;
@@ -18,6 +19,7 @@ int key_flag = 3;
 int trap_flag = 4;
 int detrap_flag = 5;
 
+// Initialize entities
 Entity guts;
 Entity griffith;
 Entity star;
@@ -26,6 +28,7 @@ Entity key;
 Entity trap;
 Entity detrap;
 
+// Initialize animation
 AnimationState guts_animation_state = GUTS_FRONT_IDLE;
 AnimationState griffith_animation_state = GRIFFITH_FRONT_IDLE;
 
@@ -43,6 +46,7 @@ void game(int *level)
     Position trap_pos;
     Position detrap_pos;
 
+    // Default entities' position for each level
     set_maze_entity_position(*level, &start_pos2, &star_pos, &bomb_pos, &key_pos, &trap_pos, &detrap_pos, &default_fov);
 
     // Initialize hitbox
@@ -65,8 +69,10 @@ void game(int *level)
     trap.box = trap_box;
     detrap.box = detrap_box;
 
+    // Clear maze
     clear_maze();
 
+    // Initialize icon for entities
     guts.currentFrame = GUTS_FRONT_IDLE;
     griffith.currentFrame = GRIFFITH_FRONT_IDLE;
     star.iconFrame = STAR_FRAME;
@@ -75,7 +81,8 @@ void game(int *level)
     trap.iconFrame = TRAP_FRAME;
     detrap.iconFrame = LEVER_FRAME;
 
-    switch (*level) // Show level title
+    // Show level title
+    switch (*level)
     {
     case 0:
         drawStringARGB32(200, 400, "Level 1", 0x00ffffff, 4);
@@ -167,6 +174,9 @@ void game(int *level)
 
             // Get direction from player
             char input = uart_getc();
+            wait_msec(10000);
+
+            // Handle input for both characters
             handle_input(&guts, input, *level);
             handle_input(&griffith, input, *level);
         }
@@ -178,8 +188,9 @@ void handle_input(Entity *entity, int input, int level)
 {
     switch (input)
     {
-    case 'w':                                                             // Up
-        if (walkable(entity->box.pos.x, entity->box.pos.y - PLAYER_STEP)) // Check for wall for next step
+    case 'w': // Up
+        // Check for wall for next step
+        if (walkable(entity->box.pos.x, entity->box.pos.y - PLAYER_STEP))
         {
             if (entity->box.pos.y - PLAYER_STEP > 0)
             {
@@ -533,6 +544,9 @@ void set_maze_entity_position(int level, Position *start2, Position *star, Posit
     }
 }
 
+/*
+ * Draw animation for characters when moving
+ */
 void drawCharacterFrame(Position pos, AnimationState state)
 {
     uint32_t *currentFrame;
@@ -630,6 +644,7 @@ void drawCharacterFrame(Position pos, AnimationState state)
         }
 }
 
+// Clear animation of previous move
 void clearCharacterFrame(Position pos)
 {
     int frameWidth = 20;
@@ -642,6 +657,9 @@ void clearCharacterFrame(Position pos)
             drawPixelARGB32(startX + x, startY + y, PATH);
 }
 
+/*
+ * Show animation for characters when moving
+ */
 void handleAndAnimateCharacterMovement(Entity *entity, int input, int level)
 {
     Position temp_pos = entity->box.pos;
@@ -738,15 +756,18 @@ void handleAndAnimateCharacterMovement(Entity *entity, int input, int level)
             break;
         }
 
+        // Update entities' position
         entity->box.pos = temp_pos;
         entity->currentFrame = animations[i];
 
+        // Draw FOV
         make_fov(guts.box.pos, guts.FOV_radius, level);
         drawCharacterFrame(entity->box.pos, entity->currentFrame);
         wait_msec(DELAY_TIME);
     }
 }
 
+// Show icon for items
 void drawIconFrame(Position pos, IconFrame frame)
 {
     uint32_t *iconFrame;
