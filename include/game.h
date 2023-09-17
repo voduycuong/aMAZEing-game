@@ -11,6 +11,7 @@
 #include "math.h"
 #include "exit.h"
 #include "animation.h"
+#include "icon.h"
 
 extern int level;
 
@@ -55,11 +56,28 @@ typedef enum
     GRIFFITH_LEFT_WALK2,
 } AnimationState;
 
+typedef enum _{
+    TRAP_FRAME,
+    STAR_FRAME,
+    KEY_FRAME,
+    BOMB_FRAME,
+    LEVER_FRAME,
+} IconFrame;
+
+typedef enum {
+    EMPTY,
+    STAR,
+    BOMB,
+    KEY,
+    LEVER,
+    TRAP,
+} IconType;
 typedef struct
 {
     Box box;
     int FOV_radius;
     AnimationState currentFrame;
+    IconFrame iconFrame;
 } Entity;
 
 void game(int *level);
@@ -78,5 +96,6 @@ void set_level();
 void drawCharacterFrame(Position pos, AnimationState state);
 void clearCharacterFrame(Position pos);
 void handleAndAnimateCharacterMovement(Entity *entity, int input, int level);
+void drawIconFrame(Position pos, IconFrame frame);
 
 #endif

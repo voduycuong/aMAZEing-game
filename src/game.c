@@ -17,7 +17,9 @@
 #define BLACK 0x00000000
 #define FRAME_CHANGE_INTERVAL 12
 
-#define DELAY_TIME 100000
+#define DELAY_TIME 15000
+
+IconType maze[MAZE_WIDTH][MAZE_HEIGHT];
 
 int default_fov = 66;
 int star_flag = 1;
@@ -77,6 +79,11 @@ void game(int *level)
 
     guts.currentFrame = GUTS_FRONT_IDLE;
     griffith.currentFrame = GRIFFITH_FRONT_IDLE;
+    star.iconFrame = STAR_FRAME;
+    bomb.iconFrame = BOMB_FRAME;
+    key.iconFrame = KEY_FRAME;
+    trap.iconFrame = TRAP_FRAME;
+    detrap.iconFrame = LEVER_FRAME;
 
     switch (*level) // Show level title
     {
@@ -146,35 +153,35 @@ void game(int *level)
                 break;
             }
 
-            // Draw star & bomb & key hidden
-            if (star_flag == 1)
-                drawCircleARGB32(star.box.pos.x, star.box.pos.y, ENTITY_RADIUS, BLACK);
-            if (bomb_flag == 1)
-                drawCircleARGB32(bomb.box.pos.x, bomb.box.pos.y, ENTITY_RADIUS, BLACK);
-            if (key_flag == 1)
-                drawCircleARGB32(key.box.pos.x, key.box.pos.y, ENTITY_RADIUS, BLACK);
+            // // Draw star & bomb & key hidden
+            // if (star_flag == 1)
+            //     drawIconFrame(star.box.pos, star.iconFrame);
+            // if (bomb_flag == 1)
+            //     drawIconFrame(bomb.box.pos, bomb.iconFrame);
+            // if (key_flag == 1)
+            //     drawIconFrame(key.box.pos, key.iconFrame);
 
             // If entities are inside characters' FOV, they're shown
             if (star_flag == 1 && (guts.FOV_radius > distance(guts.box.pos.x, star.box.pos.x, guts.box.pos.y, star.box.pos.y) ||
                                    griffith.FOV_radius > distance(griffith.box.pos.x, star.box.pos.x, griffith.box.pos.y, star.box.pos.y)))
-                drawCircleARGB32(star.box.pos.x, star.box.pos.y, ENTITY_RADIUS, STAR);
+                drawIconFrame(star.box.pos, star.iconFrame);
 
             if (bomb_flag == 2 && (guts.FOV_radius > distance(guts.box.pos.x, bomb.box.pos.x, guts.box.pos.y, bomb.box.pos.y) ||
                                    griffith.FOV_radius > distance(griffith.box.pos.x, bomb.box.pos.x, griffith.box.pos.y, bomb.box.pos.y)))
-                drawCircleARGB32(bomb.box.pos.x, bomb.box.pos.y, ENTITY_RADIUS, BOMB);
+                drawIconFrame(bomb.box.pos, bomb.iconFrame);
 
             if (key_flag == 3 && (guts.FOV_radius > distance(guts.box.pos.x, key.box.pos.x, guts.box.pos.y, key.box.pos.y) ||
                                   griffith.FOV_radius > distance(griffith.box.pos.x, key.box.pos.x, griffith.box.pos.y, key.box.pos.y)))
-                drawCircleARGB32(key.box.pos.x, key.box.pos.y, ENTITY_RADIUS, KEY);
+                drawIconFrame(key.box.pos, key.iconFrame);
 
             if (trap_flag == 4 && detrap_flag == 5 &&
                 (guts.FOV_radius > distance(guts.box.pos.x, trap.box.pos.x, guts.box.pos.y, trap.box.pos.y) ||
                  griffith.FOV_radius > distance(griffith.box.pos.x, trap.box.pos.x, griffith.box.pos.y, trap.box.pos.y)))
-                drawCircleARGB32(trap.box.pos.x, trap.box.pos.y, ENTITY_RADIUS, TRAP);
+                drawIconFrame(trap.box.pos, trap.iconFrame);
 
             if (detrap_flag == 5 && (guts.FOV_radius > distance(guts.box.pos.x, detrap.box.pos.x, guts.box.pos.y, detrap.box.pos.y) ||
                                      griffith.FOV_radius > distance(griffith.box.pos.x, detrap.box.pos.x, griffith.box.pos.y, detrap.box.pos.y)))
-                drawCircleARGB32(detrap.box.pos.x, detrap.box.pos.y, ENTITY_RADIUS, DETRAP);
+                drawIconFrame(detrap.box.pos, detrap.iconFrame);
 
             // Get direction from player
             char input = uart_getc();
@@ -327,16 +334,15 @@ int win(Position pos, Position win, int flag)
 // Check for wall
 int walkable(int pos_x, int pos_y)
 {
-    if (getPixelARGB32(pos_x, pos_y) == PATH ||
-        getPixelARGB32(pos_x, pos_y) == STAR ||
-        getPixelARGB32(pos_x, pos_y) == BOMB ||
-        getPixelARGB32(pos_x, pos_y) == KEY ||
-        getPixelARGB32(pos_x, pos_y) == TRAP ||
-        getPixelARGB32(pos_x, pos_y) == DETRAP)
+    IconType icon = maze[pos_x][pos_y];
+
+    if (getPixelARGB32(pos_x, pos_y) == PATH)
         return 1;
 
-    else
-        return 0;
+    if (icon == STAR || icon == BOMB || icon == KEY || icon == LEVER || icon == TRAP)
+        return 1;
+
+    return 0;
 }
 
 // Detect collision of 2 hitboxes
@@ -768,5 +774,58 @@ void handleAndAnimateCharacterMovement(Entity *entity, int input, int level)
         make_fov(guts.box.pos, guts.FOV_radius, level);
         drawCharacterFrame(entity->box.pos, entity->currentFrame);
         wait_msec(DELAY_TIME);
+    }
+}
+
+void drawIconFrame(Position pos, IconFrame frame)
+{
+    uint32_t *iconFrame;
+    IconType IconType;
+
+    switch (frame)
+    {
+    case STAR_FRAME:
+        iconFrame = star_frame;
+        IconType = STAR;
+        break;
+    case BOMB_FRAME:
+        iconFrame = bomb_frame;
+        IconType = BOMB;
+        break;
+    case KEY_FRAME:
+        iconFrame = key_frame;
+        IconType = KEY;
+        break;
+    case LEVER_FRAME:
+        iconFrame = lever_frame;
+        IconType = LEVER;
+        break;
+    case TRAP_FRAME:
+        iconFrame = trap_frame;
+        IconType = TRAP;
+        break;
+    default:
+        iconFrame = NULL;
+        IconType = EMPTY;
+    }
+
+    int frameWidth = 20;
+    uint32_t black = 0x00000000;
+
+    int startX = pos.x - frameWidth / 2;
+    int startY = pos.y - frameWidth / 2;
+
+    for (int y = 0; y < frameWidth; y++)
+    {
+        for (int x = 0; x < frameWidth; x++)
+        {
+            uint32_t pixel = iconFrame[y * frameWidth + x];
+
+            if (pixel != black)
+            {
+                drawPixelARGB32(startX + x, startY + y, pixel);
+                maze[startX + x][startY + y] = IconType; // Update maze
+            }
+        }
     }
 }
