@@ -108,6 +108,7 @@ void game(int *level)
     // Begin game
     while (1)
     {
+
         // Check for win
         if (win(guts.box.pos, end_pos, key_flag)) // Guts reach exit gate and key is retrieved
         {
@@ -134,6 +135,10 @@ void game(int *level)
             // Draw 2 characters
             drawCharacterFrame(guts.box.pos, guts.currentFrame);
             drawCharacterFrame(griffith.box.pos, griffith.currentFrame);
+
+            if (key_flag && (guts.FOV_radius > distance(guts.box.pos.x, end_pos.x, guts.box.pos.y, end_pos.y) ||
+                             griffith.FOV_radius > distance(griffith.box.pos.x, end_pos.x, griffith.box.pos.y, end_pos.y)))
+                drawRectARGB32(MAZE_WIDTH - 48, MAZE_HEIGHT / 2 - 24, MAZE_WIDTH, MAZE_HEIGHT / 2 + 24, 0x00FF0000, 1);
 
             if (detrap_flag == 0) // Check for detrap, if detrapped, deactivate trap
             {
