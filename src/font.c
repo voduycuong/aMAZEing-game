@@ -240,9 +240,9 @@ void drawCharARGB32(unsigned char ch, int x, int y, unsigned int attr, int zoom)
 {
     unsigned char *glyph = (unsigned char *)&font + (ch < FONT_NUMGLYPHS ? ch : 0) * FONT_BPG;
 
-    for (int i = 0; i <= ((FONT_HEIGHT-1) * zoom); i++)
+    for (int i = 0; i <= ((FONT_HEIGHT - 1) * zoom); i++)
     {
-        for (int j = 0; j <= ((FONT_WIDTH-1) * zoom); j++)
+        for (int j = 0; j <= ((FONT_WIDTH - 1) * zoom); j++)
         {
 
             uint32_t mask = 1 << (j / zoom);
