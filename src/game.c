@@ -7,7 +7,7 @@
 #define PATH 0x00FFFFFF
 
 #define FRAME_CHANGE_INTERVAL 12
-#define DELAY_TIME 15000
+#define DELAY_TIME 20000
 
 IconType maze[MAZE_WIDTH][MAZE_HEIGHT];
 
@@ -174,7 +174,7 @@ void game(int *level)
 
             // Get direction from player
             char input = uart_getc();
-            wait_msec(10000);
+            wait_msec(30000); // Simple debounce
 
             // Handle input for both characters
             handle_input(&guts, input, *level);
@@ -737,8 +737,8 @@ void handleAndAnimateCharacterMovement(Entity *entity, int input, int level)
 
     for (int i = 0; i < 4; i++)
     {
-        clearCharacterFrame(temp_pos);
         clear_fov(entity->box.pos, entity->FOV_radius); // Clear previous FOV before moving
+        clearCharacterFrame(temp_pos);
 
         switch (input)
         {
@@ -761,7 +761,7 @@ void handleAndAnimateCharacterMovement(Entity *entity, int input, int level)
         entity->currentFrame = animations[i];
 
         // Draw FOV
-        make_fov(guts.box.pos, guts.FOV_radius, level);
+        make_fov(entity->box.pos, entity->FOV_radius, level);
         drawCharacterFrame(entity->box.pos, entity->currentFrame);
         wait_msec(DELAY_TIME);
     }
@@ -807,16 +807,13 @@ void drawIconFrame(Position pos, IconFrame frame)
     int startY = pos.y - frameWidth / 2;
 
     for (int y = 0; y < frameWidth; y++)
-    {
         for (int x = 0; x < frameWidth; x++)
         {
             uint32_t pixel = iconFrame[y * frameWidth + x];
-
             if (pixel != mask)
             {
                 drawPixelARGB32(startX + x, startY + y, pixel);
                 maze[startX + x][startY + y] = IconType; // Update maze
             }
         }
-    }
 }
