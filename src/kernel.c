@@ -17,6 +17,8 @@ void main()
 	while (1)
 	{
 		cli();
+		// level = 4;
+		// game(&level);
 	}
 }
 

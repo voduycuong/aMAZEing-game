@@ -10,8 +10,7 @@
 #define BLACK 0x00000000
 int path_color = 0x00FFFFFF; // Default path color
 
-// Default FOV and items' flag
-int default_fov = 66;
+// Default items' flag
 int star_flag = 1;
 int bomb_flag = 2;
 int key_flag = 3;
@@ -39,7 +38,8 @@ void game(int *level)
 
     // Position of other entities based on maze level
     Position start_pos2, star_pos, bomb_pos, key_pos, trap_pos, detrap_pos;
-    set_maze_entity_position(*level, &path_color, &start_pos2, &star_pos, &bomb_pos, &key_pos, &trap_pos, &detrap_pos, &default_fov);
+    int charracter_fov;
+    set_maze_entity_position(*level, &path_color, &start_pos2, &star_pos, &bomb_pos, &key_pos, &trap_pos, &detrap_pos, &charracter_fov);
 
     // Initialize hitboxes
     Box guts_box = {start_pos1, ENTITY_RADIUS, ENTITY_RADIUS};
@@ -52,10 +52,10 @@ void game(int *level)
 
     // Initialize characters
     guts.box = guts_box;
-    guts.FOV_radius = default_fov;
+    guts.FOV_radius = charracter_fov;
     guts.currentFrame = GUTS_FRONT_IDLE;
     griffith.box = griffith_box;
-    griffith.FOV_radius = default_fov;
+    griffith.FOV_radius = charracter_fov;
     griffith.currentFrame = GRIFFITH_FRONT_IDLE;
 
     // Initialize items
@@ -91,7 +91,7 @@ void game(int *level)
                 int temp_level = *level;
                 temp_level++;
                 *level = temp_level;
-                set_level(); // Set default value for entities
+                reset_flag(); // Set default value for flags
                 break;
             }
         }
@@ -107,9 +107,12 @@ void game(int *level)
             draw_character_frame(griffith.box.pos, griffith.currentFrame);
 
             // Draw exit gate
-            if (key_flag && (guts.FOV_radius > distance(guts.box.pos.x, end_pos.x, guts.box.pos.y, end_pos.y) ||
-                             griffith.FOV_radius > distance(griffith.box.pos.x, end_pos.x, griffith.box.pos.y, end_pos.y)))
-                drawRectARGB32(MAZE_WIDTH - 35, MAZE_HEIGHT / 2 - 30, MAZE_WIDTH - 10, MAZE_HEIGHT / 2 + 24, 0x00FF0000, 1);
+            if (key_flag)
+            {
+                if (guts.FOV_radius > distance(guts.box.pos.x, end_pos.x, guts.box.pos.y, end_pos.y) ||
+                    griffith.FOV_radius > distance(griffith.box.pos.x, end_pos.x, griffith.box.pos.y, end_pos.y))
+                    drawRectARGB32(MAZE_WIDTH - 35, MAZE_HEIGHT / 2 - 31, MAZE_WIDTH - 10, MAZE_HEIGHT / 2 + 24, 0x00FF0000, 1);
+            }
 
             if (detrap_flag == 0) // Check for detrap, if detrapped, deactivate trap
             {
@@ -122,25 +125,53 @@ void game(int *level)
                 clear_maze();
                 drawStringARGB32(200, 400, "you died", 0x00ffffff, 3);
                 wait_msec(1000000);
-                set_level();
+                reset_flag();
                 break;
             }
 
             // If items are inside characters' FOV, they're shown
-            if (star_flag == 1 && (in_FOV(guts, star) || in_FOV(griffith, star)))
-                draw_icon_frame(star.box.pos, star.icon_frame);
-            if (bomb_flag == 2 && (in_FOV(guts, bomb) || in_FOV(griffith, bomb)))
-                draw_icon_frame(bomb.box.pos, bomb.icon_frame);
-            if (key_flag == 3 && (in_FOV(guts, key) || in_FOV(griffith, key)))
-                draw_icon_frame(key.box.pos, key.icon_frame);
-            if (trap_flag == 4 && detrap_flag == 5 && (in_FOV(guts, trap) || in_FOV(griffith, trap)))
-                draw_icon_frame(trap.box.pos, trap.icon_frame);
-            if (detrap_flag == 5 && (in_FOV(guts, detrap) || in_FOV(griffith, detrap)))
-                draw_icon_frame(detrap.box.pos, detrap.icon_frame);
+            if (star_flag == 1)
+            {
+                if (in_FOV(guts, star) || in_FOV(griffith, star))
+                    draw_icon_frame(star.box.pos, star.icon_frame);
+                else
+                    drawCircleARGB32(star.box.pos.x, star.box.pos.y, ENTITY_RADIUS, BLACK);
+            }
+
+            if (bomb_flag == 2)
+            {
+                if (in_FOV(guts, bomb) || in_FOV(griffith, bomb))
+                    draw_icon_frame(bomb.box.pos, bomb.icon_frame);
+                else
+                    drawCircleARGB32(bomb.box.pos.x, bomb.box.pos.y, ENTITY_RADIUS, BLACK);
+            }
+
+            if (key_flag == 3)
+            {
+                if (in_FOV(guts, key) || in_FOV(griffith, key))
+                    draw_icon_frame(key.box.pos, key.icon_frame);
+                else
+                    drawCircleARGB32(key.box.pos.x, key.box.pos.y, ENTITY_RADIUS, BLACK);
+            }
+
+            if (trap_flag == 4 && detrap_flag == 5)
+            {
+                if (in_FOV(guts, trap) || in_FOV(griffith, trap))
+                    draw_icon_frame(trap.box.pos, trap.icon_frame);
+                else
+                    drawCircleARGB32(trap.box.pos.x, trap.box.pos.y, ENTITY_RADIUS, BLACK);
+            }
+
+            if (detrap_flag == 5)
+            {
+                if (in_FOV(guts, detrap) || in_FOV(griffith, detrap))
+                    draw_icon_frame(detrap.box.pos, detrap.icon_frame);
+                else
+                    drawCircleARGB32(detrap.box.pos.x, detrap.box.pos.y, ENTITY_RADIUS, BLACK);
+            }
 
             // Get direction from player
             char input = uart_getc();
-            wait_msec(30000);
 
             // Handle input for both characters
             handle_input(&guts, input, *level);
@@ -165,8 +196,7 @@ void handle_input(Character *character, int input, int level)
         next_step.pos.x = character->box.pos.x;
         next_step.pos.y = character->box.pos.y - PLAYER_STEP;
 
-        // Check if next step is not a wall (either path or items)
-        if (walkable(next_step))
+        if (walkable(next_step)) // Check if next step is not a wall (either path or items)
         {
             if (character->box.pos.y - PLAYER_STEP > 0) // Character is not outside the maze
             {
@@ -385,12 +415,8 @@ void check_entity(Character *character, Item *item, int *flag)
 /*
  * Set default value for characters and flags
  */
-void set_level()
+void reset_flag()
 {
-    // Set FOV
-    guts.FOV_radius = default_fov;
-    griffith.FOV_radius = default_fov;
-
     // Reset flags
     star_flag = 1;
     bomb_flag = 2;
@@ -430,7 +456,7 @@ void set_maze_entity_position(int level, int *path,
         detrap->x = PLAYER_STEP * 18 - PLAYER_STEP / 2;
         detrap->y = PLAYER_STEP * 18 - PLAYER_STEP / 2;
 
-        *fov = 88;
+        *fov = PLAYER_STEP * 3;
 
         break;
 
@@ -456,7 +482,8 @@ void set_maze_entity_position(int level, int *path,
         detrap->x = PLAYER_STEP * 5 - PLAYER_STEP / 2;
         detrap->y = PLAYER_STEP * 18 - PLAYER_STEP / 2;
 
-        *fov = 83;
+        *fov = PLAYER_STEP * 3;
+
         break;
 
     case 2:
@@ -481,7 +508,8 @@ void set_maze_entity_position(int level, int *path,
         detrap->x = PLAYER_STEP * 2 - PLAYER_STEP / 2;
         detrap->y = PLAYER_STEP * 6 - PLAYER_STEP / 2;
 
-        *fov = 78;
+        *fov = PLAYER_STEP * 2.5;
+
         break;
 
     case 3:
@@ -506,7 +534,8 @@ void set_maze_entity_position(int level, int *path,
         detrap->x = PLAYER_STEP * 16 - PLAYER_STEP / 2;
         detrap->y = PLAYER_STEP * 6 - PLAYER_STEP / 2;
 
-        *fov = 68;
+        *fov = PLAYER_STEP * 2;
+
         break;
 
     case 4:
@@ -531,7 +560,8 @@ void set_maze_entity_position(int level, int *path,
         detrap->x = PLAYER_STEP * 8 - PLAYER_STEP / 2;
         detrap->y = PLAYER_STEP * 17 - PLAYER_STEP / 2;
 
-        *fov = 58;
+        *fov = PLAYER_STEP + 1;
+
         break;
 
     default:

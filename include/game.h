@@ -88,7 +88,7 @@ int detect_collision(Box a, Box b);
 void clear_maze();
 void check_entity(Character *character, Item *item, int *flag);
 void set_maze_entity_position(int level, int *path, Position *start2, Position *star, Position *bomb, Position *key, Position *trap, Position *trapless, int *fov);
-void set_level();
+void reset_flag();
 void draw_character_frame(Position pos, AnimationState state);
 void clear_character_frame(Position pos);
 void handle_character_movement(Character *entity, int input, int level);
