@@ -4,7 +4,6 @@
 #include "uart.h"
 #include "framebf.h"
 #include "font.h"
-#include "printf.h"
 
 // Commands
 #include "game.h"

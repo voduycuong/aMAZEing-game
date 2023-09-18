@@ -4,14 +4,12 @@
 #include "uart.h"
 #include "mbox.h"
 #include "framebf.h"
-#include "rand.h"
-#include "level.h"
 #include "maze.h"
-#include "printf.h"
 #include "math.h"
 #include "exit.h"
 #include "animation.h"
 #include "icon.h"
+#include "font.h"
 
 extern int level;
 
@@ -56,7 +54,7 @@ typedef enum
     GRIFFITH_LEFT_WALK2,
 } AnimationState;
 
-typedef enum _
+typedef enum
 {
     TRAP_FRAME,
     STAR_FRAME,
@@ -64,16 +62,6 @@ typedef enum _
     BOMB_FRAME,
     LEVER_FRAME,
 } IconFrame;
-
-typedef enum
-{
-    EMPTY,
-    STAR,
-    BOMB,
-    KEY,
-    LEVER,
-    TRAP,
-} IconType;
 
 typedef struct
 {
@@ -89,16 +77,17 @@ void make_fov(Position pos, int radius, int level);
 void clear_fov(Position pos, int radius);
 void increase_fov(Position pos, int *radius);
 void decrease_fov(Position pos, int *radius);
-int win(Position pos, Position win, int flag);
-int walkable(int pos_x, int pos_y);
+int reach_exit_gate(Position pos, Position win);
+int walkable(Box character);
 int detect_collision(Box a, Box b);
 void clear_maze();
 void check_entity(Entity *entity1, Entity *entity2, int *flag);
-void set_maze_entity_position(int level, Position *start2, Position *star, Position *bomb, Position *key, Position *trap, Position *trapless, int *fov);
+void set_maze_entity_position(int level, int *path, Position *start2, Position *star, Position *bomb, Position *key, Position *trap, Position *trapless, int *fov);
 void set_level();
 void drawCharacterFrame(Position pos, AnimationState state);
 void clearCharacterFrame(Position pos);
 void handleAndAnimateCharacterMovement(Entity *entity, int input, int level);
 void drawIconFrame(Position pos, IconFrame frame);
+int in_FOV(Entity entity1, Entity entity2);
 
 #endif
