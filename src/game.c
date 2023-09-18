@@ -7,11 +7,10 @@
 #define FRAME_CHANGE_INTERVAL 12
 #define DELAY_TIME 20000
 
-// Colors
 #define BLACK 0x00000000
-int path_color = 0x00FFFFFF;
+int path_color = 0x00FFFFFF; // Default path color
 
-// Initialize default value
+// Default FOV and items' flag
 int default_fov = 66;
 int star_flag = 1;
 int bomb_flag = 2;
@@ -20,13 +19,13 @@ int trap_flag = 4;
 int detrap_flag = 5;
 
 // Initialize entities
-Entity guts;
-Entity griffith;
-Entity star;
-Entity bomb;
-Entity key;
-Entity trap;
-Entity detrap;
+Character guts;
+Character griffith;
+Item star;
+Item bomb;
+Item key;
+Item trap;
+Item detrap;
 
 // Initialize animation
 AnimationState guts_animation_state = GUTS_FRONT_IDLE;
@@ -39,17 +38,10 @@ void game(int *level)
     Position end_pos = {PLAYER_STEP * 19 - PLAYER_STEP / 2, PLAYER_STEP * 10 - PLAYER_STEP / 2}; // No modify
 
     // Position of other entities based on maze level
-    Position start_pos2;
-    Position star_pos;
-    Position bomb_pos;
-    Position key_pos;
-    Position trap_pos;
-    Position detrap_pos;
-
-    // Default entities' position for each level
+    Position start_pos2, star_pos, bomb_pos, key_pos, trap_pos, detrap_pos;
     set_maze_entity_position(*level, &path_color, &start_pos2, &star_pos, &bomb_pos, &key_pos, &trap_pos, &detrap_pos, &default_fov);
 
-    // Initialize hitbox
+    // Initialize hitboxes
     Box guts_box = {start_pos1, ENTITY_RADIUS, ENTITY_RADIUS};
     Box griffith_box = {start_pos2, ENTITY_RADIUS, ENTITY_RADIUS};
     Box star_box = {star_pos, ENTITY_RADIUS, ENTITY_RADIUS};
@@ -58,50 +50,29 @@ void game(int *level)
     Box trap_box = {trap_pos, ENTITY_RADIUS, ENTITY_RADIUS};
     Box detrap_box = {detrap_pos, ENTITY_RADIUS, ENTITY_RADIUS};
 
-    // Initialize entity
+    // Initialize characters
     guts.box = guts_box;
     guts.FOV_radius = default_fov;
+    guts.currentFrame = GUTS_FRONT_IDLE;
     griffith.box = griffith_box;
     griffith.FOV_radius = default_fov;
-    star.box = star_box;
-    bomb.box = bomb_box;
-    key.box = key_box;
-    trap.box = trap_box;
-    detrap.box = detrap_box;
-
-    // Initialize icon for entities
-    guts.currentFrame = GUTS_FRONT_IDLE;
     griffith.currentFrame = GRIFFITH_FRONT_IDLE;
-    star.iconFrame = STAR_FRAME;
-    bomb.iconFrame = BOMB_FRAME;
-    key.iconFrame = KEY_FRAME;
-    trap.iconFrame = TRAP_FRAME;
-    detrap.iconFrame = LEVER_FRAME;
+
+    // Initialize items
+    star.box = star_box;
+    star.icon_frame = STAR_FRAME;
+    bomb.box = bomb_box;
+    bomb.icon_frame = BOMB_FRAME;
+    key.box = key_box;
+    key.icon_frame = KEY_FRAME;
+    trap.box = trap_box;
+    trap.icon_frame = TRAP_FRAME;
+    detrap.box = detrap_box;
+    detrap.icon_frame = LEVER_FRAME;
 
     // Clear maze
     clear_maze();
-
-    // Show level title
-    switch (*level)
-    {
-    case 0:
-        drawStringARGB32(200, 400, "Level 1", 0x00ffffff, 4);
-        break;
-    case 1:
-        drawStringARGB32(200, 400, "Level 2", 0x00ffffff, 4);
-        break;
-    case 2:
-        drawStringARGB32(200, 400, "Level 3", 0x00ffffff, 4);
-        break;
-    case 3:
-        drawStringARGB32(200, 400, "Level 4", 0x00ffffff, 4);
-        break;
-    case 4:
-        drawStringARGB32(200, 400, "Level 5", 0x00ffffff, 4);
-        break;
-    default:
-        break;
-    }
+    show_level_title(*level);
     wait_msec(1000000);
     clear_maze();
 
@@ -132,8 +103,8 @@ void game(int *level)
             make_fov(griffith.box.pos, griffith.FOV_radius, *level);
 
             // Draw 2 characters
-            drawCharacterFrame(guts.box.pos, guts.currentFrame);
-            drawCharacterFrame(griffith.box.pos, griffith.currentFrame);
+            draw_character_frame(guts.box.pos, guts.currentFrame);
+            draw_character_frame(griffith.box.pos, griffith.currentFrame);
 
             // Draw exit gate
             if (key_flag && (guts.FOV_radius > distance(guts.box.pos.x, end_pos.x, guts.box.pos.y, end_pos.y) ||
@@ -155,17 +126,17 @@ void game(int *level)
                 break;
             }
 
-            // If entities are inside characters' FOV, they're shown
+            // If items are inside characters' FOV, they're shown
             if (star_flag == 1 && (in_FOV(guts, star) || in_FOV(griffith, star)))
-                drawIconFrame(star.box.pos, star.iconFrame);
+                draw_icon_frame(star.box.pos, star.icon_frame);
             if (bomb_flag == 2 && (in_FOV(guts, bomb) || in_FOV(griffith, bomb)))
-                drawIconFrame(bomb.box.pos, bomb.iconFrame);
+                draw_icon_frame(bomb.box.pos, bomb.icon_frame);
             if (key_flag == 3 && (in_FOV(guts, key) || in_FOV(griffith, key)))
-                drawIconFrame(key.box.pos, key.iconFrame);
+                draw_icon_frame(key.box.pos, key.icon_frame);
             if (trap_flag == 4 && detrap_flag == 5 && (in_FOV(guts, trap) || in_FOV(griffith, trap)))
-                drawIconFrame(trap.box.pos, trap.iconFrame);
+                draw_icon_frame(trap.box.pos, trap.icon_frame);
             if (detrap_flag == 5 && (in_FOV(guts, detrap) || in_FOV(griffith, detrap)))
-                drawIconFrame(detrap.box.pos, detrap.iconFrame);
+                draw_icon_frame(detrap.box.pos, detrap.icon_frame);
 
             // Get direction from player
             char input = uart_getc();
@@ -179,8 +150,9 @@ void game(int *level)
 }
 
 // Function for input directions
-void handle_input(Entity *entity, int input, int level)
+void handle_input(Character *character, int input, int level)
 {
+    // Create a box for next step
     Box next_step;
     next_step.width = ENTITY_RADIUS;
     next_step.height = ENTITY_RADIUS;
@@ -188,79 +160,86 @@ void handle_input(Entity *entity, int input, int level)
     switch (input)
     {
     case 'w': // Up
-        next_step.pos.x = entity->box.pos.x;
-        next_step.pos.y = entity->box.pos.y - PLAYER_STEP;
+
+        // Calculating next step
+        next_step.pos.x = character->box.pos.x;
+        next_step.pos.y = character->box.pos.y - PLAYER_STEP;
+
+        // Check if next step is not a wall (either path or items)
         if (walkable(next_step))
         {
-            if (entity->box.pos.y - PLAYER_STEP > 0)
+            if (character->box.pos.y - PLAYER_STEP > 0) // Character is not outside the maze
             {
-                handleAndAnimateCharacterMovement(entity, input, level);
-                check_entity(entity, &star, &star_flag);
-                check_entity(entity, &bomb, &bomb_flag);
-                check_entity(entity, &key, &key_flag);
-                check_entity(entity, &trap, &trap_flag);
-                check_entity(entity, &detrap, &detrap_flag);
+                // Draw animation of character
+                handle_character_movement(character, input, level);
+
+                // Check collision with items
+                check_entity(character, &star, &star_flag);
+                check_entity(character, &bomb, &bomb_flag);
+                check_entity(character, &key, &key_flag);
+                check_entity(character, &trap, &trap_flag);
+                check_entity(character, &detrap, &detrap_flag);
             }
         }
         break;
 
     case 's': // Down
-        next_step.pos.x = entity->box.pos.x;
-        next_step.pos.y = entity->box.pos.y + PLAYER_STEP;
+        next_step.pos.x = character->box.pos.x;
+        next_step.pos.y = character->box.pos.y + PLAYER_STEP;
         if (walkable(next_step))
         {
-            if (entity->box.pos.y + PLAYER_STEP < MAZE_WIDTH)
+            if (character->box.pos.y + PLAYER_STEP < MAZE_WIDTH)
             {
-                handleAndAnimateCharacterMovement(entity, input, level);
-                check_entity(entity, &star, &star_flag);
-                check_entity(entity, &bomb, &bomb_flag);
-                check_entity(entity, &key, &key_flag);
-                check_entity(entity, &trap, &trap_flag);
-                check_entity(entity, &detrap, &detrap_flag);
+                handle_character_movement(character, input, level);
+                check_entity(character, &star, &star_flag);
+                check_entity(character, &bomb, &bomb_flag);
+                check_entity(character, &key, &key_flag);
+                check_entity(character, &trap, &trap_flag);
+                check_entity(character, &detrap, &detrap_flag);
             }
         }
         break;
 
     case 'a': // Left
-        next_step.pos.x = entity->box.pos.x - PLAYER_STEP;
-        next_step.pos.y = entity->box.pos.y;
+        next_step.pos.x = character->box.pos.x - PLAYER_STEP;
+        next_step.pos.y = character->box.pos.y;
         if (walkable(next_step))
         {
-            if (entity->box.pos.x - PLAYER_STEP > 0)
+            if (character->box.pos.x - PLAYER_STEP > 0)
             {
-                handleAndAnimateCharacterMovement(entity, input, level);
-                check_entity(entity, &star, &star_flag);
-                check_entity(entity, &bomb, &bomb_flag);
-                check_entity(entity, &key, &key_flag);
-                check_entity(entity, &trap, &trap_flag);
-                check_entity(entity, &detrap, &detrap_flag);
+                handle_character_movement(character, input, level);
+                check_entity(character, &star, &star_flag);
+                check_entity(character, &bomb, &bomb_flag);
+                check_entity(character, &key, &key_flag);
+                check_entity(character, &trap, &trap_flag);
+                check_entity(character, &detrap, &detrap_flag);
             }
         }
         break;
 
     case 'd': // Right
-        next_step.pos.x = entity->box.pos.x + PLAYER_STEP;
-        next_step.pos.y = entity->box.pos.y;
+        next_step.pos.x = character->box.pos.x + PLAYER_STEP;
+        next_step.pos.y = character->box.pos.y;
         if (walkable(next_step))
         {
-            if (entity->box.pos.x + PLAYER_STEP < MAZE_HEIGHT)
+            if (character->box.pos.x + PLAYER_STEP < MAZE_HEIGHT)
             {
-                handleAndAnimateCharacterMovement(entity, input, level);
-                check_entity(entity, &star, &star_flag);
-                check_entity(entity, &bomb, &bomb_flag);
-                check_entity(entity, &key, &key_flag);
-                check_entity(entity, &trap, &trap_flag);
-                check_entity(entity, &detrap, &detrap_flag);
+                handle_character_movement(character, input, level);
+                check_entity(character, &star, &star_flag);
+                check_entity(character, &bomb, &bomb_flag);
+                check_entity(character, &key, &key_flag);
+                check_entity(character, &trap, &trap_flag);
+                check_entity(character, &detrap, &detrap_flag);
             }
         }
         break;
 
         // Cheat
     case 'o':
-        increase_fov(entity->box.pos, &entity->FOV_radius);
+        increase_fov(character->box.pos, &character->FOV_radius);
         break;
     case 'p':
-        decrease_fov(entity->box.pos, &entity->FOV_radius);
+        decrease_fov(character->box.pos, &character->FOV_radius);
         break;
 
     default:
@@ -277,6 +256,7 @@ void make_fov(Position pos, int radius, int level)
         for (int x = 0; x < MAZE_WIDTH; x++)
             if (x * x + y * y < radius * radius)
             {
+                // Draw 4 quarters
                 if (pos.x + x < MAZE_WIDTH && pos.y + y < MAZE_HEIGHT)
                     drawPixelARGB32(pos.x + x, pos.y + y, epd_bitmap_allArray[level][(pos.y + y) * MAZE_WIDTH + (pos.x + x)]);
                 if (pos.x - x > 0 && pos.y - y > 0)
@@ -309,8 +289,7 @@ void clear_fov(Position pos, int radius)
  */
 void increase_fov(Position pos, int *radius)
 {
-
-    drawCircleARGB32(pos.x, pos.y, *radius, BLACK);
+    drawCircleARGB32(pos.x, pos.y, *radius, BLACK); // Clear previous FOV
     if (*radius < 200)
         *radius += 40;
 }
@@ -320,7 +299,7 @@ void increase_fov(Position pos, int *radius)
  */
 void decrease_fov(Position pos, int *radius)
 {
-    drawCircleARGB32(pos.x, pos.y, *radius, BLACK);
+    drawCircleARGB32(pos.x, pos.y, *radius, BLACK); // Clear previous FOV
     if (*radius > PLAYER_STEP * 2)
         *radius -= 30;
 }
@@ -337,7 +316,7 @@ int reach_exit_gate(Position pos, Position win)
 }
 
 /*
- * Check for wall and items
+ * Check for wall
  */
 int walkable(Box character)
 {
@@ -375,24 +354,24 @@ void clear_maze()
 }
 
 /*
- * Check for interaction of characters and entities
+ * Check for interaction of characters and items
  * If there is collision, do action and set flag off
  */
-void check_entity(Entity *entity1, Entity *entity2, int *flag)
+void check_entity(Character *character, Item *item, int *flag)
 {
     int temp = *flag;
 
-    if (detect_collision(entity1->box, entity2->box))
+    if (detect_collision(character->box, item->box))
     {
         if (temp == 1) // Star
         {
-            increase_fov(entity1->box.pos, &entity1->FOV_radius);
+            increase_fov(character->box.pos, &character->FOV_radius);
             temp = 0;
         }
 
         else if (temp == 2) // Bomb
         {
-            decrease_fov(entity1->box.pos, &entity1->FOV_radius);
+            decrease_fov(character->box.pos, &character->FOV_radius);
             temp = 0;
         }
 
@@ -563,7 +542,7 @@ void set_maze_entity_position(int level, int *path,
 /*
  * Draw animation for characters when moving
  */
-void drawCharacterFrame(Position pos, AnimationState state)
+void draw_character_frame(Position pos, AnimationState state)
 {
     uint32_t *currentFrame;
     switch (state)
@@ -662,7 +641,7 @@ void drawCharacterFrame(Position pos, AnimationState state)
 /*
  * Clear animation of previous move
  */
-void clearCharacterFrame(Position pos)
+void clear_character_frame(Position pos)
 {
     int frameWidth = 20;
 
@@ -677,22 +656,22 @@ void clearCharacterFrame(Position pos)
 /*
  * Show animation for characters when moving
  */
-void handleAndAnimateCharacterMovement(Entity *entity, int input, int level)
+void handle_character_movement(Character *character, int input, int level)
 {
-    Position temp_pos = entity->box.pos;
+    Position temp_pos = character->box.pos;
     AnimationState animations[4] = {};
 
     switch (input)
     {
     case 'w':
-        if (entity == &guts)
+        if (character == &guts)
         {
             animations[0] = GUTS_BACK_IDLE;
             animations[1] = GUTS_BACK_WALK1;
             animations[2] = GUTS_BACK_WALK2;
             animations[3] = GUTS_BACK_IDLE;
         }
-        else if (entity == &griffith)
+        else if (character == &griffith)
         {
             animations[0] = GRIFFITH_BACK_IDLE;
             animations[1] = GRIFFITH_BACK_WALK1;
@@ -701,14 +680,14 @@ void handleAndAnimateCharacterMovement(Entity *entity, int input, int level)
         }
         break;
     case 's':
-        if (entity == &guts)
+        if (character == &guts)
         {
             animations[0] = GUTS_FRONT_IDLE;
             animations[1] = GUTS_FRONT_WALK1;
             animations[2] = GUTS_FRONT_WALK2;
             animations[3] = GUTS_FRONT_IDLE;
         }
-        else if (entity == &griffith)
+        else if (character == &griffith)
         {
             animations[0] = GRIFFITH_FRONT_IDLE;
             animations[1] = GRIFFITH_FRONT_WALK1;
@@ -717,14 +696,14 @@ void handleAndAnimateCharacterMovement(Entity *entity, int input, int level)
         }
         break;
     case 'a':
-        if (entity == &guts)
+        if (character == &guts)
         {
             animations[0] = GUTS_LEFT_IDLE;
             animations[1] = GUTS_LEFT_WALK1;
             animations[2] = GUTS_LEFT_WALK2;
             animations[3] = GUTS_LEFT_IDLE;
         }
-        else if (entity == &griffith)
+        else if (character == &griffith)
         {
             animations[0] = GRIFFITH_LEFT_IDLE;
             animations[1] = GRIFFITH_LEFT_WALK1;
@@ -733,14 +712,14 @@ void handleAndAnimateCharacterMovement(Entity *entity, int input, int level)
         }
         break;
     case 'd':
-        if (entity == &guts)
+        if (character == &guts)
         {
             animations[0] = GUTS_RIGHT_IDLE;
             animations[1] = GUTS_RIGHT_WALK1;
             animations[2] = GUTS_RIGHT_WALK2;
             animations[3] = GUTS_RIGHT_IDLE;
         }
-        else if (entity == &griffith)
+        else if (character == &griffith)
         {
             animations[0] = GRIFFITH_RIGHT_IDLE;
             animations[1] = GRIFFITH_RIGHT_WALK1;
@@ -754,8 +733,8 @@ void handleAndAnimateCharacterMovement(Entity *entity, int input, int level)
 
     for (int i = 0; i < 4; i++)
     {
-        clear_fov(entity->box.pos, entity->FOV_radius); // Clear previous FOV before moving
-        clearCharacterFrame(temp_pos);
+        clear_fov(character->box.pos, character->FOV_radius); // Clear previous FOV before moving
+        clear_character_frame(temp_pos);                      // Clear previous frame
 
         switch (input)
         {
@@ -774,12 +753,11 @@ void handleAndAnimateCharacterMovement(Entity *entity, int input, int level)
         }
 
         // Update entities' position
-        entity->box.pos = temp_pos;
-        entity->currentFrame = animations[i];
+        character->box.pos = temp_pos;
+        character->currentFrame = animations[i];
 
-        // Draw FOV
-        make_fov(entity->box.pos, entity->FOV_radius, level);
-        drawCharacterFrame(entity->box.pos, entity->currentFrame);
+        make_fov(character->box.pos, character->FOV_radius, level);        // Draw updated FOV
+        draw_character_frame(character->box.pos, character->currentFrame); // Draw updated character frame
         wait_msec(DELAY_TIME);
     }
 }
@@ -787,29 +765,29 @@ void handleAndAnimateCharacterMovement(Entity *entity, int input, int level)
 /*
  * Show icon for items
  */
-void drawIconFrame(Position pos, IconFrame frame)
+void draw_icon_frame(Position pos, IconFrame frame)
 {
-    uint32_t *iconFrame;
+    uint32_t *icon_frame;
 
     switch (frame)
     {
     case STAR_FRAME:
-        iconFrame = star_frame;
+        icon_frame = star_frame;
         break;
     case BOMB_FRAME:
-        iconFrame = bomb_frame;
+        icon_frame = bomb_frame;
         break;
     case KEY_FRAME:
-        iconFrame = key_frame;
+        icon_frame = key_frame;
         break;
     case LEVER_FRAME:
-        iconFrame = lever_frame;
+        icon_frame = lever_frame;
         break;
     case TRAP_FRAME:
-        iconFrame = trap_frame;
+        icon_frame = trap_frame;
         break;
     default:
-        iconFrame = 0;
+        icon_frame = 0;
     }
 
     int frameWidth = 20;
@@ -821,7 +799,7 @@ void drawIconFrame(Position pos, IconFrame frame)
     for (int y = 0; y < frameWidth; y++)
         for (int x = 0; x < frameWidth; x++)
         {
-            uint32_t pixel = iconFrame[y * frameWidth + x];
+            uint32_t pixel = icon_frame[y * frameWidth + x];
             if (pixel != mask)
                 drawPixelARGB32(startX + x, startY + y, pixel);
         }
@@ -830,10 +808,37 @@ void drawIconFrame(Position pos, IconFrame frame)
 /*
  * Check if items are in characters' FOV
  */
-int in_FOV(Entity entity1, Entity entity2)
+int in_FOV(Character character, Item item)
 {
-    if (entity1.FOV_radius > distance(entity1.box.pos.x, entity2.box.pos.x, entity1.box.pos.y, entity2.box.pos.y))
+    if (character.FOV_radius > distance(character.box.pos.x, item.box.pos.x, character.box.pos.y, item.box.pos.y))
         return 1;
     else
         return 0;
+}
+
+/*
+ * Show level title of each maze
+ */
+void show_level_title(int level)
+{
+    switch (level)
+    {
+    case 0:
+        drawStringARGB32(200, 400, "Level 1", 0x00ffffff, 4);
+        break;
+    case 1:
+        drawStringARGB32(200, 400, "Level 2", 0x00ffffff, 4);
+        break;
+    case 2:
+        drawStringARGB32(200, 400, "Level 3", 0x00ffffff, 4);
+        break;
+    case 3:
+        drawStringARGB32(200, 400, "Level 4", 0x00ffffff, 4);
+        break;
+    case 4:
+        drawStringARGB32(200, 400, "Level 5", 0x00ffffff, 4);
+        break;
+    default:
+        break;
+    }
 }

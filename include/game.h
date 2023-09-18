@@ -68,11 +68,16 @@ typedef struct
     Box box;
     int FOV_radius;
     AnimationState currentFrame;
-    IconFrame iconFrame;
-} Entity;
+} Character;
+
+typedef struct
+{
+    Box box;
+    IconFrame icon_frame;
+} Item;
 
 void game(int *level);
-void handle_input(Entity *entity, int input, int level);
+void handle_input(Character *entity, int input, int level);
 void make_fov(Position pos, int radius, int level);
 void clear_fov(Position pos, int radius);
 void increase_fov(Position pos, int *radius);
@@ -81,13 +86,14 @@ int reach_exit_gate(Position pos, Position win);
 int walkable(Box character);
 int detect_collision(Box a, Box b);
 void clear_maze();
-void check_entity(Entity *entity1, Entity *entity2, int *flag);
+void check_entity(Character *character, Item *item, int *flag);
 void set_maze_entity_position(int level, int *path, Position *start2, Position *star, Position *bomb, Position *key, Position *trap, Position *trapless, int *fov);
 void set_level();
-void drawCharacterFrame(Position pos, AnimationState state);
-void clearCharacterFrame(Position pos);
-void handleAndAnimateCharacterMovement(Entity *entity, int input, int level);
-void drawIconFrame(Position pos, IconFrame frame);
-int in_FOV(Entity entity1, Entity entity2);
+void draw_character_frame(Position pos, AnimationState state);
+void clear_character_frame(Position pos);
+void handle_character_movement(Character *entity, int input, int level);
+void draw_icon_frame(Position pos, IconFrame frame);
+int in_FOV(Character character, Item item);
+void show_level_title(int level);
 
 #endif
