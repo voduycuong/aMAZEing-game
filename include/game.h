@@ -4,10 +4,14 @@
 #include "uart.h"
 #include "mbox.h"
 #include "framebf.h"
-#include "rand.h"
-#include "animation.h"
 #include "maze.h"
+#include "math.h"
 #include "exit.h"
+#include "animation.h"
+#include "icon.h"
+#include "font.h"
+
+extern int level;
 
 typedef struct
 {
@@ -24,37 +28,73 @@ typedef struct
 
 typedef enum
 {
-    FRONT_IDLE,
-    FRONT_WALK1,
-    FRONT_WALK2,
-    BACK_IDLE,
-    BACK_WALK1,
-    BACK_WALK2,
-    SIDE_IDLE,
-    SIDE_WALK1,
-    SIDE_WALK2,
+    GUTS_FRONT_IDLE,
+    GUTS_FRONT_WALK1,
+    GUTS_FRONT_WALK2,
+    GUTS_BACK_IDLE,
+    GUTS_BACK_WALK1,
+    GUTS_BACK_WALK2,
+    GUTS_RIGHT_IDLE,
+    GUTS_RIGHT_WALK1,
+    GUTS_RIGHT_WALK2,
+    GUTS_LEFT_IDLE,
+    GUTS_LEFT_WALK1,
+    GUTS_LEFT_WALK2,
+    GRIFFITH_FRONT_IDLE,
+    GRIFFITH_FRONT_WALK1,
+    GRIFFITH_FRONT_WALK2,
+    GRIFFITH_BACK_IDLE,
+    GRIFFITH_BACK_WALK1,
+    GRIFFITH_BACK_WALK2,
+    GRIFFITH_RIGHT_IDLE,
+    GRIFFITH_RIGHT_WALK1,
+    GRIFFITH_RIGHT_WALK2,
+    GRIFFITH_LEFT_IDLE,
+    GRIFFITH_LEFT_WALK1,
+    GRIFFITH_LEFT_WALK2,
 } AnimationState;
+
+typedef enum
+{
+    TRAP_FRAME,
+    STAR_FRAME,
+    KEY_FRAME,
+    BOMB_FRAME,
+    LEVER_FRAME,
+} IconFrame;
 
 typedef struct
 {
     Box box;
-    Position pos;
+    int FOV_radius;
     AnimationState currentFrame;
-} Entity;
+} Character;
 
-void game();
-void handle_input(Position *pos, int input);
-void make_fov(Position pos, int rad);
-void clear_fov(Position pos, int rad);
-void increase_fov(Position pos);
-void decrease_fov(Position pos);
-int win(Position pos, Position win, int flag);
-int interact(int pos_x, int pos_y);
+typedef struct
+{
+    Box box;
+    IconFrame icon_frame;
+} Item;
+
+void game(int *level);
+void handle_input(Character *entity, int input, int level);
+void make_fov(Position pos, int radius, int level);
+void clear_fov(Position pos, int radius);
+void increase_fov(Position pos, int *radius);
+void decrease_fov(Position pos, int *radius);
+int reach_exit_gate(Position pos, Position win);
+int walkable(Box character);
 int detect_collision(Box a, Box b);
-Position set_random_position();
-void load_full_maze();
 void clear_maze();
-void check_entity(Position pos, int *flag);
+void check_entity(Character *character, Item *item, int *flag);
+void set_maze_entity_position(int level, int *path, Position *start2, Position *star, Position *bomb, Position *key, Position *trap, Position *trapless, int *fov);
+void set_level();
+void draw_character_frame(Position pos, AnimationState state);
+void clear_character_frame(Position pos);
+void handle_character_movement(Character *entity, int input, int level);
+void draw_icon_frame(Position pos, IconFrame frame);
+int in_FOV(Character character, Item item);
+void show_level_title(int level);
 
 void drawCharacterFrame(Position pos, AnimationState state);
 void clearCharacterFrame(Position pos);

@@ -6,12 +6,11 @@
 #include "font.h"
 
 // Commands
+#include "game.h"
 #include "level.h"
 #include "tutorial.h"
 #include "about.h"
 #include "exit.h"
-
-#include "game.h"
 
 extern char *commands[];
 
@@ -20,7 +19,6 @@ extern char *commands[];
 #define NUM_IMAGES 3
 
 void cli();
-void show_welcome_screen();
 void clear_screen();
 void show_main_menu();
 

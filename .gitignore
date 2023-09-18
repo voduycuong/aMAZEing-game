@@ -1,3 +1,10 @@
-*.o
-*.elf
+# Ignore build files
+/object
 *.img
+
+# Ignore document files
+/doc
+
+# Ignore editor's files
+.idea/
+.vscode/
