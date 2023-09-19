@@ -107,12 +107,9 @@ void game(int *level)
             draw_character_frame(griffith.box.pos, griffith.currentFrame);
 
             // Draw exit gate
-            if (key_flag)
-            {
-                if (guts.FOV_radius > distance(guts.box.pos.x, end_pos.x, guts.box.pos.y, end_pos.y) ||
-                    griffith.FOV_radius > distance(griffith.box.pos.x, end_pos.x, griffith.box.pos.y, end_pos.y))
-                    drawRectARGB32(MAZE_WIDTH - 35, MAZE_HEIGHT / 2 - 31, MAZE_WIDTH - 10, MAZE_HEIGHT / 2 + 24, 0x00FF0000, 1);
-            }
+            if (key_flag && (guts.FOV_radius > distance(guts.box.pos.x, end_pos.x, guts.box.pos.y, end_pos.y) ||
+                             griffith.FOV_radius > distance(griffith.box.pos.x, end_pos.x, griffith.box.pos.y, end_pos.y)))
+                drawRectARGB32(MAZE_WIDTH - 35, MAZE_HEIGHT / 2 - 31, MAZE_WIDTH - 10, MAZE_HEIGHT / 2 + 24, 0x00FF0000, 1);
 
             if (detrap_flag == 0) // Check for detrap, if detrapped, deactivate trap
             {
