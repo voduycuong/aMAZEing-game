@@ -130,45 +130,20 @@ void game(int *level)
             }
 
             // If items are inside characters' FOV, they're shown
-            if (star_flag == 1)
-            {
-                if (in_FOV(guts, star) || in_FOV(griffith, star))
-                    draw_icon_frame(star.box.pos, star.icon_frame);
-                else
-                    drawCircleARGB32(star.box.pos.x, star.box.pos.y, ENTITY_RADIUS, BLACK);
-            }
+            if (star_flag == 1 && (in_FOV(guts, star) || in_FOV(griffith, star)))
+                draw_icon_frame(star.box.pos, star.icon_frame);
 
-            if (bomb_flag == 2)
-            {
-                if (in_FOV(guts, bomb) || in_FOV(griffith, bomb))
-                    draw_icon_frame(bomb.box.pos, bomb.icon_frame);
-                else
-                    drawCircleARGB32(bomb.box.pos.x, bomb.box.pos.y, ENTITY_RADIUS, BLACK);
-            }
+            if (bomb_flag == 2 && (in_FOV(guts, bomb) || in_FOV(griffith, bomb)))
+                draw_icon_frame(bomb.box.pos, bomb.icon_frame);
 
-            if (key_flag == 3)
-            {
-                if (in_FOV(guts, key) || in_FOV(griffith, key))
-                    draw_icon_frame(key.box.pos, key.icon_frame);
-                else
-                    drawCircleARGB32(key.box.pos.x, key.box.pos.y, ENTITY_RADIUS, BLACK);
-            }
+            if (key_flag == 3 && (in_FOV(guts, key) || in_FOV(griffith, key)))
+                draw_icon_frame(key.box.pos, key.icon_frame);
 
-            if (trap_flag == 4 && detrap_flag == 5)
-            {
-                if (in_FOV(guts, trap) || in_FOV(griffith, trap))
-                    draw_icon_frame(trap.box.pos, trap.icon_frame);
-                else
-                    drawCircleARGB32(trap.box.pos.x, trap.box.pos.y, ENTITY_RADIUS, BLACK);
-            }
+            if ((trap_flag == 4 && detrap_flag == 5) && (in_FOV(guts, trap) || in_FOV(griffith, trap)))
+                draw_icon_frame(trap.box.pos, trap.icon_frame);
 
-            if (detrap_flag == 5)
-            {
-                if (in_FOV(guts, detrap) || in_FOV(griffith, detrap))
-                    draw_icon_frame(detrap.box.pos, detrap.icon_frame);
-                else
-                    drawCircleARGB32(detrap.box.pos.x, detrap.box.pos.y, ENTITY_RADIUS, BLACK);
-            }
+            if (detrap_flag == 5 && (in_FOV(guts, detrap) || in_FOV(griffith, detrap)))
+                draw_icon_frame(detrap.box.pos, detrap.icon_frame);
 
             // Get direction from player
             char input = uart_getc();
