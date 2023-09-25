@@ -136,6 +136,13 @@ void cli()
 			display_video();
 			cmd = 1;
 		}
+
+		if (strcmp(cli_buffer,"display teammember list"))	// check for the buffer match the command
+		{
+			display_font();
+			cmd = 1;
+		}
+
 		// non-legit command prompt will be display with warning
 		else if (cli_buffer[0] != '\0' && cmd == 0) // condition to manage empty buffer
 		{
