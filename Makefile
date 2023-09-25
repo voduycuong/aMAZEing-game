@@ -1,66 +1,46 @@
 #--------------------------------------Makefile-------------------------------------
+BLD_DIR := build
+CFILES = $(wildcard ./kernel/*.c )
+CMDFILES = $(wildcard ./command/*.c)
+OFILES = $(CFILES:./kernel/%.c=./build/%.o)
+OCMDFILES = $(CMDFILES:./command/%.c=./build/%.o)
+GCCFLAGS = -Wall -O2 -ffreestanding -nostdinc -nostdlib
 
-# Source directory
-SRC_DIR := src
-# Object files
-BLD_DIR := object
-# Header directory
-INC_DIR := include
-# Linker directory
-SCT_DIR := linker
+all: clean uart0_build pic_build header_build kernel8.img 
+uart1: clean uart1_build kernel8.img run1
+uart0: clean uart0_build kernel8.img run0
+run: run0
 
-# Source files
-CFILES := $(wildcard $(SRC_DIR)/*.c)
-# Object files
-OFILES := $(CFILES:$(SRC_DIR)/%.c=$(BLD_DIR)/%.o)
-# Header files
-HFILES := $(wildcard $(INC_DIR)/*.h)
-# Linker files
-LFILES := $(wildcard $(SCT_DIR)/*.ld)
-# Target file
-TARGET := kernel8
+uart1_build: ./uart/uart1.c
+	aarch64-none-elf-gcc $(GCCFLAGS) -c ./uart/uart1.c -o ./build/uart.o
 
-# Compilers
-CC = aarch64-none-elf-gcc
+uart0_build: ./uart/uart0.c
+	aarch64-none-elf-gcc $(GCCFLAGS) -c ./uart/uart0.c -o ./build/uart.o
 
-# Flags
-GCCFLAGS = -Wall -O2 -ffreestanding -nostdinc -nostdlib -nostartfiles
-LDFLAGS = -nostdlib
+pic_build: ./graphsrc/pic.c 
+	aarch64-none-elf-gcc $(GCCFLAGS) -c ./graphsrc/pic.c -o ./build/pic.o
 
-OPT = -serial stdio
+header_build: ./header/string.c
+	aarch64-none-elf-gcc $(GCCFLAGS) -c ./header/string.c -o ./build/string.o
 
-all: $(TARGET).img
+./build/boot.o: ./kernel/boot.S
+	aarch64-none-elf-gcc $(GCCFLAGS) -c ./kernel/boot.S -o ./build/boot.o
 
-$(TARGET).img: $(BLD_DIR)/boot.o $(OFILES)
-	@echo -------------------------------------
-	aarch64-none-elf-ld $(LDFLAGS) $(BLD_DIR)/boot.o $(OFILES) -T $(LFILES) -o $(BLD_DIR)/$(TARGET).elf
-	aarch64-none-elf-objcopy -O binary $(BLD_DIR)/$(TARGET).elf $(TARGET).img
-	@echo -------------------------------------
+./build/%.o: ./kernel/%.c 
+	aarch64-none-elf-gcc $(GCCFLAGS) -c $< -o $@
 
-# ---------------------------------------------------------------------------------
-$(BLD_DIR)/boot.o: $(SRC_DIR)/boot.S | $(BLD_DIR)
-	$(CC) $(GCCFLAGS) -c $< -o $@
+./build/%.o: ./command/%.c 
+	aarch64-none-elf-gcc $(GCCFLAGS) -c $< -o $@
 
-$(BLD_DIR)/%.o: $(SRC_DIR)/%.c $(INC_DIR) | $(BLD_DIR)
-	$(CC) $(GCCFLAGS) -c $< -o $@ -I$(INC_DIR)
-# ---------------------------------------------------------------------------------
-
-$(BLD_DIR):
-	if not exist "$(BLD_DIR)" mkdir $(BLD_DIR)
-
+kernel8.img: ./build/boot.o ./build/uart.o $(OCMDFILES) $(OFILES)
+	aarch64-none-elf-ld -nostdlib  ./build/boot.o ./build/uart.o ./build/string.o ./build/pic.o $(OCMDFILES) $(OFILES) -T ./kernel/link.ld -o ./build/kernel8.elf
+	aarch64-none-elf-objcopy -O binary ./build/kernel8.elf kernel8.img
 clean:
-	@echo -------------------------------------
-	@echo -- Deleting .o files:
-	rmdir /s /q $(BLD_DIR)
-	@echo -- Deleting .img file:
-	del *.img
-	@echo -------------------------------------
+	del .\build\kernel8.elf .\build\*.o *.img
 
-diff:
-	@git status
-	@git diff --stat
-	
-run:
-	qemu-system-aarch64 -M raspi3 -kernel $(TARGET).img $(OPT)
+# Run emulation with QEMU
+run1: 
+	qemu-system-aarch64 -M raspi3 -kernel kernel8.img -serial null -serial stdio 
 
-.PHONY: all clean diff
+run0: 
+	qemu-system-aarch64 -M raspi3 -kernel kernel8.img -serial stdio 
