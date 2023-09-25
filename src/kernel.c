@@ -1,7 +1,7 @@
 #include "kernel.h"
 
 char *commands[] = {"start", "level", "tutorial", "about", "exit"};
-int index_pos = 350;
+int index_pos = 580;
 int level = 0;
 
 void main()
@@ -17,8 +17,6 @@ void main()
 	while (1)
 	{
 		cli();
-		// level = 4;
-		// game(&level);
 	}
 }
 
@@ -27,7 +25,7 @@ void cli()
 	static int cmd_index = 0; // Indexing commands
 
 	if (cmd_index == 0)
-		drawCharARGB32('>', 300, index_pos, 0x00ffffff, 2);
+		drawCharARGB32('>', 280, index_pos, 0x00ffffff, 2);
 
 	char input = uart_getc();
 
@@ -36,14 +34,14 @@ void cli()
 	{
 		cmd_index++;
 		// Reset command index if exceeded
-		if (cmd_index > 4)
+		if (cmd_index > 3)
 			cmd_index = 0;
 
-		drawCharARGB32('>', 300, index_pos, 0x00000000, 3);
+		drawCharARGB32('>', 280, index_pos, 0x00000000, 3);
 		index_pos += 50;
-		if (index_pos > 550)
-			index_pos = 350;
-		drawCharARGB32('>', 300, index_pos, 0x00ffffff, 2);
+		if (index_pos > 730)
+			index_pos = 580;
+		drawCharARGB32('>', 280, index_pos, 0x00ffffff, 2);
 	}
 
 	// 'w' key is pressed
@@ -52,13 +50,13 @@ void cli()
 		cmd_index--;
 		// Reset command index if exceeded
 		if (cmd_index < 0)
-			cmd_index = 4;
+			cmd_index = 3;
 
-		drawCharARGB32('>', 300, index_pos, 0x00000000, 3);
+		drawCharARGB32('>', 280, index_pos, 0x00000000, 3);
 		index_pos -= 50;
-		if (index_pos < 350)
-			index_pos = 550;
-		drawCharARGB32('>', 300, index_pos, 0x00ffffff, 2);
+		if (index_pos < 580)
+			index_pos = 730;
+		drawCharARGB32('>', 280, index_pos, 0x00ffffff, 2);
 	}
 
 	// Return key is pressed
@@ -71,7 +69,7 @@ void cli()
 				game(&level); // start with level 1
 
 			clear_maze();
-			drawStringARGB32(250, 400, "the end", 0x00ffffff, 3);
+			drawStringARGB32(250, 400, "The end", 0x00ffffff, 3);
 			wait_msec(2000000);
 			show_about();
 			wait_msec(2000000);
@@ -96,13 +94,9 @@ void cli()
 			show_about();
 			show_main_menu();
 		}
-		else if (cmd_index == 4) // exit command
-		{
-			exit();
-			show_main_menu();
-		}
+
 		cmd_index = 0;
-		index_pos = 350;
+		index_pos = 580;
 	}
 }
 
@@ -113,16 +107,22 @@ void clear_screen()
 
 void show_main_menu()
 {
-	int start_pos = 340;
-	drawRectARGB32(0, 0, MAZE_WIDTH, MAZE_HEIGHT, 0x00000000, 1); // Clear screen
+	int start_pos = 570;
+	drawRectARGB32(0, 0, MAZE_WIDTH, 570, 0x00000000, 1); // Clear screen
+	show_title();
 
-	drawStringARGB32(350, start_pos, "start", 0x00FFFFFF, 2);
+	drawStringARGB32(330, start_pos, "start", 0x00FFFFFF, 3);
 	start_pos += 50;
-	drawStringARGB32(350, start_pos, "choose level", 0x00FFB84C, 2);
+	drawStringARGB32(330, start_pos, "choose level", 0x00FFB84C, 3);
 	start_pos += 50;
-	drawStringARGB32(350, start_pos, "how to play", 0x00F266AB, 2);
+	drawStringARGB32(330, start_pos, "how to play", 0x00F266AB, 3);
 	start_pos += 50;
-	drawStringARGB32(350, start_pos, "about", 0x00A459D1, 2);
-	start_pos += 50;
-	drawStringARGB32(350, start_pos, "exit", 0x002CD3E1, 2);
+	drawStringARGB32(330, start_pos, "about", 0x00A459D1, 3);
+}
+
+void show_title()
+{
+	for (int y = 0; y < MAZE_HEIGHT; y++)
+		for (int x = 0; x < MAZE_WIDTH; x++)
+			drawPixelARGB32(x, y, epd_bitmap_title_array[0][y * MAZE_WIDTH + x]);
 }

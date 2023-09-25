@@ -4,13 +4,11 @@
 #include "uart.h"
 #include "framebf.h"
 #include "font.h"
-
-// Commands
 #include "game.h"
 #include "level.h"
 #include "tutorial.h"
 #include "about.h"
-#include "exit.h"
+#include "title.h"
 
 extern char *commands[];
 
@@ -21,5 +19,6 @@ extern char *commands[];
 void cli();
 void clear_screen();
 void show_main_menu();
+void show_title();
 
 #endif

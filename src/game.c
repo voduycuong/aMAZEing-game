@@ -83,7 +83,7 @@ void game(int *level)
         if (reach_exit_gate(guts.box.pos, end_pos)) // Guts reach exit gate and key is retrieved
         {
             clear_maze();
-            drawStringARGB32(200, 400, "ok you win!", 0x00ffffff, 3);
+            drawStringARGB32(200, 400, "You escaped the maze!", 0x00ffffff, 3);
             wait_msec(1000000);
             if (*level < 5) // If not reach last level, increase level
             {
@@ -120,8 +120,8 @@ void game(int *level)
             if (trap_flag == 0) // Check for trap, if trapped, reset level
             {
                 clear_maze();
-                drawStringARGB32(200, 400, "you died", 0x00ffffff, 3);
-                wait_msec(1000000);
+                drawStringARGB32(200, 400, "You wake up!", 0x00FFB84C, 3);
+                wait_msec(2000000);
                 reset_flag();
                 break;
             }
@@ -829,16 +829,16 @@ void show_level_title(int level)
         drawStringARGB32(200, 400, "Level 1", 0x00ffffff, 4);
         break;
     case 1:
-        drawStringARGB32(200, 400, "Level 2", 0x00ffffff, 4);
+        drawStringARGB32(200, 400, "Level 2", 0x00FFB84C, 4);
         break;
     case 2:
-        drawStringARGB32(200, 400, "Level 3", 0x00ffffff, 4);
+        drawStringARGB32(200, 400, "Level 3", 0x00F266AB, 4);
         break;
     case 3:
-        drawStringARGB32(200, 400, "Level 4", 0x00ffffff, 4);
+        drawStringARGB32(200, 400, "Level 4", 0x00A459D1, 4);
         break;
     case 4:
-        drawStringARGB32(200, 400, "Level 5", 0x00ffffff, 4);
+        drawStringARGB32(200, 400, "Level 5", 0x002CD3E1, 4);
         break;
     default:
         break;
