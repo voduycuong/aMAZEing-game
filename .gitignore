@@ -1,5 +1,5 @@
 # Ignore build files
-/object
+/build
 *.img
 
 # Ignore document files
