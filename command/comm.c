@@ -21,7 +21,7 @@ char* autocomp(char* input, int time)
     {
         strcpy(str,tmp);
     }
-    char* commands[5] = {"display large image", "clear", "display image slideshow", "display video"};  // declare command list
+    char* commands[5] = {"display large image", "clear", "display image slideshow", "display video", "display teammember list"};  // declare command list
     int i, j, k, len = strlen(str);
     for (i = index_found; i < 5; i++)   // loop for matching check
     {
