@@ -246,7 +246,7 @@ void clear_fov(Position pos, int radius)
 {
     for (int y = 0; y < MAZE_HEIGHT; y++)
         for (int x = 0; x < MAZE_WIDTH; x++)
-            if (x * x + y * y <= radius * radius)
+            if (x * x + y * y <= radius * radius *2)
             {
                 drawPixelARGB32(pos.x + x, pos.y + y, BLACK);
                 drawPixelARGB32(pos.x - x, pos.y - y, BLACK);
