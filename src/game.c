@@ -144,7 +144,7 @@ void game(int *level)
                 draw_icon_frame(detrap.box.pos, detrap.icon_frame);
 
             // Get direction from player
-            char input = uart_getc();
+            char input = getUart();
 
             // Handle input for both characters
             handle_input(&guts, input, *level);
