@@ -6,8 +6,8 @@
 0x3F000000 in RPI3
 --> Select correct option to set the value properly
 */
-// #define RPI3 // enable when using RPI3 (QEMU emulation/ real board)
-#ifdef RPI3 // RPI3
+#define RPI3 // enable when using RPI3 (QEMU emulation/ real board)
+#ifdef RPI3  // RPI3
 #define MMIO_BASE 0x3F000000
 #else // RPI4
 #define MMIO_BASE 0xFE000000
