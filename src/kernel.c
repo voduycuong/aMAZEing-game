@@ -16,11 +16,7 @@ void main()
 
 	while (1)
 	{
-		// cli();
-		clear_maze();
-		drawStringARGB32(220, 400, "Congrats, your dream came true!", 0x00ffffff, 2);
-		draw_hd_dragon();
-		uart_getc();
+		cli();
 	}
 }
 
@@ -73,7 +69,7 @@ void cli()
 				game(&level); // start with level 1
 
 			clear_maze();
-			drawStringARGB32(250, 400, "Congrats, your dream came true!", 0x00ffffff, 2);
+			drawStringARGB32(220, 400, "Congrats, your dream came true!", 0x00ffffff, 2);
 			draw_hd_dragon();
 
 			wait_msec(2000000);
