@@ -96,28 +96,25 @@ void framebf_init()
 void drawPixelARGB32(int x, int y, unsigned int attr)
 {
     int offs = (y * pitch) + (COLOR_DEPTH / 8 * x);
-
-    // Access and assign each byte
+    // // Access and assign each byte
     *(fb + offs) = (attr >> 0) & 0xFF;      // BLUE
     *(fb + offs + 1) = (attr >> 8) & 0xFF;  // GREEN
     *(fb + offs + 2) = (attr >> 16) & 0xFF; // RED
-    //  *(fb + offs + 3) = (attr >> 24) & 0xFF; // ALPHA
+    // //  *(fb + offs + 3) = (attr >> 24) & 0xFF; // ALPHA
 
-    // // Access 32-bit together
+    // Access 32-bit together
     // *((unsigned int *)(fb + offs)) = attr;
 }
 
 unsigned int getPixelARGB32(int x, int y)
 {
-    unsigned int attr;
+    unsigned int attr = 0x000000;
     int offs = (y * pitch) + (COLOR_DEPTH / 8 * x);
 
     // Access and assign each byte
-    *(fb + offs) = (attr >> 0) & 0xFF;      // BLUE
-    *(fb + offs + 1) = (attr >> 8) & 0xFF;  // GREEN
-    *(fb + offs + 2) = (attr >> 16) & 0xFF; // RED
-
-    return attr;
+    attr = *((unsigned int *)(fb + offs));
+    uart_hex(attr & 0xFFFFFF);
+    return (attr & 0xFFFFFF);
 }
 
 void drawRectARGB32(int x1, int y1, int x2, int y2, unsigned int attr, int fill)
