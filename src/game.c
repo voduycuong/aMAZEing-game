@@ -678,7 +678,6 @@ void handle_character_movement(Character *character, int input, int level)
     }
 
     clear_fov(character->box.pos, character->FOV_radius); // Clear previous FOV before moving
-    clear_character_frame(temp_pos);                      // Clear previous frame
 
     switch (input)
     {
