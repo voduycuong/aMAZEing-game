@@ -169,72 +169,35 @@ void handle_input(Character *character, int input, int level)
         next_step.pos.x = character->box.pos.x;
         next_step.pos.y = character->box.pos.y - PLAYER_STEP;
 
-        if (walkable(next_step)) // Check if next step is not a wall (either path or items)
-        {
+        if (walkable(next_step))                        // Check if next step is not a wall (either path or items)
             if (character->box.pos.y - PLAYER_STEP > 0) // Character is not outside the maze
-            {
                 // Draw animation of character
                 handle_character_movement(character, input, level);
 
-                // Check collision with items
-                check_entity(character, &star, &star_flag);
-                check_entity(character, &bomb, &bomb_flag);
-                check_entity(character, &key, &key_flag);
-                check_entity(character, &trap, &trap_flag);
-                check_entity(character, &detrap, &detrap_flag);
-            }
-        }
         break;
 
     case 's': // Down
         next_step.pos.x = character->box.pos.x;
         next_step.pos.y = character->box.pos.y + PLAYER_STEP;
         if (walkable(next_step))
-        {
             if (character->box.pos.y + PLAYER_STEP < MAZE_WIDTH)
-            {
                 handle_character_movement(character, input, level);
-                check_entity(character, &star, &star_flag);
-                check_entity(character, &bomb, &bomb_flag);
-                check_entity(character, &key, &key_flag);
-                check_entity(character, &trap, &trap_flag);
-                check_entity(character, &detrap, &detrap_flag);
-            }
-        }
         break;
 
     case 'a': // Left
         next_step.pos.x = character->box.pos.x - PLAYER_STEP;
         next_step.pos.y = character->box.pos.y;
         if (walkable(next_step))
-        {
             if (character->box.pos.x - PLAYER_STEP > 0)
-            {
                 handle_character_movement(character, input, level);
-                check_entity(character, &star, &star_flag);
-                check_entity(character, &bomb, &bomb_flag);
-                check_entity(character, &key, &key_flag);
-                check_entity(character, &trap, &trap_flag);
-                check_entity(character, &detrap, &detrap_flag);
-            }
-        }
         break;
 
     case 'd': // Right
         next_step.pos.x = character->box.pos.x + PLAYER_STEP;
         next_step.pos.y = character->box.pos.y;
         if (walkable(next_step))
-        {
             if (character->box.pos.x + PLAYER_STEP < MAZE_HEIGHT)
-            {
                 handle_character_movement(character, input, level);
-                check_entity(character, &star, &star_flag);
-                check_entity(character, &bomb, &bomb_flag);
-                check_entity(character, &key, &key_flag);
-                check_entity(character, &trap, &trap_flag);
-                check_entity(character, &detrap, &detrap_flag);
-            }
-        }
         break;
 
         // Cheat
@@ -248,6 +211,11 @@ void handle_input(Character *character, int input, int level)
     default:
         break;
     }
+    check_entity(character, &star, &star_flag);
+    check_entity(character, &bomb, &bomb_flag);
+    check_entity(character, &key, &key_flag);
+    check_entity(character, &trap, &trap_flag);
+    check_entity(character, &detrap, &detrap_flag);
 }
 
 /*

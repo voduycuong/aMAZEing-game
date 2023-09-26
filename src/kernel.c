@@ -69,7 +69,9 @@ void cli()
 				game(&level); // start with level 1
 
 			clear_maze();
-			drawStringARGB32(250, 400, "The end", 0x00ffffff, 3);
+			drawStringARGB32(250, 400, "Congrats, your dream came true!", 0x00ffffff, 3);
+			// Insert HD-dragon picture
+
 			wait_msec(2000000);
 			show_about();
 			wait_msec(2000000);
