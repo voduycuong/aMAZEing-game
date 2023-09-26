@@ -6,41 +6,9 @@ typedef struct {
     int radius;
 } FOV;
 
-typedef struct {
-    unsigned char r;
-    unsigned char g;
-    unsigned char b;
-    unsigned char a;
-} Color;
-
 FOV character1_fov;
 FOV character2_fov;
 
-Color get_pixel_color(int x, int y) {
-    // Check if the pixel is within the game world
-    if (x >= 0 && x < MAZE_WIDTH && y >= 0 && y < MAZE_HEIGHT) {
-        // Get the game object at this pixel
-        GameObject* obj = get_game_object_at(x, y);
-
-        // Determine the color based on the game object
-        if (obj == NULL) {
-            // No game object at this pixel, so it's probably empty space
-            return (Color){0, 0, 0, 255}; // Black
-        } else if (obj->type == GAME_OBJECT_TYPE_PLAYER) {
-            // This is a player character
-            return (Color){255, 255, 255, 255}; // White
-        } else if (obj->type == GAME_OBJECT_TYPE_ENEMY) {
-            // This is an enemy character
-            return (Color){255, 0, 0, 255}; // Red
-        } else {
-            // Some other type of game object
-            return obj->color;
-        }
-    } else {
-        // The pixel is outside the game world
-        return (Color){0, 0, 0, 255}; // Black
-    }
-}
 
 void game_loop() {
     // Store old FOV positions
@@ -71,7 +39,6 @@ void update_pixels_for_fov(FOV* fov, int old_x, int old_y) {
                 int dy = world_y - old_y;
                 if (dx*dx + dy*dy > radius_squared) {
                     // This pixel was outside the old FOV, so redraw it
-                    Color color = get_pixel_color(world_x, world_y);
                     draw_pixel(world_x, world_y, color);
                 }
             } else {

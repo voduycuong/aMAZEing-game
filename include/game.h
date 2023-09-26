@@ -77,8 +77,8 @@ typedef struct
 } Item;
 
 void game(int *level);
-void handle_input(Character *entity, int input, int level);
-void make_fov(Position pos, int radius, int level);
+void handle_input(Character *entity, int input, int level, Position old_pos);
+void make_fov(Position pos, int radius, int level, Position old_pos);
 void clear_fov(Position pos, int radius);
 void increase_fov(Position pos, int *radius);
 void decrease_fov(Position pos, int *radius);
@@ -91,7 +91,7 @@ void set_maze_entity_position(int level, int *path, Position *start2, Position *
 void reset_flag();
 void draw_character_frame(Position pos, AnimationState state);
 void clear_character_frame(Position pos);
-void handle_character_movement(Character *entity, int input, int level);
+void handle_character_movement(Character *entity, int input, int level, Position old_pos);
 void draw_icon_frame(Position pos, IconFrame frame);
 int in_FOV(Character character, Item item);
 void show_level_title(int level);

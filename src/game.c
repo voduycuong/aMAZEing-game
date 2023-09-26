@@ -76,6 +76,8 @@ void game(int *level)
     wait_msec(1000000);
     clear_maze();
 
+    Position old_guts_pos = guts_box.pos;
+    Position old_griffith_pos = griffith_box.pos;
     // Game begins
     while (1)
     {
@@ -99,8 +101,8 @@ void game(int *level)
         else
         {
             // Show FOV for 2 characters
-            make_fov(guts.box.pos, guts.FOV_radius, *level);
-            make_fov(griffith.box.pos, griffith.FOV_radius, *level);
+            make_fov(guts.box.pos, guts.FOV_radius, *level, old_guts_pos);
+            make_fov(griffith.box.pos, griffith.FOV_radius, *level, old_griffith_pos);
 
             // Draw 2 characters
             draw_character_frame(guts.box.pos, guts.currentFrame);
@@ -174,14 +176,14 @@ void game(int *level)
             char input = uart_getc();
 
             // Handle input for both characters
-            handle_input(&guts, input, *level);
-            handle_input(&griffith, input, *level);
+            handle_input(&guts, input, *level, old_guts_pos);
+            handle_input(&griffith, input, *level, old_griffith_pos);
         }
     }
 }
 
 // Function for input directions
-void handle_input(Character *character, int input, int level)
+void handle_input(Character *character, int input, int level, Position old_pos)
 {
     // Create a box for next step
     Box next_step;
@@ -200,15 +202,7 @@ void handle_input(Character *character, int input, int level)
         {
             if (character->box.pos.y - PLAYER_STEP > 0) // Character is not outside the maze
             {
-                // Draw animation of character
-                handle_character_movement(character, input, level);
-
-                // Check collision with items
-                check_entity(character, &star, &star_flag);
-                check_entity(character, &bomb, &bomb_flag);
-                check_entity(character, &key, &key_flag);
-                check_entity(character, &trap, &trap_flag);
-                check_entity(character, &detrap, &detrap_flag);
+                handle_character_movement(character, input, level,old_pos);  
             }
         }
         break;
@@ -220,12 +214,7 @@ void handle_input(Character *character, int input, int level)
         {
             if (character->box.pos.y + PLAYER_STEP < MAZE_WIDTH)
             {
-                handle_character_movement(character, input, level);
-                check_entity(character, &star, &star_flag);
-                check_entity(character, &bomb, &bomb_flag);
-                check_entity(character, &key, &key_flag);
-                check_entity(character, &trap, &trap_flag);
-                check_entity(character, &detrap, &detrap_flag);
+                handle_character_movement(character, input, level,old_pos);
             }
         }
         break;
@@ -237,12 +226,8 @@ void handle_input(Character *character, int input, int level)
         {
             if (character->box.pos.x - PLAYER_STEP > 0)
             {
-                handle_character_movement(character, input, level);
-                check_entity(character, &star, &star_flag);
-                check_entity(character, &bomb, &bomb_flag);
-                check_entity(character, &key, &key_flag);
-                check_entity(character, &trap, &trap_flag);
-                check_entity(character, &detrap, &detrap_flag);
+                // Draw animation of character
+                handle_character_movement(character, input, level,old_pos);
             }
         }
         break;
@@ -254,12 +239,8 @@ void handle_input(Character *character, int input, int level)
         {
             if (character->box.pos.x + PLAYER_STEP < MAZE_HEIGHT)
             {
-                handle_character_movement(character, input, level);
-                check_entity(character, &star, &star_flag);
-                check_entity(character, &bomb, &bomb_flag);
-                check_entity(character, &key, &key_flag);
-                check_entity(character, &trap, &trap_flag);
-                check_entity(character, &detrap, &detrap_flag);
+                // Draw animation of character
+                handle_character_movement(character, input, level,old_pos);
             }
         }
         break;
@@ -275,27 +256,64 @@ void handle_input(Character *character, int input, int level)
     default:
         break;
     }
+    // Check collision with items
+    check_entity(character, &star, &star_flag);
+    check_entity(character, &bomb, &bomb_flag);
+    check_entity(character, &key, &key_flag);
+    check_entity(character, &trap, &trap_flag);
+    check_entity(character, &detrap, &detrap_flag);
 }
 
 /*
+                handle_character_movement(character, input, level);
+                check_entity(character, &star, &star_flag);
+                check_entity(character, &bomb, &bomb_flag);
+                check_entity(character, &key, &key_flag);
+                check_entity(character, &trap, &trap_flag);
+                check_entity(character, &detrap, &detrap_flag);
  * Draw field of view
  */
-void make_fov(Position pos, int radius, int level)
-{
-    for (int y = 0; y < MAZE_HEIGHT; y++)
-        for (int x = 0; x < MAZE_WIDTH; x++)
-            if (x * x + y * y < radius * radius)
-            {
-                // Draw 4 quarters
-                if (pos.x + x < MAZE_WIDTH && pos.y + y < MAZE_HEIGHT)
-                    drawPixelARGB32(pos.x + x, pos.y + y, epd_bitmap_allArray[level][(pos.y + y) * MAZE_WIDTH + (pos.x + x)]);
-                if (pos.x - x > 0 && pos.y - y > 0)
-                    drawPixelARGB32(pos.x - x, pos.y - y, epd_bitmap_allArray[level][(pos.y - y) * MAZE_WIDTH + (pos.x - x)]);
-                if (pos.x + x < MAZE_HEIGHT && pos.y - y > 0)
-                    drawPixelARGB32(pos.x + x, pos.y - y, epd_bitmap_allArray[level][(pos.y - y) * MAZE_WIDTH + (pos.x + x)]);
-                if (pos.x - x > 0 && pos.y + y < MAZE_HEIGHT)
-                    drawPixelARGB32(pos.x - x, pos.y + y, epd_bitmap_allArray[level][(pos.y + y) * MAZE_WIDTH + (pos.x - x)]);
+// void make_fov(Position pos, int radius, int level)
+// {
+//     for (int y = 0; y < MAZE_HEIGHT; y++)
+//         for (int x = 0; x < MAZE_WIDTH; x++)
+//             if (x * x + y * y < radius * radius)
+//             {
+//                 // Draw 4 quarters
+//                 if (pos.x + x < MAZE_WIDTH && pos.y + y < MAZE_HEIGHT)
+//                     drawPixelARGB32(pos.x + x, pos.y + y, epd_bitmap_allArray[level][(pos.y + y) * MAZE_WIDTH + (pos.x + x)]);
+//                 if (pos.x - x > 0 && pos.y - y > 0)
+//                     drawPixelARGB32(pos.x - x, pos.y - y, epd_bitmap_allArray[level][(pos.y - y) * MAZE_WIDTH + (pos.x - x)]);
+//                 if (pos.x + x < MAZE_HEIGHT && pos.y - y > 0)
+//                     drawPixelARGB32(pos.x + x, pos.y - y, epd_bitmap_allArray[level][(pos.y - y) * MAZE_WIDTH + (pos.x + x)]);
+//                 if (pos.x - x > 0 && pos.y + y < MAZE_HEIGHT)
+//                     drawPixelARGB32(pos.x - x, pos.y + y, epd_bitmap_allArray[level][(pos.y + y) * MAZE_WIDTH + (pos.x - x)]);
+//             }
+// }
+void make_fov(Position pos, int radius, int level, Position old_pos) {
+    int radius_squared = radius * radius;
+    int old_x = old_pos.x, old_y = old_pos.y;
+    for (int y = -radius; y <= radius; y++) {
+        for (int x = -radius; x <= radius; x++) {
+            int dist_squared = x*x + y*y;
+            int world_x = pos.x + x;
+            int world_y = pos.y + y;
+            if (dist_squared <= radius_squared) {
+                // This pixel is inside the FOV
+                
+                // Check if this pixel was inside the old FOV
+                int dx = world_x - old_x;
+                int dy = world_y - old_y;
+                if (dx*dx + dy*dy > radius_squared) {
+                    // This pixel was outside the old FOV, so redraw it
+                    drawPixelARGB32(world_x, world_y, epd_bitmap_allArray[level][(world_y) * MAZE_WIDTH + (world_x)]);
+                }
+            } else {
+                // This pixel is outside the FOV, so make it black
+                drawPixelARGB32(world_x, world_y, 0x0);
             }
+        }
+    }
 }
 
 /*
@@ -686,7 +704,7 @@ void clear_character_frame(Position pos)
 /*
  * Show animation for characters when moving
  */
-void handle_character_movement(Character *character, int input, int level)
+void handle_character_movement(Character *character, int input, int level, Position old_pos)
 {
     Position temp_pos = character->box.pos;
     AnimationState animations[4] = {};
@@ -786,7 +804,7 @@ void handle_character_movement(Character *character, int input, int level)
         character->box.pos = temp_pos;
         character->currentFrame = animations[i];
 
-        make_fov(character->box.pos, character->FOV_radius, level);        // Draw updated FOV
+        make_fov(character->box.pos, character->FOV_radius, level, old_pos);        // Draw updated FOV
         draw_character_frame(character->box.pos, character->currentFrame); // Draw updated character frame
         wait_msec(DELAY_TIME);
     }
