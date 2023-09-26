@@ -29,6 +29,7 @@ Item detrap;
 // Initialize animation
 AnimationState guts_animation_state = GUTS_FRONT_IDLE;
 AnimationState griffith_animation_state = GRIFFITH_FRONT_IDLE;
+AnimationState currentFrame;
 
 void game(int *level)
 {
@@ -661,107 +662,78 @@ void clear_character_frame(Position pos)
 void handle_character_movement(Character *character, int input, int level)
 {
     Position temp_pos = character->box.pos;
-    AnimationState animations[4] = {};
 
     switch (input)
     {
     case 'w':
         if (character == &guts)
         {
-            animations[0] = GUTS_BACK_IDLE;
-            animations[1] = GUTS_BACK_WALK1;
-            animations[2] = GUTS_BACK_WALK2;
-            animations[3] = GUTS_BACK_IDLE;
+            currentFrame = GUTS_BACK_IDLE;
         }
         else if (character == &griffith)
         {
-            animations[0] = GRIFFITH_BACK_IDLE;
-            animations[1] = GRIFFITH_BACK_WALK1;
-            animations[2] = GRIFFITH_BACK_WALK2;
-            animations[3] = GRIFFITH_BACK_IDLE;
+            currentFrame = GRIFFITH_BACK_IDLE;
         }
         break;
     case 's':
         if (character == &guts)
         {
-            animations[0] = GUTS_FRONT_IDLE;
-            animations[1] = GUTS_FRONT_WALK1;
-            animations[2] = GUTS_FRONT_WALK2;
-            animations[3] = GUTS_FRONT_IDLE;
+            currentFrame = GUTS_FRONT_IDLE;
         }
         else if (character == &griffith)
         {
-            animations[0] = GRIFFITH_FRONT_IDLE;
-            animations[1] = GRIFFITH_FRONT_WALK1;
-            animations[2] = GRIFFITH_FRONT_WALK2;
-            animations[3] = GRIFFITH_FRONT_IDLE;
+            currentFrame = GRIFFITH_FRONT_IDLE;
         }
         break;
     case 'a':
         if (character == &guts)
         {
-            animations[0] = GUTS_LEFT_IDLE;
-            animations[1] = GUTS_LEFT_WALK1;
-            animations[2] = GUTS_LEFT_WALK2;
-            animations[3] = GUTS_LEFT_IDLE;
+            currentFrame = GUTS_LEFT_IDLE;
         }
         else if (character == &griffith)
         {
-            animations[0] = GRIFFITH_LEFT_IDLE;
-            animations[1] = GRIFFITH_LEFT_WALK1;
-            animations[2] = GRIFFITH_LEFT_WALK2;
-            animations[3] = GRIFFITH_LEFT_IDLE;
+            currentFrame = GRIFFITH_LEFT_IDLE;
         }
         break;
     case 'd':
         if (character == &guts)
         {
-            animations[0] = GUTS_RIGHT_IDLE;
-            animations[1] = GUTS_RIGHT_WALK1;
-            animations[2] = GUTS_RIGHT_WALK2;
-            animations[3] = GUTS_RIGHT_IDLE;
+            currentFrame = GUTS_RIGHT_IDLE;
         }
         else if (character == &griffith)
         {
-            animations[0] = GRIFFITH_RIGHT_IDLE;
-            animations[1] = GRIFFITH_RIGHT_WALK1;
-            animations[2] = GRIFFITH_RIGHT_WALK2;
-            animations[3] = GRIFFITH_RIGHT_IDLE;
+            currentFrame = GRIFFITH_RIGHT_IDLE;
         }
         break;
     default:
         return;
     }
 
-    for (int i = 0; i < 4; i++)
+    clear_fov(character->box.pos, character->FOV_radius); // Clear previous FOV before moving
+    clear_character_frame(temp_pos);                      // Clear previous frame
+
+    switch (input)
     {
-        clear_fov(character->box.pos, character->FOV_radius); // Clear previous FOV before moving
-        clear_character_frame(temp_pos);                      // Clear previous frame
-
-        switch (input)
-        {
-        case 'w':
-            temp_pos.y -= FRAME_CHANGE_INTERVAL;
-            break;
-        case 's':
-            temp_pos.y += FRAME_CHANGE_INTERVAL;
-            break;
-        case 'a':
-            temp_pos.x -= FRAME_CHANGE_INTERVAL;
-            break;
-        case 'd':
-            temp_pos.x += FRAME_CHANGE_INTERVAL;
-            break;
-        }
-
-        // Update entities' position
-        character->box.pos = temp_pos;
-        character->currentFrame = animations[i];
-
-        make_fov(character->box.pos, character->FOV_radius, level);        // Draw updated FOV
-        draw_character_frame(character->box.pos, character->currentFrame); // Draw updated character frame
-        wait_msec(DELAY_TIME);
+    case 'w':
+        temp_pos.y -= PLAYER_STEP;
+        break;
+    case 's':
+        temp_pos.y += PLAYER_STEP;
+        break;
+    case 'a':
+        temp_pos.x -= PLAYER_STEP;
+        break;
+    case 'd':
+        temp_pos.x += PLAYER_STEP;
+        break;
     }
+
+    // Update entities' position
+    character->box.pos = temp_pos;
+    character->currentFrame = currentFrame;
+
+    make_fov(character->box.pos, character->FOV_radius, level);        // Draw updated FOV
+    draw_character_frame(character->box.pos, character->currentFrame); // Draw updated character frame
 }
 
 /*
