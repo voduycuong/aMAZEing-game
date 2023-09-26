@@ -13,7 +13,7 @@ void render_frame(const uint32_t* frame_start) {
 }
 
 void play_video() {
-    for (int a = 0; a < 150; a++) {
+    for (int a = 0; a < 50; a++) {
         render_frame(rabbit_vid[a]);
         wait_msec(100000);
     }

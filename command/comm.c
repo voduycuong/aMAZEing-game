@@ -123,6 +123,7 @@ void display_slideshow ()
         // Exit the command when press <e>
         if (c =='e')
         {
+            drawRectARGB32(0,0,545*7,345*7,0x0,1);
             break;
         }
     }
@@ -174,6 +175,7 @@ void display_largeimg ()
         // exit
         else if (key == 'e') 
         {
+            drawRectARGB32(0,0,1024,768,0x0,1);
             break;
         }
 
