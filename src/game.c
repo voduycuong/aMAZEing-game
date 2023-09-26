@@ -7,8 +7,8 @@
 #define FRAME_CHANGE_INTERVAL 12
 #define DELAY_TIME 20000
 
-#define BLACK 0x00000000
-int path_color = 0x00FFFFFF; // Default path color
+#define BLACK 0x000000
+int path_color = 0xFFFFFF; // Default path color
 
 // Default items' flag
 int star_flag = 1;
@@ -83,7 +83,7 @@ void game(int *level)
         if (reach_exit_gate(guts.box.pos, end_pos)) // Guts reach exit gate and key is retrieved
         {
             clear_maze();
-            drawStringARGB32(200, 400, "You escaped the maze!", 0x00ffffff, 3);
+            drawStringARGB32(200, 400, "You escaped the maze!", 0xffffff, 3);
             wait_msec(1000000);
             if (*level < 5) // If not reach last level, increase level
             {
@@ -109,7 +109,7 @@ void game(int *level)
             // Draw exit gate
             if (key_flag && (guts.FOV_radius > distance(guts.box.pos.x, end_pos.x, guts.box.pos.y, end_pos.y) ||
                              griffith.FOV_radius > distance(griffith.box.pos.x, end_pos.x, griffith.box.pos.y, end_pos.y)))
-                drawRectARGB32(MAZE_WIDTH - 35, MAZE_HEIGHT / 2 - 31, MAZE_WIDTH - 10, MAZE_HEIGHT / 2 + 24, 0x00FF0000, 1);
+                drawRectARGB32(MAZE_WIDTH - 35, MAZE_HEIGHT / 2 - 31, MAZE_WIDTH - 10, MAZE_HEIGHT / 2 + 24, 0xFF0000, 1);
 
             if (detrap_flag == 0) // Check for detrap, if detrapped, deactivate trap
             {
@@ -120,7 +120,7 @@ void game(int *level)
             if (trap_flag == 0) // Check for trap, if trapped, reset level
             {
                 clear_maze();
-                drawStringARGB32(200, 400, "You wake up!", 0x00FFB84C, 3);
+                drawStringARGB32(200, 400, "You wake up!", 0xFFB84C, 3);
                 wait_msec(2000000);
                 reset_flag();
                 break;
@@ -408,7 +408,7 @@ void set_maze_entity_position(int level, int *path,
     {
     case 0:
         // level 1
-        *path = 0x00d2fee1;
+        *path = 0xd2fee1;
 
         start2->x = PLAYER_STEP * 3 - PLAYER_STEP / 2;
         start2->y = PLAYER_STEP * 18 - PLAYER_STEP / 2;
@@ -434,7 +434,7 @@ void set_maze_entity_position(int level, int *path,
 
     case 1:
         // Level 2
-        *path = 0x00fef2dc;
+        *path = 0xfef2dc;
 
         start2->x = PLAYER_STEP * 2 - PLAYER_STEP / 2;
         start2->y = PLAYER_STEP * 6 - PLAYER_STEP / 2;
@@ -460,7 +460,7 @@ void set_maze_entity_position(int level, int *path,
 
     case 2:
         // Level 3
-        *path = 0x00ffe4f9;
+        *path = 0xffe4f9;
 
         start2->x = PLAYER_STEP * 14 - PLAYER_STEP / 2;
         start2->y = PLAYER_STEP * 8 - PLAYER_STEP / 2;
@@ -486,7 +486,7 @@ void set_maze_entity_position(int level, int *path,
 
     case 3:
         // Level 4
-        *path = 0x00f1d7ff;
+        *path = 0xf1d7ff;
 
         start2->x = PLAYER_STEP * 8 - PLAYER_STEP / 2;
         start2->y = PLAYER_STEP * 6 - PLAYER_STEP / 2;
@@ -512,7 +512,7 @@ void set_maze_entity_position(int level, int *path,
 
     case 4:
         // Level 5
-        *path = 0x00d4faff;
+        *path = 0xd4faff;
 
         start2->x = PLAYER_STEP * 3 - PLAYER_STEP / 2;
         start2->y = PLAYER_STEP * 2 - PLAYER_STEP / 2;
@@ -826,19 +826,19 @@ void show_level_title(int level)
     switch (level)
     {
     case 0:
-        drawStringARGB32(200, 400, "Level 1", 0x00ffffff, 4);
+        drawStringARGB32(200, 400, "Level 1", 0xffffff, 4);
         break;
     case 1:
-        drawStringARGB32(200, 400, "Level 2", 0x00FFB84C, 4);
+        drawStringARGB32(200, 400, "Level 2", 0xFFB84C, 4);
         break;
     case 2:
-        drawStringARGB32(200, 400, "Level 3", 0x00F266AB, 4);
+        drawStringARGB32(200, 400, "Level 3", 0xF266AB, 4);
         break;
     case 3:
-        drawStringARGB32(200, 400, "Level 4", 0x00A459D1, 4);
+        drawStringARGB32(200, 400, "Level 4", 0xA459D1, 4);
         break;
     case 4:
-        drawStringARGB32(200, 400, "Level 5", 0x002CD3E1, 4);
+        drawStringARGB32(200, 400, "Level 5", 0x2CD3E1, 4);
         break;
     default:
         break;
