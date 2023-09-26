@@ -20,5 +20,6 @@ void cli();
 void clear_screen();
 void show_main_menu();
 void show_title();
+void draw_hd_dragon();
 
 #endif

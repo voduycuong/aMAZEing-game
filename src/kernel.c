@@ -16,7 +16,11 @@ void main()
 
 	while (1)
 	{
-		cli();
+		// cli();
+		clear_maze();
+		drawStringARGB32(220, 400, "Congrats, your dream came true!", 0x00ffffff, 2);
+		draw_hd_dragon();
+		uart_getc();
 	}
 }
 
@@ -69,8 +73,8 @@ void cli()
 				game(&level); // start with level 1
 
 			clear_maze();
-			drawStringARGB32(250, 400, "Congrats, your dream came true!", 0x00ffffff, 3);
-			// Insert HD-dragon picture
+			drawStringARGB32(250, 400, "Congrats, your dream came true!", 0x00ffffff, 2);
+			draw_hd_dragon();
 
 			wait_msec(2000000);
 			show_about();
@@ -127,4 +131,11 @@ void show_title()
 	for (int y = 0; y < MAZE_HEIGHT; y++)
 		for (int x = 0; x < MAZE_WIDTH; x++)
 			drawPixelARGB32(x, y, epd_bitmap_title_array[0][y * MAZE_WIDTH + x]);
+}
+
+void draw_hd_dragon()
+{
+	for (int y = 0; y < 108; y++)
+		for (int x = 0; x < 108; x++)
+			drawPixelARGB32(x + 400, y + 450, epd_bitmap_HD[0][y * 108 + x]);
 }
